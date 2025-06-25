@@ -1,41 +1,41 @@
 {
-  "template": "shipany-template-one",
+  "template": "lucylucy-ai-dating-assistant",
   "theme": "light",
   "header": {
     "brand": {
-      "title": "ShipAny",
+      "title": "lucylucy",
       "logo": {
         "src": "/logo.png",
-        "alt": "ShipAny"
+        "alt": "lucylucy"
       },
       "url": "/"
     },
     "nav": {
       "items": [
         {
-          "title": "功能特点",
+          "title": "功能特色",
           "url": "/#feature",
           "icon": "RiSparkling2Line"
         },
         {
-          "title": "定价",
+          "title": "价格方案",
           "url": "/pricing",
           "icon": "RiMoneyDollarCircleLine"
         },
         {
-          "title": "案例展示",
-          "url": "/showcase",
-          "icon": "RiApps2Line"
+          "title": "使用方法",
+          "url": "/#usage",
+          "icon": "RiLightbulbLine"
         }
       ]
     },
     "buttons": [
       {
-        "title": "获取 ShipAny",
-        "url": "https://shipany.ai",
-        "target": "_blank",
-        "variant": "link",
-        "icon": "RiArrowRightUpLine"
+        "title": "免费开始",
+        "url": "/#pricing",
+        "target": "_self",
+        "variant": "default",
+        "icon": "RiHeartLine"
       }
     ],
     "show_sign": true,
@@ -43,28 +43,28 @@
     "show_locale": true
   },
   "hero": {
-    "title": "几小时内快速构建 AI 创业项目，而不是几天",
-    "highlight_text": "快速构建",
-    "description": "ShipAny 是一个用于构建 AI SaaS 创业项目的 NextJS 模板。<br/>通过丰富的模板和组件快速启动。",
+    "title": "AI助手让交友变得简单",
+    "highlight_text": "lucylucy",
+    "description": "不再为写个人资料发愁，不再为开场白头疼。<br/>lucylucy AI 让你的交友之路更加顺畅和自信。",
     "announcement": {
-      "label": "2025",
-      "title": "🎉 新年快乐",
-      "url": "/#pricing"
+      "label": "最新",
+      "title": "🚀 支持多语言开场白生成",
+      "url": "/#feature"
     },
-    "tip": "🎁 2025年前五折优惠",
+    "tip": "💝 免费试用，按需付费",
     "buttons": [
       {
-        "title": "立即开始",
-        "icon": "RiFlashlightFill",
-        "url": "/#pricing",
+        "title": "立即体验",
+        "icon": "RiHeartLine",
+        "url": "/profile-analyzer",
         "target": "_self",
         "variant": "default"
       },
       {
-        "title": "加入 Discord",
-        "icon": "RiDiscordFill",
-        "url": "https://discord.gg/HQNnrzjZQS",
-        "target": "_blank",
+        "title": "查看演示",
+        "icon": "RiPlayCircleLine",
+        "url": "/#showcase",
+        "target": "_self",
         "variant": "outline"
       }
     ],
@@ -72,427 +72,441 @@
     "show_badge": false
   },
   "branding": {
-    "title": "ShipAny 建立在巨人的肩膀上",
+    "title": "受到全球交友应用用户信赖",
     "items": [
       {
-        "title": "Next.js",
+        "title": "Tinder",
         "image": {
-          "src": "/imgs/logos/nextjs.svg",
-          "alt": "Next.js"
+          "src": "/imgs/logos/tinder.svg",
+          "alt": "Tinder"
         }
       },
       {
-        "title": "React",
+        "title": "Bumble",
         "image": {
-          "src": "/imgs/logos/react.svg",
-          "alt": "React"
+          "src": "/imgs/logos/bumble.svg",
+          "alt": "Bumble"
         }
       },
       {
-        "title": "TailwindCSS",
+        "title": "Hinge",
         "image": {
-          "src": "/imgs/logos/tailwindcss.svg",
-          "alt": "TailwindCSS"
+          "src": "/imgs/logos/hinge.svg",
+          "alt": "Hinge"
         }
       },
       {
-        "title": "Shadcn/UI",
+        "title": "OkCupid",
         "image": {
-          "src": "/imgs/logos/shadcn.svg",
-          "alt": "Shadcn/UI"
+          "src": "/imgs/logos/okcupid.svg",
+          "alt": "OkCupid"
         }
       },
       {
-        "title": "Vercel",
+        "title": "Match",
         "image": {
-          "src": "/imgs/logos/vercel.svg",
-          "alt": "Vercel"
+          "src": "/imgs/logos/match.svg",
+          "alt": "Match"
         }
       }
     ]
   },
   "introduce": {
     "name": "introduce",
-    "title": "什么是 ShipAny",
-    "label": "介绍",
-    "description": "ShipAny 是一个用于构建 AI SaaS 创业项目的 NextJS 模板，内置多种模板和组件。",
+    "title": "为什么选择 lucylucy？",
+    "label": "关于我们",
+    "description": "我们深知网络交友的难处，所以创造了这款 AI 助手，帮你在数字交友世界中脱颖而出。",
     "image": {
-      "src": "/imgs/features/1.png"
+      "src": "/imgs/features/lucylucy-intro.svg"
     },
     "items": [
       {
-        "title": "即用型模板",
-        "description": "从数十个生产就绪的 AI SaaS 模板中选择，快速启动您的项目。",
-        "icon": "RiNextjsFill"
+        "title": "AI 个人资料分析",
+        "description": "通过智能评分系统即时获得交友资料反馈，获取个性化改进建议。",
+        "icon": "RiUserStarLine"
       },
       {
-        "title": "基础设施配置",
-        "description": "立即获取内置最佳实践的可扩展基础设施。",
-        "icon": "RiDatabase2Line"
+        "title": "智能开场白生成",
+        "description": "基于对方资料生成个性化开场白，告别尴尬的第一条消息。",
+        "icon": "RiChatHeartLine"
       },
       {
-        "title": "快速部署",
-        "description": "在几小时内将您的 AI SaaS 应用部署到生产环境，而不是几天。",
-        "icon": "RiCloudyFill"
+        "title": "多语言支持",
+        "description": "支持多语言开场白生成和资料优化，与全世界的人建立联系。",
+        "icon": "RiTranslate2"
       }
     ]
   },
   "benefit": {
     "name": "benefit",
-    "title": "为什么选择 ShipAny",
-    "label": "优势",
-    "description": "获取启动 AI 创业所需的一切 - 从即用型模板到技术支持。",
+    "title": "改变你的交友游戏",
+    "label": "核心优势",
+    "description": "停止无意义的滑动，开始有意义的连接，借助AI辅助交友的力量。",
     "items": [
       {
-        "title": "完整框架",
-        "description": "基于 Next.js 构建，集成身份验证、支付和 AI 功能 - 一切开箱即用。",
-        "icon": "RiNextjsFill",
+        "title": "魅力评分分析器",
+        "description": "上传你的资料页截图，获得详细的吸引力评分（1-10分），以及针对照片、个人简介和标签的具体改进建议。",
+        "icon": "RiStarLine",
         "image": {
-          "src": "/imgs/features/2.png"
+          "src": "/imgs/features/profile-analyzer.svg"
         }
       },
       {
-        "title": "丰富的模板库",
-        "description": "选择各种 AI SaaS 模板来启动您的项目 - 聊天机器人、图像生成等。",
-        "icon": "RiClapperboardAiLine",
+        "title": "AI 搭讪生成器",
+        "description": "上传对方的资料，获得3-5条不同风格的个性化开场白——幽默、共情或真诚。支持多种语言。",
+        "icon": "RiChatSmile3Line",
         "image": {
-          "src": "/imgs/features/3.png"
+          "src": "/imgs/features/conversation-starter.svg"
         }
       },
       {
-        "title": "技术指导",
-        "description": "获得专门支持并加入我们的开发者社区，确保您成功启动。",
-        "icon": "RiCodeFill",
+        "title": "智能关键词定位",
+        "description": "我们的AI分析兴趣爱好，创造真正能与你的匹配对象产生共鸣的开场白。",
+        "icon": "RiTargetLine",
         "image": {
-          "src": "/imgs/features/4.png"
+          "src": "/imgs/features/keyword-targeting.svg"
         }
       }
     ]
   },
   "usage": {
     "name": "usage",
-    "title": "如何使用 ShipAny 启动项目",
-    "description": "通过三个简单步骤启动您的 AI SaaS 创业项目：",
+    "title": "lucylucy 如何工作",
+    "description": "只需三个简单步骤，获得更好的匹配：",
     "image": {
-      "src": "/imgs/features/1.png"
+      "src": "/imgs/features/how-it-works.svg"
     },
     "image_position": "left",
     "text_align": "center",
     "items": [
       {
-        "title": "获取 ShipAny",
-        "description": "一次性付款购买 ShipAny。查收邮件获取代码和文档。",
+        "title": "上传资料截图",
+        "description": "拍摄你的交友资料或匹配对象资料的截图，上传到我们的安全平台。",
         "image": {
-          "src": "/imgs/features/5.png"
+          "src": "/imgs/features/upload-step.svg"
         }
       },
       {
-        "title": "开始您的项目",
-        "description": "阅读文档并克隆 ShipAny 代码。开始构建您的 AI SaaS 创业项目。",
+        "title": "AI 分析魔法",
+        "description": "我们的 GPT-4 驱动的 AI 分析资料内容、照片和个人简介，理解个性和兴趣。",
         "image": {
-          "src": "/imgs/features/6.png"
+          "src": "/imgs/features/ai-analysis.svg"
         }
       },
       {
-        "title": "定制您的项目",
-        "description": "使用您的数据和内容修改模板。满足特定的 AI 功能需求。",
+        "title": "获得个性化结果",
+        "description": "收到你的吸引力评分和改进建议，或获得为你的匹配对象量身定制的多个开场白。",
         "image": {
-          "src": "/imgs/features/7.png"
-        }
-      },
-      {
-        "title": "部署到生产环境",
-        "description": "通过几个步骤将项目部署到生产环境，立即开始服务客户。",
-        "image": {
-          "src": "/imgs/features/8.png"
+          "src": "/imgs/features/results.svg"
         }
       }
     ]
   },
   "feature": {
     "name": "feature",
-    "title": "ShipAny 核心功能",
-    "description": "快速高效启动 AI SaaS 创业所需的一切。",
+    "title": "核心功能",
+    "description": "网络交友成功所需的一切功能",
     "items": [
       {
-        "title": "Next.js 模板",
-        "description": "生产就绪的 Next.js 模板，支持 SEO 友好结构和国际化。",
-        "icon": "RiNextjsFill"
+        "title": "资料评分与优化",
+        "description": "获得详细的1-10分吸引力评分，以及改进照片、个人简介和整体资料吸引力的具体建议。",
+        "icon": "RiStarLine"
       },
       {
-        "title": "身份验证和支付",
-        "description": "集成 Google OAuth、一键登录和 Stripe 支付处理。",
-        "icon": "RiKey2Fill"
+        "title": "多风格开场白",
+        "description": "基于对方资料生成不同语调的开场白——有趣、深思、调情或休闲风格。",
+        "icon": "RiChatQuoteLine"
       },
       {
-        "title": "数据基础设施",
-        "description": "内置 Supabase 集成，提供可靠和可扩展的数据存储。",
-        "icon": "RiDatabase2Line"
+        "title": "基于兴趣的匹配",
+        "description": "AI 识别共同兴趣和爱好，创造更有意义的对话机会。",
+        "icon": "RiHeartPulseLine"
       },
       {
-        "title": "一键部署",
-        "description": "无缝部署到 Vercel 或 Cloudflare，自动化设置。",
-        "icon": "RiCloudy2Fill"
+        "title": "多语言支持",
+        "description": "获得中文、英语、西班牙语、法语等多种语言的开场白，实现全球连接。",
+        "icon": "RiGlobalLine"
       },
       {
-        "title": "业务分析",
-        "description": "集成 Google Analytics 和 Search Console 追踪增长。",
-        "icon": "RiBarChart2Line"
+        "title": "截图智能识别",
+        "description": "先进的图像识别技术从任何交友应用截图中提取文本和视觉元素。",
+        "icon": "RiCameraLine"
       },
       {
-        "title": "AI 就绪基础设施",
-        "description": "预配置 AI 集成，内置积分系统和 API 销售。",
-        "icon": "RiRobot2Line"
+        "title": "隐私优先",
+        "description": "你的上传内容经过安全处理，分析后立即删除。我们绝不存储个人信息。",
+        "icon": "RiShieldCheckLine"
+      }
+    ]
+  },
+  "showcase": {
+    "name": "showcase",
+    "title": "成功案例",
+    "description": "看看 lucylucy 如何帮助人们更好地建立连接",
+    "items": [
+      {
+        "title": "资料大变身",
+        "description": "Sarah 通过 lucylucy 的建议优化资料后，匹配率提高了300%。",
+        "image": {
+          "src": "/imgs/showcase/profile-before-after.svg"
+        },
+        "url": "#"
+      },
+      {
+        "title": "完美开场白",
+        "description": "Mark 从被忽视到有意义的对话，全靠我们AI生成的开场白。",
+        "image": {
+          "src": "/imgs/showcase/conversation-examples.svg"
+        },
+        "url": "#"
+      },
+      {
+        "title": "全球连接",
+        "description": "Lisa 使用我们的多语言功能，成功与5个不同国家的匹配对象建立了联系。",
+        "image": {
+          "src": "/imgs/showcase/global-matches.svg"
+        },
+        "url": "#"
       }
     ]
   },
   "stats": {
-    "name": "stats",
-    "label": "统计",
-    "title": "用户喜爱 ShipAny",
-    "description": "因为它易于使用且快速发布。",
-    "icon": "FaRegHeart",
+    "title": "lucylucy 数据",
+    "description": "加入数千名成功交友者的行列",
     "items": [
       {
-        "title": "信任",
-        "label": "99+",
-        "description": "客户"
+        "title": "5万+",
+        "description": "已分析资料",
+        "icon": "RiUserLine"
       },
       {
-        "title": "内置",
-        "label": "20+",
-        "description": "组件"
+        "title": "85%",
+        "description": "匹配回复率",
+        "icon": "RiHeartLine"
       },
       {
-        "title": "快速发布",
-        "label": "5",
-        "description": "分钟"
+        "title": "20万+",
+        "description": "生成开场白",
+        "icon": "RiChatLine"
+      },
+      {
+        "title": "12种",
+        "description": "支持语言",
+        "icon": "RiTranslate"
+      }
+    ]
+  },
+  "pricing": {
+    "title": "选择你的方案",
+    "description": "免费开始，当你准备认真交友时再升级",
+    "items": [
+      {
+        "name": "免费版",
+        "price": "¥0",
+        "description": "试用 lucylucy 的完美选择",
+        "features": [
+          "每月3次资料分析",
+          "每月5条开场白",
+          "基础改进建议",
+          "中英文语言支持"
+        ],
+        "button": {
+          "title": "免费开始",
+          "url": "/auth/signup",
+          "variant": "outline"
+        },
+        "popular": false
+      },
+      {
+        "name": "专业版",
+        "price": "¥68",
+        "description": "适合认真交友想要结果的用户",
+        "features": [
+          "无限资料分析",
+          "无限开场白生成",
+          "高级AI建议",
+          "支持全部12种语言",
+          "优先客户支持",
+          "资料优化模板"
+        ],
+        "button": {
+          "title": "升级到专业版",
+          "url": "/pricing",
+          "variant": "default"
+        },
+        "popular": true
+      },
+      {
+        "name": "高级版",
+        "price": "¥138",
+        "description": "适合交友教练和重度用户",
+        "features": [
+          "专业版所有功能",
+          "批量资料分析",
+          "定制AI训练",
+          "白标解决方案",
+          "API接口访问",
+          "专属客户经理"
+        ],
+        "button": {
+          "title": "联系销售",
+          "url": "/contact",
+          "variant": "outline"
+        },
+        "popular": false
       }
     ]
   },
   "testimonial": {
-    "name": "testimonial",
-    "label": "用户评价",
-    "title": "用户如何评价 ShipAny",
-    "description": "听听使用 ShipAny 启动 AI 创业项目的开发者和创始人怎么说。",
-    "icon": "GoThumbsup",
+    "title": "用户评价",
+    "description": "真实用户的真实故事",
     "items": [
       {
-        "title": "陈大卫",
-        "label": "AIWallpaper.shop 创始人",
-        "description": "ShipAny 为我们节省了数月的开发时间。我们仅用 2 天就启动了 AI 壁纸业务，一周内就获得了第一个付费客户！",
-        "image": {
-          "src": "/imgs/users/1.png"
-        }
+        "name": "Sarah M.",
+        "role": "市场经理",
+        "avatar": "/imgs/avatars/sarah.jpg",
+        "content": "lucylucy 彻底改变了我的交友游戏！我的资料评分从6.2提高到8.7，现在我得到的都是高质量匹配。开场白非常自然，没人怀疑是AI生成的。",
+        "rating": 5
       },
       {
-        "title": "金瑞秋",
-        "label": "HeyBeauty.ai 技术总监",
-        "description": "预构建的 AI 基础设施是一个游戏规则改变者。我们无需担心架构 - 只需专注于 AI 美容技术并快速上线。",
-        "image": {
-          "src": "/imgs/users/2.png"
-        }
+        "name": "David L.",
+        "role": "软件工程师",
+        "avatar": "/imgs/avatars/david.jpg",
+        "content": "作为一个内向的人，我总是在开场白上有困难。lucylucy 给了我与匹配对象联系的信心。这个月我已经有了3次成功的约会！",
+        "rating": 5
       },
       {
-        "title": "马库斯",
-        "label": "独立开发者",
-        "description": "作为独立开发者，ShipAny 给了我所需的一切 - 身份验证、支付、AI 集成和漂亮的 UI。一个周末就启动了我的 SaaS！",
-        "image": {
-          "src": "/imgs/users/3.png"
-        }
-      },
-      {
-        "title": "索菲亚",
-        "label": "Melodisco CEO",
-        "description": "这些模板可直接用于生产且高度可定制。我们用几小时而不是几个月就建立了 AI 音乐平台。上市时间令人难以置信！",
-        "image": {
-          "src": "/imgs/users/4.png"
-        }
-      },
-      {
-        "title": "詹姆斯",
-        "label": "GPTs.works 技术主管",
-        "description": "ShipAny 的基础设施非常稳固。我们从 0 扩展到 1 万用户都没碰后端。这是我们 AI 创业最好的投资。",
-        "image": {
-          "src": "/imgs/users/5.png"
-        }
-      },
-      {
-        "title": "张安娜",
-        "label": "创业者",
-        "description": "从想法到上线只用了 3 天！ShipAny 的模板和部署工具让我们能够以令人难以置信的速度测试 AI 业务概念。",
-        "image": {
-          "src": "/imgs/users/6.png"
-        }
+        "name": "Maria G.",
+        "role": "自由设计师",
+        "avatar": "/imgs/avatars/maria.jpg",
+        "content": "多语言功能太棒了！我现在可以用西班牙语、法语和英语与匹配对象聊天。lucylucy 帮我找到了跨国界的爱情。💕",
+        "rating": 5
       }
     ]
   },
   "faq": {
-    "name": "faq",
-    "label": "常见问题",
-    "title": "关于 ShipAny 的常见问题",
-    "description": "还有其他问题？通过 Discord 或电子邮件联系我们。",
+    "title": "常见问题",
+    "description": "关于 lucylucy 你需要知道的一切",
     "items": [
       {
-        "title": "ShipAny 究竟是什么，它是如何工作的？",
-        "description": "ShipAny 是一个专门为构建 AI SaaS 创业项目设计的综合性 NextJS 模板。它提供即用型模板、基础设施设置和部署工具，帮助您在几小时内而不是几天内启动 AI 业务。"
+        "question": "资料分析是如何工作的？",
+        "answer": "只需上传你的交友资料截图，我们的AI会分析你的照片、个人简介和整体呈现，给出1-10分的吸引力评分和具体改进建议。"
       },
       {
-        "title": "使用 ShipAny 需要高级技术技能吗？",
-        "description": "虽然基本的编程知识会有帮助，但 ShipAny 设计得非常开发者友好。我们的模板和文档使您即使不是 AI 或云基础设施专家也能轻松入门。"
+        "question": "开场白真的有效吗？",
+        "answer": "是的！我们的AI基于对方资料中显示的具体兴趣和个性生成个性化开场白。我们的用户反馈回复率高达85%，远超普通消息。"
       },
       {
-        "title": "我可以用 ShipAny 构建什么类型的 AI SaaS？",
-        "description": "ShipAny 支持广泛的 AI 应用，从内容生成到数据分析工具。我们的模板涵盖流行用例，如 AI 聊天机器人、内容生成器、图像处理应用等。"
+        "question": "支持哪些语言？",
+        "answer": "我们目前支持12种语言，包括中文、英语、西班牙语、法语、德语、意大利语、葡萄牙语、日语、韩语、俄语、印地语和阿拉伯语。"
       },
       {
-        "title": "使用 ShipAny 通常需要多长时间才能启动？",
-        "description": "使用 ShipAny，您可以在几小时内完成工作原型，并在几小时内完成生产就绪的应用。我们的一键部署和预配置基础设施显著缩短了传统的数月开发周期。"
+        "question": "我的数据安全和隐私如何保障？",
+        "answer": "绝对安全。我们安全处理你的截图，分析后立即删除。我们绝不存储个人信息或与第三方共享数据。"
       },
       {
-        "title": "ShipAny 的基础设施包括什么？",
-        "description": "ShipAny 提供完整的基础设施栈，包括身份验证、数据库设置、API 集成、支付处理和可扩展的云部署。一切都按照行业最佳实践预先配置。"
+        "question": "可以用于任何交友应用吗？",
+        "answer": "是的！lucylucy 适用于任何交友应用的截图——Tinder、Bumble、Hinge、OkCupid、Match等等。只需上传截图，我们会处理其余工作。"
       },
       {
-        "title": "我可以自定义模板以匹配我的品牌吗？",
-        "description": "当然可以！所有 ShipAny 模板都完全可定制。您可以修改设计、功能和功能性以匹配您的品牌标识和特定业务需求，同时保持强大的底层基础设施。"
+        "question": "AI分析的准确性如何？",
+        "answer": "我们的AI基于数千个成功交友资料和对话进行训练。它使用GPT-4技术结合交友心理学研究，提供高度准确和有效的建议。"
       }
     ]
   },
   "cta": {
-    "name": "cta",
-    "title": "启动您的第一个 AI SaaS 创业项目",
-    "description": "从这里开始，使用 ShipAny 启动。",
-    "buttons": [
-      {
-        "title": "获取 ShipAny",
-        "url": "https://shipany.ai",
-        "target": "_blank",
-        "icon": "GoArrowUpRight"
-      },
-      {
-        "title": "阅读文档",
-        "url": "https://docs.shipany.ai",
-        "target": "_blank",
-        "variant": "outline"
-      }
-    ]
+    "title": "准备改变你的交友生活了吗？",
+    "description": "加入数千名通过 lucylucy AI 提升交友能力的成功用户。",
+    "button": {
+      "title": "今天开始你的旅程",
+      "url": "/#pricing",
+      "variant": "default",
+      "icon": "RiHeartLine"
+    }
   },
   "footer": {
-    "name": "footer",
     "brand": {
-      "title": "ShipAny",
-      "description": "ShipAny 是一个用于构建 AI SaaS 创业项目的 NextJS 模板。通过丰富的模板和组件快速启动。",
+      "title": "lucylucy",
+      "description": "AI驱动的交友助手，帮你创建更好的资料，开始有意义的对话。",
       "logo": {
         "src": "/logo.png",
-        "alt": "ShipAny"
+        "alt": "lucylucy"
+      }
+    },
+    "links": [
+      {
+        "title": "产品",
+        "items": [
+          {
+            "title": "功能特色",
+            "url": "/#feature"
+          },
+          {
+            "title": "价格方案",
+            "url": "/pricing"
+          },
+          {
+            "title": "使用方法",
+            "url": "/#usage"
+          }
+        ]
       },
-      "url": "/"
-    },
-    "copyright": "© 2025 • ShipAny 保留所有权利。",
-    "nav": {
-      "items": [
-        {
-          "title": "关于",
-          "children": [
-            {
-              "title": "功能特点",
-              "url": "/#feature",
-              "target": "_self"
-            },
-            {
-              "title": "案例展示",
-              "url": "/#showcase",
-              "target": "_self"
-            },
-            {
-              "title": "定价",
-              "url": "/#pricing",
-              "target": "_self"
-            }
-          ]
-        },
-        {
-          "title": "资源",
-          "children": [
-            {
-              "title": "文档",
-              "url": "https://docs.shipany.ai",
-              "target": "_blank"
-            },
-            {
-              "title": "组件",
-              "url": "https://shipany.ai/components",
-              "target": "_blank"
-            },
-            {
-              "title": "模板",
-              "url": "https://shipany.ai/templates",
-              "target": "_blank"
-            }
-          ]
-        },
-        {
-          "title": "友情链接",
-          "children": [
-            {
-              "title": "ThinkAny",
-              "url": "https://thinkany.ai",
-              "target": "_blank"
-            },
-            {
-              "title": "HeyBeauty",
-              "url": "https://heybeauty.ai",
-              "target": "_blank"
-            },
-            {
-              "title": "Pagen",
-              "url": "https://pagen.so",
-              "target": "_blank"
-            }
-          ]
-        }
-      ]
-    },
-    "social": {
-      "items": [
-        {
-          "title": "X",
-          "icon": "RiTwitterXFill",
-          "url": "https://x.com/shipanyai",
-          "target": "_blank"
-        },
-        {
-          "title": "Github",
-          "icon": "RiGithubFill",
-          "url": "https://github.com/shipanyai",
-          "target": "_blank"
-        },
-        {
-          "title": "Discord",
-          "icon": "RiDiscordFill",
-          "url": "https://discord.gg/HQNnrzjZQS",
-          "target": "_blank"
-        },
-        {
-          "title": "邮箱",
-          "icon": "RiMailLine",
-          "url": "mailto:support@shipany.ai",
-          "target": "_self"
-        }
-      ]
-    },
-    "agreement": {
-      "items": [
-        {
-          "title": "隐私政策",
-          "url": "/privacy-policy"
-        },
-        {
-          "title": "服务条款",
-          "url": "/terms-of-service"
-        }
-      ]
-    }
+      {
+        "title": "支持",
+        "items": [
+          {
+            "title": "帮助中心",
+            "url": "/help"
+          },
+          {
+            "title": "联系我们",
+            "url": "/contact"
+          },
+          {
+            "title": "隐私政策",
+            "url": "/privacy"
+          },
+          {
+            "title": "服务条款",
+            "url": "/terms"
+          }
+        ]
+      },
+      {
+        "title": "社区",
+        "items": [
+          {
+            "title": "成功案例",
+            "url": "/#showcase"
+          },
+          {
+            "title": "博客",
+            "url": "/blog"
+          },
+          {
+            "title": "交友秘籍",
+            "url": "/tips"
+          }
+        ]
+      }
+    ],
+    "social": [
+      {
+        "title": "微博",
+        "url": "https://weibo.com/lucylucyai",
+        "icon": "RiWeiboFill"
+      },
+      {
+        "title": "小红书",
+        "url": "https://xiaohongshu.com/lucylucyai",
+        "icon": "RiHeartLine"
+      },
+      {
+        "title": "抖音",
+        "url": "https://douyin.com/lucylucyai",
+        "icon": "RiTiktokFill"
+      }
+    ],
+    "copyright": "© 2025 lucylucy. 保留所有权利。"
   }
 }

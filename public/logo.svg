@@ -1,0 +1,18 @@
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="60" rx="8" fill="#F9FAFB"/>
+  
+  <!-- Logo图标 -->
+  <circle cx="30" cy="30" r="18" fill="#DDD6FE"/>
+  <circle cx="30" cy="30" r="12" fill="#C4B5FD"/>
+  <circle cx="30" cy="30" r="6" fill="#A855F7"/>
+  
+  <!-- 品牌文字 -->
+  <text x="60" y="26" font-family="Inter, sans-serif" font-size="16" font-weight="bold" fill="#A855F7">lucy</text>
+  <text x="100" y="26" font-family="Inter, sans-serif" font-size="16" font-weight="bold" fill="#C4B5FD">lucy</text>
+  <text x="60" y="42" font-family="Inter, sans-serif" font-size="10" fill="#6B7280">AI Dating Assistant</text>
+  
+  <!-- 装饰性心形 -->
+  <circle cx="170" cy="20" r="3" fill="#F472B6"/>
+  <circle cx="176" cy="20" r="3" fill="#F472B6"/>
+  <path d="M167 23 L173 28 L179 23" fill="#F472B6"/>
+</svg> 

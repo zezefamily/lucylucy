@@ -1,0 +1,31 @@
+<svg width="600" height="400" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="400" rx="12" fill="#F9FAFB"/>
+  <rect x="50" y="50" width="500" height="300" rx="8" fill="#F3F4F6"/>
+  
+  <!-- 步骤1 -->
+  <circle cx="150" cy="150" r="30" fill="#DDD6FE"/>
+  <text x="150" y="156" text-anchor="middle" fill="#A855F7" font-size="16" font-weight="bold">1</text>
+  <rect x="120" y="200" width="60" height="4" rx="2" fill="#D1D5DB"/>
+  <rect x="130" y="210" width="40" height="3" rx="1.5" fill="#E5E7EB"/>
+  
+  <!-- 箭头1 -->
+  <polygon points="200,150 220,145 220,155" fill="#C4B5FD"/>
+  
+  <!-- 步骤2 -->
+  <circle cx="300" cy="150" r="30" fill="#DDD6FE"/>
+  <text x="300" y="156" text-anchor="middle" fill="#A855F7" font-size="16" font-weight="bold">2</text>
+  <rect x="270" y="200" width="60" height="4" rx="2" fill="#D1D5DB"/>
+  <rect x="280" y="210" width="40" height="3" rx="1.5" fill="#E5E7EB"/>
+  
+  <!-- 箭头2 -->
+  <polygon points="350,150 370,145 370,155" fill="#C4B5FD"/>
+  
+  <!-- 步骤3 -->
+  <circle cx="450" cy="150" r="30" fill="#DDD6FE"/>
+  <text x="450" y="156" text-anchor="middle" fill="#A855F7" font-size="16" font-weight="bold">3</text>
+  <rect x="420" y="200" width="60" height="4" rx="2" fill="#D1D5DB"/>
+  <rect x="430" y="210" width="40" height="3" rx="1.5" fill="#E5E7EB"/>
+  
+  <!-- 装饰线条 -->
+  <rect x="100" y="300" width="400" height="2" rx="1" fill="#E5E7EB"/>
+</svg> 

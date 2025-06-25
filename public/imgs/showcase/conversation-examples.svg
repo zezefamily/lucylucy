@@ -1,0 +1,32 @@
+<svg width="600" height="400" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="400" rx="12" fill="#F9FAFB"/>
+  <rect x="50" y="50" width="500" height="300" rx="8" fill="#F3F4F6"/>
+  
+  <!-- 手机界面 -->
+  <rect x="200" y="80" width="200" height="240" rx="20" fill="#E5E7EB"/>
+  <circle cx="300" cy="100" r="4" fill="#D1D5DB"/>
+  
+  <!-- 对话气泡 -->
+  <rect x="220" y="130" width="140" height="25" rx="12" fill="#DDD6FE"/>
+  <rect x="230" y="138" width="120" height="3" rx="1.5" fill="#A855F7"/>
+  <rect x="230" y="144" width="80" height="3" rx="1.5" fill="#A855F7"/>
+  
+  <rect x="240" y="170" width="130" height="25" rx="12" fill="#DBEAFE"/>
+  <rect x="250" y="178" width="110" height="3" rx="1.5" fill="#3B82F6"/>
+  <rect x="250" y="184" width="70" height="3" rx="1.5" fill="#3B82F6"/>
+  
+  <rect x="230" y="210" width="150" height="25" rx="12" fill="#FEF3C7"/>
+  <rect x="240" y="218" width="130" height="3" rx="1.5" fill="#F59E0B"/>
+  <rect x="240" y="224" width="90" height="3" rx="1.5" fill="#F59E0B"/>
+  
+  <!-- 成功指示器 -->
+  <circle cx="450" cy="180" r="20" fill="#10B981"/>
+  <path d="M443 180 L448 185 L457 173" stroke="white" stroke-width="2" fill="none"/>
+  
+  <!-- 统计数据 -->
+  <rect x="100" y="300" width="50" height="6" rx="3" fill="#10B981"/>
+  <text x="125" y="320" text-anchor="middle" fill="#10B981" font-size="10">85%</text>
+  
+  <rect x="200" y="300" width="60" height="6" rx="3" fill="#3B82F6"/>
+  <text x="230" y="320" text-anchor="middle" fill="#3B82F6" font-size="10">回复率</text>
+</svg> 

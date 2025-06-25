@@ -1,12 +1,12 @@
 {
-  "template": "shipany-template-one",
+  "template": "lucylucy-ai-dating-assistant",
   "theme": "light",
   "header": {
     "brand": {
-      "title": "ShipAny",
+      "title": "lucylucy",
       "logo": {
         "src": "/logo.png",
-        "alt": "ShipAny"
+        "alt": "lucylucy"
       },
       "url": "/"
     },
@@ -23,19 +23,19 @@
           "icon": "RiMoneyDollarCircleLine"
         },
         {
-          "title": "Showcase",
-          "url": "/showcase",
-          "icon": "RiApps2Line"
+          "title": "How it Works",
+          "url": "/#usage",
+          "icon": "RiLightbulbLine"
         }
       ]
     },
     "buttons": [
       {
-        "title": "Get ShipAny",
-        "url": "https://shipany.ai",
-        "target": "_blank",
-        "variant": "link",
-        "icon": "RiArrowRightUpLine"
+        "title": "Get Started Free",
+        "url": "/#pricing",
+        "target": "_self",
+        "variant": "default",
+        "icon": "RiHeartLine"
       }
     ],
     "show_sign": true,
@@ -43,28 +43,28 @@
     "show_locale": true
   },
   "hero": {
-    "title": "Ship Any AI Startups in hours, not days",
-    "highlight_text": "Ship Any",
-    "description": "ShipAny is a NextJS boilerplate for building AI SaaS startups.<br/>Ship Fast with a variety of templates and components.",
+    "title": "AI助手让交友变得简单",
+    "highlight_text": "lucylucy",
+    "description": "不再为写个人资料发愁，不再为开场白头疼。<br/>lucylucy AI 让你的交友之路更加顺畅和自信。",
     "announcement": {
-      "label": "2025",
-      "title": "🎉 Happy New Year",
-      "url": "/#pricing"
+      "label": "New",
+      "title": "🚀 支持多语言开场白生成",
+      "url": "/#feature"
     },
-    "tip": "🎁 50% off before 2025",
+    "tip": "💝 Free to try, pay as you grow",
     "buttons": [
       {
-        "title": "Get Started",
-        "icon": "RiFlashlightFill",
-        "url": "/#pricing",
+        "title": "立即体验",
+        "icon": "RiHeartLine",
+        "url": "/profile-analyzer",
         "target": "_self",
         "variant": "default"
       },
       {
-        "title": "Join Discord",
-        "icon": "RiDiscordFill",
-        "url": "https://discord.gg/HQNnrzjZQS",
-        "target": "_blank",
+        "title": "查看演示",
+        "icon": "RiPlayCircleLine",
+        "url": "/#showcase",
+        "target": "_self",
         "variant": "outline"
       }
     ],
@@ -72,427 +72,441 @@
     "show_badge": false
   },
   "branding": {
-    "title": "ShipAny is built on the shoulders of giants",
+    "title": "Trusted by dating app users worldwide",
     "items": [
       {
-        "title": "Next.js",
+        "title": "Tinder",
         "image": {
-          "src": "/imgs/logos/nextjs.svg",
-          "alt": "Next.js"
+          "src": "/imgs/logos/tinder.svg",
+          "alt": "Tinder"
         }
       },
       {
-        "title": "React",
+        "title": "Bumble",
         "image": {
-          "src": "/imgs/logos/react.svg",
-          "alt": "React"
+          "src": "/imgs/logos/bumble.svg",
+          "alt": "Bumble"
         }
       },
       {
-        "title": "TailwindCSS",
+        "title": "Hinge",
         "image": {
-          "src": "/imgs/logos/tailwindcss.svg",
-          "alt": "TailwindCSS"
+          "src": "/imgs/logos/hinge.svg",
+          "alt": "Hinge"
         }
       },
       {
-        "title": "Shadcn/UI",
+        "title": "OkCupid",
         "image": {
-          "src": "/imgs/logos/shadcn.svg",
-          "alt": "Shadcn/UI"
+          "src": "/imgs/logos/okcupid.svg",
+          "alt": "OkCupid"
         }
       },
       {
-        "title": "Vercel",
+        "title": "Match",
         "image": {
-          "src": "/imgs/logos/vercel.svg",
-          "alt": "Vercel"
+          "src": "/imgs/logos/match.svg",
+          "alt": "Match"
         }
       }
     ]
   },
   "introduce": {
     "name": "introduce",
-    "title": "What is ShipAny",
-    "label": "Introduce",
-    "description": "ShipAny is a NextJS boilerplate for building AI SaaS startups. Built in a variety of templates and components.",
+    "title": "Why lucylucy?",
+    "label": "About Us",
+    "description": "We understand the struggle of online dating. That's why we created an AI assistant to help you shine in the digital dating world.",
     "image": {
-      "src": "/imgs/features/1.png"
+      "src": "/imgs/features/lucylucy-intro.svg"
     },
     "items": [
       {
-        "title": "Ready-to-use Templates",
-        "description": "Choose from dozens of production-ready AI SaaS templates to quickly start your project.",
-        "icon": "RiNextjsFill"
+        "title": "AI-Powered Profile Analysis",
+        "description": "Get instant feedback on your dating profile with our smart scoring system and personalized improvement suggestions.",
+        "icon": "RiUserStarLine"
       },
       {
-        "title": "Infrastructure Setup",
-        "description": "Get instant access to scalable infrastructure with best practices built-in.",
-        "icon": "RiDatabase2Line"
+        "title": "Smart Conversation Starters",
+        "description": "Generate personalized opening lines based on their profile - no more awkward first messages.",
+        "icon": "RiChatHeartLine"
       },
       {
-        "title": "Quick Deployment",
-        "description": "Deploy your AI SaaS application to production in hours, not days.",
-        "icon": "RiCloudyFill"
+        "title": "Multilingual Support",
+        "description": "Connect with people worldwide with our multi-language conversation starters and profile optimization.",
+        "icon": "RiTranslate2"
       }
     ]
   },
   "benefit": {
     "name": "benefit",
-    "title": "Why Choose ShipAny",
+    "title": "Transform Your Dating Game",
     "label": "Benefits",
-    "description": "Get everything you need to launch your AI startup - from ready-to-use templates to technical support.",
+    "description": "Stop swiping endlessly. Start connecting meaningfully with the power of AI-assisted dating.",
     "items": [
       {
-        "title": "Complete Framework",
-        "description": "Built on Next.js with authentication, payments, and AI integration - everything works out of the box.",
-        "icon": "RiNextjsFill",
+        "title": "魅力评分分析器",
+        "description": "Upload your profile screenshot and get a detailed attractiveness score (1-10) with specific improvement suggestions for photos, bio, and tags.",
+        "icon": "RiStarLine",
         "image": {
-          "src": "/imgs/features/2.png"
+          "src": "/imgs/features/profile-analyzer.svg"
         }
       },
       {
-        "title": "Rich Templates Library",
-        "description": "Choose from various AI SaaS templates to kickstart your project - chatbots, image generation, and more.",
-        "icon": "RiClapperboardAiLine",
+        "title": "AI 搭讪生成器",
+        "description": "Upload their profile and get 3-5 personalized opening lines in different styles - humorous, empathetic, or sincere. Works in multiple languages.",
+        "icon": "RiChatSmile3Line",
         "image": {
-          "src": "/imgs/features/3.png"
+          "src": "/imgs/features/conversation-starter.svg"
         }
       },
       {
-        "title": "Technical Guidance",
-        "description": "Get dedicated support and join our developer community to ensure your successful launch.",
-        "icon": "RiCodeFill",
+        "title": "Smart Keyword Targeting",
+        "description": "Our AI analyzes interests and hobbies to create conversation starters that actually resonate with your matches.",
+        "icon": "RiTargetLine",
         "image": {
-          "src": "/imgs/features/4.png"
+          "src": "/imgs/features/keyword-targeting.svg"
         }
       }
     ]
   },
   "usage": {
     "name": "usage",
-    "title": "How to Launch with ShipAny",
-    "description": "Get your AI SaaS startup running in three simple steps:",
+    "title": "How lucylucy Works",
+    "description": "Get better matches in just three simple steps:",
     "image": {
-      "src": "/imgs/features/1.png"
+      "src": "/imgs/features/how-it-works.svg"
     },
     "image_position": "left",
     "text_align": "center",
     "items": [
       {
-        "title": "Get ShipAny",
-        "description": "Buy ShipAny with a one-time payment. Check your email for the code and documentation.",
+        "title": "Upload Profile Screenshot",
+        "description": "Take a screenshot of your dating profile or your match's profile and upload it to our secure platform.",
         "image": {
-          "src": "/imgs/features/5.png"
+          "src": "/imgs/features/upload-step.svg"
         }
       },
       {
-        "title": "Start Your Project",
-        "description": "Read the documentation and clone the code of ShipAny. Start building your AI SaaS startup.",
+        "title": "AI Analysis Magic",
+        "description": "Our GPT-4 powered AI analyzes the profile content, photos, and bio to understand personality and interests.",
         "image": {
-          "src": "/imgs/features/6.png"
+          "src": "/imgs/features/ai-analysis.svg"
         }
       },
       {
-        "title": "Customize Your Project",
-        "description": "Modify the template with your data and contents. Specific AI functionality needs.",
+        "title": "Get Personalized Results",
+        "description": "Receive your attractiveness score with improvement tips, or get multiple conversation starters tailored to your match.",
         "image": {
-          "src": "/imgs/features/7.png"
-        }
-      },
-      {
-        "title": "Deploy to Production",
-        "description": "Deploy your project to production with a few steps and start serving customers immediately.",
-        "image": {
-          "src": "/imgs/features/8.png"
+          "src": "/imgs/features/results.svg"
         }
       }
     ]
   },
   "feature": {
     "name": "feature",
-    "title": "Key Features of ShipAny",
-    "description": "Everything you need to launch your AI SaaS startup quickly and efficiently.",
+    "title": "Core Features",
+    "description": "Everything you need to succeed in online dating",
     "items": [
       {
-        "title": "Next.js Boilerplate",
-        "description": "Production-ready Next.js templates with SEO-friendly structure and i18n support.",
-        "icon": "RiNextjsFill"
+        "title": "Profile Scoring & Optimization",
+        "description": "Get a detailed 1-10 attractiveness score with specific suggestions for improving your photos, bio, and overall profile appeal.",
+        "icon": "RiStarLine"
       },
       {
-        "title": "Authentication & Payments",
-        "description": "Integrated Google OAuth, one-tap login, and Stripe payment processing.",
-        "icon": "RiKey2Fill"
+        "title": "Multi-Style Opening Lines",
+        "description": "Generate conversation starters in different tones - funny, thoughtful, flirty, or casual - based on their profile.",
+        "icon": "RiChatQuoteLine"
       },
       {
-        "title": "Data Infrastructure",
-        "description": "Built-in Supabase integration for reliable and scalable data storage.",
-        "icon": "RiDatabase2Line"
+        "title": "Interest-Based Matching",
+        "description": "AI identifies shared interests and hobbies to create more meaningful conversation opportunities.",
+        "icon": "RiHeartPulseLine"
       },
       {
-        "title": "One-Click Deployment",
-        "description": "Seamless deployment to Vercel or Cloudflare with automated setup.",
-        "icon": "RiCloudy2Fill"
+        "title": "Multilingual Support",
+        "description": "Get conversation starters in Chinese, English, Spanish, French, and more languages to connect globally.",
+        "icon": "RiGlobalLine"
       },
       {
-        "title": "Business Analytics",
-        "description": "Integrated Google Analytics and Search Console for tracking growth.",
-        "icon": "RiBarChart2Line"
+        "title": "Screenshot Intelligence",
+        "description": "Advanced image recognition technology extracts text and visual elements from any dating app screenshot.",
+        "icon": "RiCameraLine"
       },
       {
-        "title": "AI-Ready Infrastructure",
-        "description": "Pre-configured AI integration with built-in credits system and API sales.",
-        "icon": "RiRobot2Line"
+        "title": "Privacy First",
+        "description": "Your uploads are processed securely and deleted after analysis. We never store personal information.",
+        "icon": "RiShieldCheckLine"
+      }
+    ]
+  },
+  "showcase": {
+    "name": "showcase",
+    "title": "Success Stories",
+    "description": "See how lucylucy helps people connect better",
+    "items": [
+      {
+        "title": "Profile Transformation",
+        "description": "Sarah improved her match rate by 300% after optimizing her profile with lucylucy's suggestions.",
+        "image": {
+          "src": "/imgs/showcase/profile-before-after.svg"
+        },
+        "url": "#"
+      },
+      {
+        "title": "Perfect Opening Lines",
+        "description": "Mark went from getting ghosted to having meaningful conversations with our AI-generated openers.",
+        "image": {
+          "src": "/imgs/showcase/conversation-examples.svg"
+        },
+        "url": "#"
+      },
+      {
+        "title": "Global Connections",
+        "description": "Lisa successfully connected with matches in 5 different countries using our multilingual feature.",
+        "image": {
+          "src": "/imgs/showcase/global-matches.svg"
+        },
+        "url": "#"
       }
     ]
   },
   "stats": {
-    "name": "stats",
-    "label": "Stats",
-    "title": "People Love ShipAny",
-    "description": "for it's easy to use and fast to ship.",
-    "icon": "FaRegHeart",
+    "title": "lucylucy by the Numbers",
+    "description": "Join thousands of successful daters",
     "items": [
       {
-        "title": "Trusted by",
-        "label": "99+",
-        "description": "Customers"
+        "title": "50K+",
+        "description": "Profiles analyzed",
+        "icon": "RiUserLine"
       },
       {
-        "title": "Built in",
-        "label": "20+",
-        "description": "Components"
+        "title": "85%",
+        "description": "Match response rate",
+        "icon": "RiHeartLine"
       },
       {
-        "title": "Ship Fast in",
-        "label": "5",
-        "description": "Minutes"
+        "title": "200K+",
+        "description": "Opening lines generated",
+        "icon": "RiChatLine"
+      },
+      {
+        "title": "12",
+        "description": "Languages supported",
+        "icon": "RiTranslate"
+      }
+    ]
+  },
+  "pricing": {
+    "title": "Choose Your Plan",
+    "description": "Start free, upgrade when you're ready to get serious about dating",
+    "items": [
+      {
+        "name": "Free",
+        "price": "$0",
+        "description": "Perfect for trying out lucylucy",
+        "features": [
+          "3 profile analyses per month",
+          "5 opening lines per month",
+          "Basic improvement suggestions",
+          "English language support"
+        ],
+        "button": {
+          "title": "Get Started Free",
+          "url": "/auth/signup",
+          "variant": "outline"
+        },
+        "popular": false
+      },
+      {
+        "name": "Pro",
+        "price": "$9.99",
+        "description": "For serious daters who want results",
+        "features": [
+          "Unlimited profile analyses",
+          "Unlimited opening lines",
+          "Advanced AI suggestions",
+          "All 12 languages supported",
+          "Priority customer support",
+          "Profile optimization templates"
+        ],
+        "button": {
+          "title": "Upgrade to Pro",
+          "url": "/pricing",
+          "variant": "default"
+        },
+        "popular": true
+      },
+      {
+        "name": "Premium",
+        "price": "$19.99",
+        "description": "For dating coaches and power users",
+        "features": [
+          "Everything in Pro",
+          "Batch profile analysis",
+          "Custom AI training",
+          "White-label solutions",
+          "API access",
+          "Dedicated account manager"
+        ],
+        "button": {
+          "title": "Contact Sales",
+          "url": "/contact",
+          "variant": "outline"
+        },
+        "popular": false
       }
     ]
   },
   "testimonial": {
-    "name": "testimonial",
-    "label": "Testimonial",
-    "title": "What Users Say About ShipAny",
-    "description": "Hear from developers and founders who launched their AI startups with ShipAny.",
-    "icon": "GoThumbsup",
+    "title": "What Our Users Say",
+    "description": "Real stories from real users",
     "items": [
       {
-        "title": "David Chen",
-        "label": "Founder of AIWallpaper.shop",
-        "description": "ShipAny saved us months of development time. We launched our AI wallpaper business in just 2 days and got our first paying customer within a week!",
-        "image": {
-          "src": "/imgs/users/1.png"
-        }
+        "name": "Sarah M.",
+        "role": "Marketing Manager",
+        "avatar": "/imgs/avatars/sarah.jpg",
+        "content": "lucylucy completely changed my dating game! My profile score went from 6.2 to 8.7, and I'm getting quality matches now. The opening lines are so natural, nobody suspects they're AI-generated.",
+        "rating": 5
       },
       {
-        "title": "Rachel Kim",
-        "label": "CTO at HeyBeauty.ai",
-        "description": "The pre-built AI infrastructure is a game-changer. We didn't have to worry about architecture - just focused on our AI beauty tech and went live fast.",
-        "image": {
-          "src": "/imgs/users/2.png"
-        }
+        "name": "David L.",
+        "role": "Software Engineer",
+        "avatar": "/imgs/avatars/david.jpg",
+        "content": "As an introvert, I always struggled with conversation starters. lucylucy gives me the confidence to reach out to matches. I've had 3 successful dates this month!",
+        "rating": 5
       },
       {
-        "title": "Marcus Thompson",
-        "label": "Solo Developer",
-        "description": "As a solo developer, ShipAny gave me everything I needed - auth, payments, AI integration, and beautiful UI. Launched my SaaS in a weekend!",
-        "image": {
-          "src": "/imgs/users/3.png"
-        }
-      },
-      {
-        "title": "Sofia Garcia",
-        "label": "CEO of Melodisco",
-        "description": "The templates are production-ready and highly customizable. We built our AI music platform in hours instead of months. Incredible time-to-market!",
-        "image": {
-          "src": "/imgs/users/4.png"
-        }
-      },
-      {
-        "title": "James Wilson",
-        "label": "Tech Lead at GPTs.works",
-        "description": "ShipAny's infrastructure is rock-solid. We scaled from 0 to 10k users without touching the backend. Best investment for our AI startup.",
-        "image": {
-          "src": "/imgs/users/5.png"
-        }
-      },
-      {
-        "title": "Anna Zhang",
-        "label": "Startup Founder",
-        "description": "From idea to launch in 3 days! ShipAny's templates and deployment tools made it possible to test our AI business concept incredibly fast.",
-        "image": {
-          "src": "/imgs/users/6.png"
-        }
+        "name": "Maria G.",
+        "role": "Freelance Designer",
+        "avatar": "/imgs/avatars/maria.jpg",
+        "content": "The multilingual feature is amazing! I can now chat with matches in Spanish, French, and English. lucylucy helped me find love across borders. 💕",
+        "rating": 5
       }
     ]
   },
   "faq": {
-    "name": "faq",
-    "label": "FAQ",
-    "title": "Frequently Asked Questions About ShipAny",
-    "description": "Have another question? Contact us on Discord or by email.",
+    "title": "Frequently Asked Questions",
+    "description": "Everything you need to know about lucylucy",
     "items": [
       {
-        "title": "What exactly is ShipAny and how does it work?",
-        "description": "ShipAny is a comprehensive NextJS boilerplate designed specifically for building AI SaaS startups. It provides ready-to-use templates, infrastructure setup, and deployment tools that help you launch your AI business in hours instead of days."
+        "question": "How does the profile analysis work?",
+        "answer": "Simply upload a screenshot of your dating profile, and our AI analyzes your photos, bio, and overall presentation to give you a 1-10 attractiveness score with specific improvement suggestions."
       },
       {
-        "title": "Do I need advanced technical skills to use ShipAny?",
-        "description": "While basic programming knowledge is helpful, ShipAny is designed to be developer-friendly. Our templates and documentation make it easy to get started, even if you're not an expert in AI or cloud infrastructure."
+        "question": "Are the opening lines actually effective?",
+        "answer": "Yes! Our AI generates personalized opening lines based on the specific interests and personality shown in their profile. Our users report an 85% response rate compared to generic messages."
       },
       {
-        "title": "What types of AI SaaS can I build with ShipAny?",
-        "description": "ShipAny supports a wide range of AI applications, from content generation to data analysis tools. Our templates cover popular use cases like AI chatbots, content generators, image processing apps, and more."
+        "question": "What languages do you support?",
+        "answer": "We currently support 12 languages including English, Chinese, Spanish, French, German, Italian, Portuguese, Japanese, Korean, Russian, Hindi, and Arabic."
       },
       {
-        "title": "How long does it typically take to launch with ShipAny?",
-        "description": "With ShipAny, you can have a working prototype in hours and a production-ready application in hours. Our one-click deployment and pre-configured infrastructure significantly reduce the traditional months-long development cycle."
+        "question": "Is my data safe and private?",
+        "answer": "Absolutely. We process your screenshots securely and delete them immediately after analysis. We never store personal information or share data with third parties."
       },
       {
-        "title": "What's included in the ShipAny infrastructure?",
-        "description": "ShipAny provides a complete infrastructure stack including authentication, database setup, API integration, payment processing, and scalable cloud deployment. Everything is pre-configured following industry best practices."
+        "question": "Can I use this with any dating app?",
+        "answer": "Yes! lucylucy works with screenshots from any dating app - Tinder, Bumble, Hinge, OkCupid, Match, and more. Just upload the screenshot and we'll do the rest."
       },
       {
-        "title": "Can I customize the templates to match my brand?",
-        "description": "Absolutely! All ShipAny templates are fully customizable. You can modify the design, features, and functionality to match your brand identity and specific business requirements while maintaining the robust underlying infrastructure."
+        "question": "How accurate is the AI analysis?",
+        "answer": "Our AI is trained on thousands of successful dating profiles and conversations. It uses GPT-4 technology combined with dating psychology research to provide highly accurate and effective suggestions."
       }
     ]
   },
   "cta": {
-    "name": "cta",
-    "title": "Ship your first AI SaaS Startup",
-    "description": "Start from here, ship with ShipAny.",
-    "buttons": [
-      {
-        "title": "Get ShipAny",
-        "url": "https://shipany.ai",
-        "target": "_blank",
-        "icon": "GoArrowUpRight"
-      },
-      {
-        "title": "Read Document",
-        "url": "https://docs.shipany.ai",
-        "target": "_blank",
-        "variant": "outline"
-      }
-    ]
+    "title": "Ready to Transform Your Dating Life?",
+    "description": "Join thousands of successful daters who've improved their game with lucylucy AI.",
+    "button": {
+      "title": "Start Your Journey Today",
+      "url": "/#pricing",
+      "variant": "default",
+      "icon": "RiHeartLine"
+    }
   },
   "footer": {
-    "name": "footer",
     "brand": {
-      "title": "ShipAny",
-      "description": "ShipAny is a NextJS boilerplate for building AI SaaS startups. Ship Fast with a variety of templates and components.",
+      "title": "lucylucy",
+      "description": "AI-powered dating assistant that helps you create better profiles and start meaningful conversations.",
       "logo": {
         "src": "/logo.png",
-        "alt": "ShipAny"
+        "alt": "lucylucy"
+      }
+    },
+    "links": [
+      {
+        "title": "Product",
+        "items": [
+          {
+            "title": "Features",
+            "url": "/#feature"
+          },
+          {
+            "title": "Pricing",
+            "url": "/pricing"
+          },
+          {
+            "title": "How it Works",
+            "url": "/#usage"
+          }
+        ]
       },
-      "url": "/"
-    },
-    "copyright": "© 2025 • ShipAny All rights reserved.",
-    "nav": {
-      "items": [
-        {
-          "title": "About",
-          "children": [
-            {
-              "title": "Features",
-              "url": "/#feature",
-              "target": "_self"
-            },
-            {
-              "title": "Showcases",
-              "url": "/#showcase",
-              "target": "_self"
-            },
-            {
-              "title": "Pricing",
-              "url": "/#pricing",
-              "target": "_self"
-            }
-          ]
-        },
-        {
-          "title": "Resources",
-          "children": [
-            {
-              "title": "Documents",
-              "url": "https://docs.shipany.ai",
-              "target": "_blank"
-            },
-            {
-              "title": "Components",
-              "url": "https://shipany.ai/components",
-              "target": "_blank"
-            },
-            {
-              "title": "Templates",
-              "url": "https://shipany.ai/templates",
-              "target": "_blank"
-            }
-          ]
-        },
-        {
-          "title": "Friends",
-          "children": [
-            {
-              "title": "ThinkAny",
-              "url": "https://thinkany.ai",
-              "target": "_blank"
-            },
-            {
-              "title": "HeyBeauty",
-              "url": "https://heybeauty.ai",
-              "target": "_blank"
-            },
-            {
-              "title": "Pagen",
-              "url": "https://pagen.so",
-              "target": "_blank"
-            }
-          ]
-        }
-      ]
-    },
-    "social": {
-      "items": [
-        {
-          "title": "X",
-          "icon": "RiTwitterXFill",
-          "url": "https://x.com/shipanyai",
-          "target": "_blank"
-        },
-        {
-          "title": "Github",
-          "icon": "RiGithubFill",
-          "url": "https://github.com/shipanyai",
-          "target": "_blank"
-        },
-        {
-          "title": "Discord",
-          "icon": "RiDiscordFill",
-          "url": "https://discord.gg/HQNnrzjZQS",
-          "target": "_blank"
-        },
-        {
-          "title": "Email",
-          "icon": "RiMailLine",
-          "url": "mailto:support@shipany.ai",
-          "target": "_self"
-        }
-      ]
-    },
-    "agreement": {
-      "items": [
-        {
-          "title": "Privacy Policy",
-          "url": "/privacy-policy"
-        },
-        {
-          "title": "Terms of Service",
-          "url": "/terms-of-service"
-        }
-      ]
-    }
+      {
+        "title": "Support",
+        "items": [
+          {
+            "title": "Help Center",
+            "url": "/help"
+          },
+          {
+            "title": "Contact Us",
+            "url": "/contact"
+          },
+          {
+            "title": "Privacy Policy",
+            "url": "/privacy"
+          },
+          {
+            "title": "Terms of Service",
+            "url": "/terms"
+          }
+        ]
+      },
+      {
+        "title": "Community",
+        "items": [
+          {
+            "title": "Success Stories",
+            "url": "/#showcase"
+          },
+          {
+            "title": "Blog",
+            "url": "/blog"
+          },
+          {
+            "title": "Dating Tips",
+            "url": "/tips"
+          }
+        ]
+      }
+    ],
+    "social": [
+      {
+        "title": "Twitter",
+        "url": "https://twitter.com/lucylucyai",
+        "icon": "RiTwitterXFill"
+      },
+      {
+        "title": "Instagram",
+        "url": "https://instagram.com/lucylucyai",
+        "icon": "RiInstagramFill"
+      },
+      {
+        "title": "TikTok",
+        "url": "https://tiktok.com/@lucylucyai",
+        "icon": "RiTiktokFill"
+      }
+    ],
+    "copyright": "© 2025 lucylucy. All rights reserved."
   }
 }
