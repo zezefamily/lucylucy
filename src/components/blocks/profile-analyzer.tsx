@@ -12,7 +12,7 @@ import { AnalysisResult, AnalysisApiResponse } from "@/types/analysis";
 function StreamTextRenderer({ text, isStreaming }: { text: string; isStreaming: boolean }) {
   // 简单的 markdown 解析函数
   const parseMarkdown = (text: string) => {
-    // 处理标题 - 确保完全替换标题标记
+    // 处理标题 - 确保完全替换标题标记，按照从长到短的顺序处理
     text = text.replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-3 mt-6 first:mt-0 flex items-center"><span class="w-2 h-2 bg-primary rounded-full mr-2 animate-pulse"></span>$1</h3>');
     text = text.replace(/^## (.*$)/gm, '<h2 class="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4 mt-8 first:mt-0 flex items-center"><span class="w-3 h-3 bg-primary rounded-full mr-3 animate-pulse"></span>$1</h2>');
     text = text.replace(/^# (.*$)/gm, '<h1 class="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-6 mt-8 first:mt-0 flex items-center"><span class="w-4 h-4 bg-gradient-to-r from-primary to-secondary rounded-full mr-3 animate-pulse shadow-lg"></span>$1</h1>');
@@ -23,15 +23,16 @@ function StreamTextRenderer({ text, isStreaming }: { text: string; isStreaming: 
     // 处理粗体
     text = text.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-primary bg-primary/10 px-2 py-1 rounded-md">$1</strong>');
     
-    // 处理评分数字 (特殊高亮)
-    text = text.replace(/(\d+(?:\.\d+)?\/10分?)/g, '<span class="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-bold text-lg shadow-lg transform hover:scale-105 transition-transform mx-1">$1</span>');
-    text = text.replace(/(\d+(?:\.\d+)?分)/g, '<span class="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-bold text-lg shadow-lg transform hover:scale-105 transition-transform mx-1">$1</span>');
+    // 处理评分数字 (特殊高亮) - 更精确的匹配，避免匹配到单独的数字
+    text = text.replace(/(\d+(?:\.\d+)?\/10)(?=分|$|\s)/g, '<span class="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-bold text-lg shadow-lg transform hover:scale-105 transition-transform mx-1">$1</span>');
+    // 处理单独的分数（如 "8分"），但不包括 "/10分" 的情况
+    text = text.replace(/(?<!\/)(\d+(?:\.\d+)?)(?=分)/g, '<span class="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-bold text-lg shadow-lg transform hover:scale-105 transition-transform mx-1">$1</span>');
     
     // 处理特殊关键词 - 已移除气泡效果
     // text = text.replace(/(建议|优势|改进|提升|优化|亮点|等级|评价)/g, '<span class="px-2 py-1 bg-gradient-to-r from-secondary/20 to-primary/20 text-primary font-medium rounded-md border border-primary/30 mx-1">$1</span>');
     
-    // 处理数字列表项 - 更精确的匹配
-    text = text.replace(/^(\d+)\.\s+(.*$)/gm, '<div class="flex items-start my-4 p-4 rounded-lg bg-gradient-to-r from-secondary/5 via-primary/5 to-secondary/5 border border-primary/20 hover:border-primary/40 transition-all duration-200 shadow-sm hover:shadow-md"><div class="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-primary to-secondary text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 shadow-md">$1</div><div class="text-sm leading-relaxed text-foreground flex-1">$2</div></div>');
+    // 处理数字列表项 - 更精确的匹配，减少行间距
+    text = text.replace(/^(\d+)\.\s+(.*$)/gm, '<div class="flex items-start my-2 p-3 rounded-lg bg-gradient-to-r from-secondary/5 via-primary/5 to-secondary/5 border border-primary/20 hover:border-primary/40 transition-all duration-200 shadow-sm hover:shadow-md"><div class="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-primary to-secondary text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 shadow-md">$1</div><div class="text-sm leading-relaxed text-foreground flex-1">$2</div></div>');
     
     // 处理破折号列表项
     text = text.replace(/^-\s+(.*$)/gm, '<div class="flex items-start my-3 p-3 rounded-md bg-gradient-to-r from-muted/30 to-muted/10 border-l-4 border-primary/40 hover:border-primary/60 transition-colors"><div class="w-2 h-2 bg-primary rounded-full mt-2 mr-3 flex-shrink-0 animate-pulse"></div><div class="text-sm leading-relaxed text-foreground flex-1">$1</div></div>');
@@ -168,108 +169,6 @@ export default function ProfileAnalyzer() {
     }
   };
 
-  const analyzeProfile = async () => {
-    if (!file) {
-      toast.error('请先上传图片');
-      return;
-    }
-
-    setIsAnalyzing(true);
-    setResult(null);
-    
-    try {
-      // 创建FormData对象
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      // 调用分析API
-      const response = await fetch('/api/analyze', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      const result = await response.json();
-      
-      if (result.code === 0) {
-        setResult(result.data);
-        toast.success('AI分析完成！');
-      } else {
-        toast.error(result.message || '分析失败，请重试');
-      }
-    } catch (error) {
-      console.error('分析错误:', error);
-      toast.error('网络错误，请检查连接后重试');
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-
-  const analyzeProfileStream = async () => {
-    if (!file) {
-      toast.error('请先上传图片');
-      return;
-    }
-
-    setIsStreaming(true);
-    setStreamText("");
-    setResult(null);
-    
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      const response = await fetch('/api/analyze?stream=true', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const reader = response.body?.getReader();
-      if (!reader) {
-        throw new Error('无法读取响应流');
-      }
-
-      const decoder = new TextDecoder();
-      let buffer = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        
-        // 保留最后一行（可能不完整）
-        buffer = lines.pop() || '';
-
-        for (const line of lines) {
-          if (line.startsWith('0:')) {
-            // 这是文本内容
-            const content = line.substring(2);
-            if (content.trim()) {
-              setStreamText(prev => prev + content);
-            }
-          } else if (line.startsWith('error:')) {
-            // 这是错误信息
-            const errorMsg = line.substring(6);
-            toast.error(errorMsg);
-            break;
-          }
-        }
-      }
-
-      toast.success('AI流式分析完成！');
-    } catch (error) {
-      console.error('流式分析错误:', error);
-      toast.error('分析过程中发生错误，请重试');
-    } finally {
-      setIsStreaming(false);
-    }
-  };
-
   // 模拟流式渲染效果
   const simulateStreaming = (fullText: string) => {
     // 清理之前的定时器
@@ -344,25 +243,53 @@ export default function ProfileAnalyzer() {
       }
     } catch (error) {
       console.error('分析错误:', error);
-      toast.error('网络错误，请检查连接后重试');
+      
+      // 提取实际的错误信息
+      let errorMessage = '网络错误，请检查连接后重试';
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        errorMessage = String(error.message);
+      }
+      
+      toast.error(errorMessage);
       setIsFakeStreaming(false);
     }
   };
 
   // 将分析结果转换为可读文本
   const formatAnalysisToText = (data: AnalysisResult): string => {
+    // 安全的数组映射函数
+    const safeMapArray = (arr: string[] | undefined) => {
+      if (!arr || !Array.isArray(arr) || arr.length === 0) {
+        return '暂无数据';
+      }
+      return arr
+        .filter(item => item && typeof item === 'string') // 过滤掉空值和非字符串
+        .map((item, index) => `${index + 1}. ${item}`)
+        .join('\n') || '暂无数据';
+    };
+
     const sections = [
-      `# 🎯 AI智能分析报告\n\n`,
-      `## 📊 综合评分：${data.score || 0}/10分\n**评价等级：${data.category || '未知'}**\n\n---\n\n`,
-      `## ✨ 你的优势亮点\n\n${(data.strengths || []).map((strength, index) => `${index + 1}. ${strength}`).join('\n') || '暂无数据'}\n\n---\n\n`,
-      `## 🚀 改进建议\n\n${(data.improvements || []).map((improvement, index) => `${index + 1}. ${improvement}`).join('\n') || '暂无数据'}\n\n---\n\n`,
-      `## 📸 照片优化建议\n\n${(data.suggestions?.photos || []).map((suggestion, index) => `${index + 1}. ${suggestion}`).join('\n') || '暂无数据'}\n\n---\n\n`,
-      `## ✍️ 个人简介优化\n\n${(data.suggestions?.bio || []).map((suggestion, index) => `${index + 1}. ${suggestion}`).join('\n') || '暂无数据'}\n\n---\n\n`,
-      `## 🎨 整体建议\n\n${(data.suggestions?.overall || []).map((suggestion, index) => `${index + 1}. ${suggestion}`).join('\n') || '暂无数据'}\n\n---\n\n`,
+      `## 🎯 AI智能分析报告\n\n`,
+      `## 🏆 综合评分：${data.score || 0}/10分\n**评价等级：${data.category || '未知'}**\n\n---\n\n`,
+      `## ✨ 你的优势亮点\n\n${safeMapArray(data.strengths)}\n\n---\n\n`,
+      `## 🚀 改进建议\n\n${safeMapArray(data.improvements)}\n\n---\n\n`,
+      `## 📸 照片优化建议\n\n${safeMapArray(data.suggestions?.photos)}\n\n---\n\n`,
+      `## ✍️ 个人简介优化\n\n${safeMapArray(data.suggestions?.bio)}\n\n---\n\n`,
+      `## 🎨 整体建议\n\n${safeMapArray(data.suggestions?.overall)}\n\n---\n\n`,
       `**🎉 分析完成！希望这些建议能帮助你提升交友成功率！**`
     ];
     
-    return sections.join('');
+    // 过滤掉空值并确保所有元素都是字符串
+    const validSections = sections.filter(section => 
+      section && typeof section === 'string' && section.trim() !== ''
+    );
+    
+    return validSections.join('');
   };
 
   const getScoreColor = (score: number) => {
@@ -474,7 +401,7 @@ export default function ProfileAnalyzer() {
             {isAnalyzing ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                AI 正在分析中...
+                正在分析中...
               </>
             ) : (
               <>
@@ -483,46 +410,6 @@ export default function ProfileAnalyzer() {
               </>
             )}
           </Button>
-          
-          {/* <Button
-            onClick={analyzeProfileSmart}
-            disabled={isAnalyzing || isStreaming || isFakeStreaming}
-            size="lg"
-            className="px-8"
-            variant="outline"
-          >
-            {isFakeStreaming ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                AI 正在智能分析...
-              </>
-            ) : (
-              <>
-                <MessageCircle className="w-4 h-4 mr-2" />
-                智能流式分析
-              </>
-            )}
-          </Button>
-          
-          <Button
-            onClick={analyzeProfileStream}
-            disabled={isAnalyzing || isStreaming || isFakeStreaming}
-            size="lg"
-            className="px-6"
-            variant="ghost"
-          >
-            {isStreaming ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                实时流式...
-              </>
-            ) : (
-              <>
-                <MessageCircle className="w-4 h-4 mr-2" />
-                真实流式
-              </>
-            )}
-          </Button> */}
         </div>
       )}
 
@@ -613,24 +500,6 @@ export default function ProfileAnalyzer() {
                   </div>
                 </div>
               </div>
-              
-              {/* 底部科技感装饰 */}
-              {/* {isFakeStreaming && (
-                <div className="px-6 pb-4">
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      <span>智能数据流</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <div className="w-16 h-1 bg-gradient-to-r from-primary/20 to-primary/60 rounded-full overflow-hidden">
-                        <div className="w-full h-full bg-gradient-to-r from-primary to-secondary animate-pulse"></div>
-                      </div>
-                      <span className="ml-2">AI智能处理中</span>
-                    </div>
-                  </div>
-                </div>
-              )} */}
             </div>
           </CardContent>
         </Card>
@@ -643,7 +512,6 @@ export default function ProfileAnalyzer() {
           <Card className="border-2 border-primary/20">
             <CardHeader className="text-center pb-4">
               <CardTitle className="text-2xl">你的魅力评分</CardTitle>
-              <CardDescription>基于AI深度学习算法分析</CardDescription>
             </CardHeader>
             <CardContent className="text-center space-y-4">
               <div className={`text-6xl font-bold ${getScoreColor(result.score)}`}>
