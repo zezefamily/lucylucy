@@ -19,11 +19,13 @@ interface AnalysisResult {
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-// 初始化 OpenAI 客户端
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  baseURL: process.env.OPENAI_BASE_URL
-});
+// 创建 OpenAI 客户端的函数
+function getOpenAIClient() {
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+    baseURL: process.env.OPENAI_BASE_URL
+  });
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -50,6 +52,9 @@ export async function POST(req: NextRequest) {
     const base64 = Buffer.from(buffer).toString('base64');
     const dataUrl = `data:${file.type};base64,${base64}`;
     
+    // const modelName = "gemini-2.5-pro-preview-06-05"
+    const modelName = "gpt-4o"
+
     // 流式响应
     if (stream) {
       const encoder = new TextEncoder();
@@ -58,8 +63,8 @@ export async function POST(req: NextRequest) {
         async start(controller) {
           try {
             // 使用OpenAI进行流式图像分析
-            const stream = await openai.chat.completions.create({
-              model: "gemini-2.5-pro-preview-06-05",
+            const stream = await getOpenAIClient().chat.completions.create({
+              model: modelName,
               messages: [
                 {
                   role: 'system',
@@ -131,8 +136,8 @@ export async function POST(req: NextRequest) {
     }
     
     // 非流式响应（保持原有功能）
-    const response = await openai.chat.completions.create({
-      model: "gemini-2.5-pro-preview-06-05",
+    const response = await getOpenAIClient().chat.completions.create({
+      model: modelName,
       messages: [
         {
           role: 'system',

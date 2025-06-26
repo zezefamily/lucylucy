@@ -1,18 +1,22 @@
 import { createOpenAI } from '@ai-sdk/openai';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 
-// 标准 OpenAI 配置
-export const openai = createOpenAI({
-  apiKey: process.env.OPENAI_API_KEY ?? '',
-  baseURL: process.env.OPENAI_BASE_URL, // 可选，如果不设置则使用默认值
-});
+// 创建 OpenAI 客户端的函数
+export function getOpenAI() {
+  return createOpenAI({
+    apiKey: process.env.OPENAI_API_KEY ?? '',
+    baseURL: process.env.OPENAI_BASE_URL, // 可选，如果不设置则使用默认值
+  });
+}
 
-// 如果你需要使用兼容的 OpenAI API 服务
-export const customOpenAI = createOpenAICompatible({
-  name: 'custom-openai',
-  apiKey: process.env.OPENAI_API_KEY ?? '',
-  baseURL: process.env.OPENAI_BASE_URL ?? 'https://api.openai.com/v1',
-});
+// 获取自定义 OpenAI 客户端的函数
+export function getCustomOpenAI() {
+  return createOpenAICompatible({
+    name: 'custom-openai',
+    apiKey: process.env.OPENAI_API_KEY ?? '',
+    baseURL: process.env.OPENAI_BASE_URL ?? 'https://api.openai.com/v1',
+  });
+}
 
 // 配置验证函数
 export function validateOpenAIConfig() {

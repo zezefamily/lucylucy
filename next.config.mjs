@@ -31,12 +31,16 @@ const nextConfig = {
   async redirects() {
     return [];
   },
+  experimental: {
+    turbo: false,
+  },
 };
 
 // Make sure experimental mdx flag is enabled
 const configWithMDX = {
   ...nextConfig,
   experimental: {
+    ...nextConfig.experimental,
     mdxRs: true,
   },
 };

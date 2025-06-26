@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { respErr } from "@/lib/resp";
-import { openai } from "@/lib/openai-config";
+import { getOpenAI } from "@/lib/openai-config";
 import { streamText } from "ai";
 
 // 文件类型验证
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     
     // 使用OpenAI进行流式图像分析
     const result = await streamText({
-      model: openai('gpt-4o'),
+      model: getOpenAI()('gpt-4o'),
       messages: [
         {
           role: 'system',
