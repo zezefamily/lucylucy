@@ -70,7 +70,7 @@ export default function Footer({ footer }: { footer: FooterType }) {
             {footer.copyright && (
               <p>
                 {footer.copyright}
-                {process.env.NEXT_PUBLIC_SHOW_POWERED_BY === "false" ? null : (
+                {/* {process.env.NEXT_PUBLIC_SHOW_POWERED_BY === "false" ? null : (
                   <a
                     href="https://shipany.ai"
                     target="_blank"
@@ -78,7 +78,7 @@ export default function Footer({ footer }: { footer: FooterType }) {
                   >
                     build with ShipAny
                   </a>
-                )}
+                )} */}
               </p>
             )}
 

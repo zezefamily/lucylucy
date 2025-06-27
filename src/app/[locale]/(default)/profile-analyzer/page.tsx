@@ -1,13 +1,29 @@
 import { Suspense } from "react";
 import { Metadata } from "next";
+import { useTranslations } from "next-intl";
+import { setRequestLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import ProfileAnalyzer from "@/components/blocks/profile-analyzer";
 
-export const metadata: Metadata = {
-  title: "魅力评分分析器 - lucylucy",
-  description: "上传你的交友资料截图，获得AI智能评分和个性化改进建议，提升你的交友魅力。",
+type Props = {
+  params: Promise<{ locale: string }>;
 };
 
-export default function ProfileAnalyzerPage() {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "profile_analyzer" });
+  
+  return {
+    title: t("page_title"),
+    description: t("page_description"),
+  };
+}
+
+export default async function ProfileAnalyzerPage({ params }: Props) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("profile_analyzer");
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
       <div className="container mx-auto px-4 py-12">
@@ -15,10 +31,10 @@ export default function ProfileAnalyzerPage() {
           {/* 页面标题 */}
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
-              魅力评分分析器
+              {t("title")}
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              上传你的交友资料截图，AI将为你的魅力打分并提供专业的优化建议
+              {t("subtitle")}
             </p>
           </div>
 
@@ -30,9 +46,9 @@ export default function ProfileAnalyzerPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                 </svg>
               </div>
-              <h3 className="font-semibold mb-2">智能评分</h3>
+              <h3 className="font-semibold mb-2">{t("feature_ai_score_title")}</h3>
               <p className="text-sm text-muted-foreground">
-                基于AI分析的1-10分魅力评分系统
+                {t("feature_ai_score_desc")}
               </p>
             </div>
             
@@ -42,9 +58,9 @@ export default function ProfileAnalyzerPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                 </svg>
               </div>
-              <h3 className="font-semibold mb-2">专业建议</h3>
+              <h3 className="font-semibold mb-2">{t("feature_advice_title")}</h3>
               <p className="text-sm text-muted-foreground">
-                针对照片、文案、标签的具体优化建议
+                {t("feature_advice_desc")}
               </p>
             </div>
             
@@ -54,9 +70,9 @@ export default function ProfileAnalyzerPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
-              <h3 className="font-semibold mb-2">隐私安全</h3>
+              <h3 className="font-semibold mb-2">{t("feature_privacy_title")}</h3>
               <p className="text-sm text-muted-foreground">
-                数据加密传输，分析后立即删除
+                {t("feature_privacy_desc")}
               </p>
             </div>
           </div>

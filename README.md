@@ -85,3 +85,91 @@ npm run cf:deploy
 ## License
 
 - [ShipAny AI SaaS Boilerplate License Agreement](LICENSE)
+
+## API 多语言支持
+
+### 支持的语言
+- 英文 (en) - 默认语言
+- 中文 (zh)
+
+### 使用方法
+
+在调用API时，可以通过 `locale` 参数指定语言：
+
+#### 单图片分析 - `/api/analyze`
+```javascript
+const formData = new FormData();
+formData.append('file', imageFile);
+formData.append('locale', 'zh'); // 或 'en'
+
+const response = await fetch('/api/analyze', {
+  method: 'POST',
+  body: formData
+});
+```
+
+#### 多图片分析 - `/api/analyze-multiple`
+```javascript
+const formData = new FormData();
+formData.append('fileCount', files.length.toString());
+files.forEach((file, index) => {
+  formData.append(`file${index}`, file);
+});
+formData.append('locale', 'zh'); // 或 'en'
+
+const response = await fetch('/api/analyze-multiple', {
+  method: 'POST',
+  body: formData
+});
+```
+
+#### 流式分析 - `/api/analyze-stream`
+```javascript
+const formData = new FormData();
+formData.append('file', imageFile);
+formData.append('locale', 'zh'); // 或 'en'
+
+const response = await fetch('/api/analyze-stream', {
+  method: 'POST',
+  body: formData
+});
+```
+
+### 语言自动检测
+
+如果未指定 `locale` 参数，API会：
+1. 默认使用英文 (en)
+2. 对于某些错误情况，会检查请求头中的 `accept-language` 进行自动检测
+
+### AI 分析结果
+
+根据指定的语言，AI会返回相应语言的分析结果：
+- 评分类别
+- 优势分析
+- 改进建议
+- 照片建议
+- 个人资料建议
+
+### 错误消息
+
+所有错误消息也会根据指定的语言返回相应的翻译版本。
+
+## 健康检查
+
+可以通过以下端点检查API状态和支持的语言：
+
+```bash
+GET /api/analyze
+GET /api/analyze-multiple
+```
+
+响应示例：
+```json
+{
+  "status": "healthy",
+  "service": "lucylucy-analyze-api",
+  "version": "3.0.0",
+  "features": ["openai-vision", "real-ai-analysis", "streaming-support", "multilingual-support"],
+  "supportedLocales": ["en", "zh"]
+}
+```

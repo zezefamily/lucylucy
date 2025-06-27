@@ -3,10 +3,10 @@
   "theme": "light",
   "header": {
     "brand": {
-      "title": "lucylucy",
+      "title": "LucyLucy",
       "logo": {
         "src": "/logo.png",
-        "alt": "lucylucy"
+        "alt": "LucyLucy"
       },
       "url": "/"
     },
@@ -38,30 +38,30 @@
         "icon": "RiHeartLine"
       }
     ],
-    "show_sign": true,
+    "show_sign": false,
     "show_theme": true,
     "show_locale": true
   },
   "hero": {
-    "title": "AI助手让交友变得简单",
+    "title": "AI Assistant Makes Dating Simple",
     "highlight_text": "lucylucy",
-    "description": "不再为写个人资料发愁，不再为开场白头疼。<br/>lucylucy AI 让你的交友之路更加顺畅和自信。",
+    "description": "No more struggling with profile writing or awkward opening lines.<br/>lucylucy AI makes your dating journey smoother and more confident.",
     "announcement": {
       "label": "New",
-      "title": "🚀 支持多语言开场白生成",
+      "title": "🚀 Multi-language opening line generation support",
       "url": "/#feature"
     },
     "tip": "💝 Free to try, pay as you grow",
     "buttons": [
       {
-        "title": "立即体验",
+        "title": "Get Started Now",
         "icon": "RiHeartLine",
         "url": "/profile-analyzer",
         "target": "_self",
         "variant": "default"
       },
       {
-        "title": "查看演示",
+        "title": "Watch Demo",
         "icon": "RiPlayCircleLine",
         "url": "/#showcase",
         "target": "_self",
@@ -144,7 +144,7 @@
     "description": "Stop swiping endlessly. Start connecting meaningfully with the power of AI-assisted dating.",
     "items": [
       {
-        "title": "魅力评分分析器",
+        "title": "Attractiveness Score Analyzer",
         "description": "Upload your profile screenshot and get a detailed attractiveness score (1-10) with specific improvement suggestions for photos, bio, and tags.",
         "icon": "RiStarLine",
         "image": {
@@ -152,7 +152,7 @@
         }
       },
       {
-        "title": "AI 搭讪生成器",
+        "title": "AI Conversation Starter",
         "description": "Upload their profile and get 3-5 personalized opening lines in different styles - humorous, empathetic, or sincere. Works in multiple languages.",
         "icon": "RiChatSmile3Line",
         "image": {
