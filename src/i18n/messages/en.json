@@ -121,5 +121,29 @@
     "contact_tip": "Other ways to contact us",
     "rating_tip": "How do you feel about ShipAny?",
     "placeholder": "Leave your words here..."
+  },
+  "conversation_starter": {
+    "title": "Conversation Starter Generator",
+    "description": "Generate engaging conversation starters for different scenarios",
+    "placeholder": "Enter a topic or context (e.g., 'business meeting', 'first date', 'networking event')",
+    "generate": "Generate",
+    "generating": "Generating...",
+    "result_title": "Generated Conversation Starters:",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "clear": "Clear",
+    "try_again": "Try Again",
+    "error": "Failed to generate conversation starters. Please try again.",
+    "no_results": "No results found. Please try a different topic.",
+    "examples": {
+      "title": "Example Topics:",
+      "items": [
+        "Business networking",
+        "First date conversation",
+        "Team building",
+        "Conference icebreakers",
+        "Job interview warmup"
+      ]
+    }
   }
 }

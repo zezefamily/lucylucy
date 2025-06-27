@@ -121,5 +121,29 @@
     "contact_tip": "其他联系方式",
     "rating_tip": "您对 ShipAny 的看法如何？",
     "placeholder": "在这里留下您的反馈..."
+  },
+  "conversation_starter": {
+    "title": "开场白生成器",
+    "description": "为不同场景生成引人入胜的开场白",
+    "placeholder": "输入话题或情境（例如：'商务会议'、'初次约会'、'社交活动'）",
+    "generate": "生成",
+    "generating": "生成中...",
+    "result_title": "生成的开场白：",
+    "copy": "复制",
+    "copied": "已复制！",
+    "clear": "清空",
+    "try_again": "重新生成",
+    "error": "生成开场白失败，请重试。",
+    "no_results": "未找到结果，请尝试其他话题。",
+    "examples": {
+      "title": "示例话题：",
+      "items": [
+        "商务社交",
+        "初次约会对话",
+        "团队建设",
+        "会议破冰",
+        "面试热身"
+      ]
+    }
   }
 }
