@@ -1,13 +1,38 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Upload, ImageIcon, Star, TrendingUp, Users, MessageCircle, Loader2, X, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { AnalysisResult, AnalysisApiResponse } from "@/types/analysis";
+
+// 单张照片分析结果
+interface PhotoAnalysis {
+  photoIndex: number; // 照片序号
+  score: number; // 照片评分 (1-10)
+  strengths: string[]; // 优点
+  improvements: string[]; // 改进建议
+  comment: string; // 总体评价
+}
+
+// 分析结果接口
+interface CoachAnalysisResult {
+  // 总体分析
+  overallScore: number; // 总体评分 (1-10)
+  overallCategory: string; // 总体评价等级
+  overallComment: string; // 总体评价
+  
+  // 分析思考过程
+  analysisProcess: string; // 详细的分析思考过程
+  
+  // 每张照片的单独分析
+  photoAnalyses: PhotoAnalysis[];
+  
+  // 最终建议
+  finalSuggestions: string[]; // 最终建议列表
+}
 
 // 流式文本渲染器组件
 function StreamTextRenderer({ text, isStreaming }: { text: string; isStreaming: boolean }) {
@@ -97,7 +122,7 @@ export default function ProfileAnalyzer() {
   
   const [files, setFiles] = useState<File[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [result, setResult] = useState<CoachAnalysisResult | null>(null);
   const [streamText, setStreamText] = useState<string>("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [dragActive, setDragActive] = useState(false);
@@ -258,11 +283,19 @@ export default function ProfileAnalyzer() {
     setFakeStreamText("");
     setResult(null);
     
+    // 调试信息：确保图片URLs仍然有效
+    console.log('开始分析，当前图片信息：', {
+      filesCount: files.length,
+      previewUrlsCount: previewUrls.length,
+      previewUrls: previewUrls
+    });
+    
     try {
       // 创建FormData对象，支持多文件
       const formData = new FormData();
       files.forEach((file, index) => {
         formData.append(`file${index}`, file);
+        console.log(`添加文件 ${index + 1}:`, file.name);
       });
       formData.append('fileCount', files.length.toString());
       formData.append('locale', locale);
@@ -278,6 +311,13 @@ export default function ProfileAnalyzer() {
       if (apiResult.code === 0) {
         // 将结构化数据转换为可读文本
         const analysisData = apiResult.data;
+        
+        // 调试信息：查看AI返回的照片分析数据
+        console.log('AI分析结果：', {
+          photoAnalyses: analysisData.photoAnalyses,
+          currentPreviewUrls: previewUrls
+        });
+        
         const readableText = formatAnalysisToText(analysisData);
         
         // 开始模拟流式渲染
@@ -287,6 +327,7 @@ export default function ProfileAnalyzer() {
         const estimatedTime = readableText.length * 50 + 2000;
         setTimeout(() => {
           if (!isFakeStreaming) { // 确保流式已完成
+            console.log('设置分析结果，当前previewUrls:', previewUrls);
             setResult(analysisData);
           }
         }, estimatedTime);
@@ -315,7 +356,7 @@ export default function ProfileAnalyzer() {
   };
 
   // 将分析结果转换为可读文本
-  const formatAnalysisToText = (data: AnalysisResult): string => {
+  const formatAnalysisToText = (data: CoachAnalysisResult): string => {
     // 安全的数组映射函数
     const safeMapArray = (arr: string[] | undefined) => {
       if (!arr || !Array.isArray(arr) || arr.length === 0) {
@@ -328,15 +369,35 @@ export default function ProfileAnalyzer() {
     };
 
     const sections = [
-      `## 🎯 ${t("ai_report_title", { count: files.length })}\n\n`,
-      `## 🏆 ${t("score_title", { score: data.score || 0 })}\n**${t("score_category", { category: data.category || t("no_data") })}**\n\n---\n\n`,
-      `## ✨ ${t("strengths_title")}\n\n${safeMapArray(data.strengths)}\n\n---\n\n`,
-      `## 🚀 ${t("improvements_title")}\n\n${safeMapArray(data.improvements)}\n\n---\n\n`,
-      `## 📸 ${t("photo_suggestions_title")}\n\n${safeMapArray(data.suggestions?.photos)}\n\n---\n\n`,
-      `## ✍️ ${t("bio_suggestions_title")}\n\n${safeMapArray(data.suggestions?.bio)}\n\n---\n\n`,
-      `## 🎨 ${t("overall_suggestions_title")}\n\n${safeMapArray(data.suggestions?.overall)}\n\n---\n\n`,
-      `**🎉 ${t("analysis_completion", { count: files.length })}**`
+      `## 🎯 ${t("dating_coach_analysis_title", { count: files.length })}\n\n`,
+      
+      // 分析思考过程
+      `## 🧠 ${t("analysis_thinking_process")}\n\n${data.analysisProcess || t("no_data")}\n\n---\n\n`,
+      
+      // 总体评分
+      `## 🏆 ${t("overall_evaluation")}\n**${t("overall_score_display", { score: data.overallScore || 0 })}** - ${data.overallCategory || t("no_data")}\n\n${data.overallComment || t("no_data")}\n\n---\n\n`,
+      
+      // 每张照片分析
+      `## 📸 ${t("individual_photo_analysis")}\n\n`,
     ];
+
+    // 添加每张照片的分析
+    if (data.photoAnalyses && Array.isArray(data.photoAnalyses)) {
+      data.photoAnalyses.forEach((photo, index) => {
+        sections.push(
+          `### ${t("photo_number", { num: photo.photoIndex || index + 1 })} - ${t("score_colon")} ${photo.score || 0}/10\n\n`,
+          `**${t("photo_comment")}:** ${photo.comment || t("no_data")}\n\n`,
+          `**${t("photo_strengths")}:**\n${safeMapArray(photo.strengths)}\n\n`,
+          `**${t("photo_improvements")}:**\n${safeMapArray(photo.improvements)}\n\n---\n\n`
+        );
+      });
+    }
+
+    // 最终建议
+    sections.push(
+      `## 💡 ${t("final_suggestions_title")}\n\n${safeMapArray(data.finalSuggestions)}\n\n---\n\n`,
+      `**🎉 ${t("coach_analysis_complete", { count: files.length })}**`
+    );
     
     // 过滤掉空值并确保所有元素都是字符串
     const validSections = sections.filter(section => 
@@ -411,20 +472,22 @@ export default function ProfileAnalyzer() {
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                   {previewUrls.map((url, index) => (
                     <div key={index} className="relative group">
-                      <img
-                        src={url}
-                        alt={t("image_preview", { index: index + 1 })}
-                        className="w-full h-32 object-cover rounded-lg shadow-md border border-border/50"
-                      />
+                      <div className="aspect-[3/4] bg-muted rounded-lg shadow-md border border-border/50 overflow-hidden">
+                        <img
+                          src={url}
+                          alt={t("image_preview", { index: index + 1 })}
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
                       <Button
                         onClick={() => removeFile(index)}
                         variant="destructive"
                         size="sm"
-                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute -top-2 -right-2 w-7 h-7 rounded-full p-0 bg-primary hover:bg-primary/80 text-white shadow-lg border-2 border-white transition-all duration-200 hover:scale-110 z-10"
                       >
-                        <X className="w-3 h-3" />
+                        <X className="w-4 h-4" />
                       </Button>
-                      <div className="absolute bottom-1 left-1 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                      <div className="absolute bottom-2 left-2 bg-black/80 text-white text-xs px-2 py-1 rounded-md font-medium shadow-sm">
                         {index + 1}
                       </div>
                     </div>
@@ -433,7 +496,7 @@ export default function ProfileAnalyzer() {
                   {/* 添加更多图片按钮 */}
                   {files.length < MAX_FILES && (
                     <div
-                      className="w-full h-32 border-2 border-dashed border-border/50 rounded-lg flex items-center justify-center hover:border-primary/50 transition-colors cursor-pointer"
+                      className="aspect-[3/4] border-2 border-dashed border-border/50 rounded-lg flex items-center justify-center hover:border-primary/50 transition-colors cursor-pointer"
                       onClick={() => {
                         const input = document.querySelector('input[type="file"]') as HTMLInputElement;
                         input?.click();
@@ -602,132 +665,244 @@ export default function ProfileAnalyzer() {
               <CardDescription>{t("based_on_analysis", { count: files.length })}</CardDescription>
             </CardHeader>
             <CardContent className="text-center space-y-4">
-              <div className={`text-6xl font-bold ${getScoreColor(result.score)}`}>
-                {result.score}
+              <div className={`text-6xl font-bold ${getScoreColor(result.overallScore)}`}>
+                {result.overallScore}
               </div>
               <div className="text-xl text-muted-foreground">/ 10</div>
               <Badge 
                 variant="secondary" 
-                className={`text-lg px-4 py-1 bg-gradient-to-r ${getScoreBackground(result.score)} text-white`}
+                className={`text-lg px-4 py-1 bg-gradient-to-r ${getScoreBackground(result.overallScore)} text-white`}
               >
-                {result.category}
+                {result.overallCategory}
               </Badge>
               
               {/* 自定义进度条 */}
               <div className="mt-4">
                 <div className="w-full bg-gray-200 rounded-full h-3 dark:bg-gray-700">
                   <div 
-                    className={`h-3 rounded-full bg-gradient-to-r ${getScoreBackground(result.score)} transition-all duration-1000 ease-out`}
-                    style={{ width: `${result.score * 10}%` }}
+                    className={`h-3 rounded-full bg-gradient-to-r ${getScoreBackground(result.overallScore)} transition-all duration-1000 ease-out`}
+                    style={{ width: `${result.overallScore * 10}%` }}
                   ></div>
                 </div>
                 <div className="text-xs text-muted-foreground mt-1 text-center">
-                  {t("match_rate", { rate: result.score * 10 })}
+                  {t("match_rate", { rate: result.overallScore * 10 })}
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* 优势和改进建议 */}
-          <div className="grid md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center text-green-600">
-                  <TrendingUp className="w-5 h-5 mr-2" />
-                  {t("your_strengths")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {result.strengths.map((strength, index) => (
-                    <li key={index} className="flex items-start">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
-                      <span className="text-sm">{strength}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+          {/* 分析思考过程 */}
+          <Card className="border-2 border-blue-200 bg-blue-50/50">
+            <CardHeader>
+              <CardTitle className="flex items-center text-blue-700">
+                <MessageCircle className="w-5 h-5 mr-2" />
+                {t("analysis_thinking_process")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm leading-relaxed whitespace-pre-line">
+                {result.analysisProcess}
+              </div>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center text-orange-600">
-                  <Users className="w-5 h-5 mr-2" />
-                  {t("improvement_suggestions")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {result.improvements.map((improvement, index) => (
-                    <li key={index} className="flex items-start">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
-                      <span className="text-sm">{improvement}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
+          {/* 总体评价 */}
+          <Card className="border-2 border-purple-200 bg-purple-50/50">
+            <CardHeader>
+              <CardTitle className="flex items-center text-purple-700">
+                <Star className="w-5 h-5 mr-2" />
+                {t("overall_evaluation")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="text-lg">
+                <strong>{t("overall_score_display", { score: result.overallScore })}</strong> - {result.overallCategory}
+              </div>
+              <div className="text-sm leading-relaxed">
+                {result.overallComment}
+              </div>
+            </CardContent>
+          </Card>
 
-          {/* 详细建议 */}
+          {/* 每张照片分析 */}
           <div className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <ImageIcon className="w-5 h-5 mr-2" />
-                  {t("photo_optimization")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {result.suggestions.photos.map((suggestion, index) => (
-                    <li key={index} className="flex items-start">
-                      <div className="w-1 h-1 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></div>
-                      <span className="text-sm">{suggestion}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <MessageCircle className="w-5 h-5 mr-2" />
-                  {t("bio_optimization")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {result.suggestions.bio.map((suggestion, index) => (
-                    <li key={index} className="flex items-start">
-                      <div className="w-1 h-1 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></div>
-                      <span className="text-sm">{suggestion}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Star className="w-5 h-5 mr-2" />
-                  {t("overall_optimization")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {result.suggestions.overall.map((suggestion, index) => (
-                    <li key={index} className="flex items-start">
-                      <div className="w-1 h-1 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></div>
-                      <span className="text-sm">{suggestion}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+            <h3 className="text-xl font-semibold flex items-center">
+              <ImageIcon className="w-5 h-5 mr-2" />
+              {t("individual_photo_analysis")}
+            </h3>
+            
+            {/* 调试信息面板 - 开发环境 */}
+            {process.env.NODE_ENV === 'development' && (
+              <Card className="bg-yellow-50 border-yellow-200">
+                <CardContent className="p-4">
+                  <h4 className="font-medium text-yellow-800 mb-2">调试信息:</h4>
+                  <div className="text-xs text-yellow-700 space-y-1">
+                    <div>总上传图片数: {files.length}</div>
+                    <div>预览URL数量: {previewUrls.length}</div>
+                    <div>分析结果数量: {result?.photoAnalyses?.length || 0}</div>
+                    <div>预览URLs: {previewUrls.map((url, i) => `${i + 1}: ${url.substring(0, 50)}...`).join(' | ')}</div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
+            <div className="grid gap-6">
+              {result.photoAnalyses.map((photo, index) => {
+                const imageUrl = previewUrls[photo.photoIndex - 1];
+                const isImageAvailable = !!imageUrl;
+                
+                // 开发环境调试日志
+                if (process.env.NODE_ENV === 'development') {
+                  console.log(`照片 ${photo.photoIndex} 分析:`, {
+                    photoIndex: photo.photoIndex,
+                    arrayIndex: photo.photoIndex - 1,
+                    imageUrl: imageUrl,
+                    isAvailable: isImageAvailable,
+                    totalUrls: previewUrls.length
+                  });
+                }
+                
+                return (
+                  <Card key={index} className="border-l-4 border-l-primary overflow-hidden">
+                    <CardContent className="p-0">
+                      <div className="grid md:grid-cols-5 gap-0">
+                        {/* 左侧图片展示 */}
+                        <div className="md:col-span-2 relative">
+                          <div className="aspect-[3/4] bg-muted flex items-center justify-center border-r border-border/50">
+                            {isImageAvailable ? (
+                              <img
+                                src={imageUrl}
+                                alt={t("photo_number", { num: photo.photoIndex })}
+                                className="w-full h-full object-contain"
+                                onError={(e) => {
+                                  console.error(`图片加载失败: 照片${photo.photoIndex}`, {
+                                    src: imageUrl,
+                                    error: e
+                                  });
+                                }}
+                              />
+                            ) : (
+                              <div className="flex flex-col items-center justify-center text-muted-foreground p-4 text-center">
+                                <ImageIcon className="w-12 h-12 mb-2" />
+                                <span className="text-sm font-medium">{t("photo_number", { num: photo.photoIndex })}</span>
+                                <span className="text-xs mt-1 text-red-500">图片URL不可用</span>
+                                {process.env.NODE_ENV === 'development' && (
+                                  <div className="text-xs mt-2 text-gray-500">
+                                    <div>期望索引: {photo.photoIndex - 1}</div>
+                                    <div>URL数量: {previewUrls.length}</div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          {/* 评分徽章 */}
+                          <div className="absolute top-3 right-3">
+                            <Badge 
+                              variant="secondary" 
+                              className={`text-sm px-3 py-1 bg-gradient-to-r ${getScoreBackground(photo.score)} text-white font-bold shadow-lg`}
+                            >
+                              {photo.score}/10
+                            </Badge>
+                          </div>
+                          {/* 照片编号 */}
+                          <div className="absolute bottom-3 left-3">
+                            <div className="bg-black/70 text-white text-xs px-2 py-1 rounded font-medium">
+                              {t("photo_number", { num: photo.photoIndex })}
+                            </div>
+                          </div>
+                          {/* 调试信息 - 开发时可以显示，上线时删除 */}
+                          {process.env.NODE_ENV === 'development' && (
+                            <div className="absolute top-3 left-3 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                              索引: {photo.photoIndex - 1} / 总数: {previewUrls.length}
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* 右侧分析内容 */}
+                        <div className="md:col-span-3 p-6">
+                          <div className="space-y-4">
+                            {/* 标题和评分 */}
+                            <div className="flex items-center justify-between">
+                              <h4 className="text-lg font-semibold">
+                                {t("photo_number", { num: photo.photoIndex })}
+                              </h4>
+                              <div className="flex items-center space-x-2">
+                                <span className="text-sm text-muted-foreground">{t("score_colon")}:</span>
+                                <span className={`text-lg font-bold ${getScoreColor(photo.score)}`}>
+                                  {photo.score}/10
+                                </span>
+                              </div>
+                            </div>
+                            
+                            {/* 评价 */}
+                            <div className="bg-muted/50 rounded-lg p-4">
+                              <h5 className="font-medium mb-2 text-primary">{t("photo_comment")}:</h5>
+                              <p className="text-sm leading-relaxed">{photo.comment}</p>
+                            </div>
+                            
+                            {/* 优势和改进建议 */}
+                            <div className="grid gap-4">
+                              <div className="bg-green-50/50 rounded-lg p-4 border border-green-200/50">
+                                <h5 className="font-medium text-green-700 mb-3 flex items-center">
+                                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                                  {t("photo_strengths")}
+                                </h5>
+                                <ul className="space-y-2">
+                                  {photo.strengths.map((strength, i) => (
+                                    <li key={i} className="flex items-start text-sm">
+                                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                                      <span className="text-green-800">{strength}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                              
+                              <div className="bg-orange-50/50 rounded-lg p-4 border border-orange-200/50">
+                                <h5 className="font-medium text-orange-700 mb-3 flex items-center">
+                                  <div className="w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
+                                  {t("photo_improvements")}
+                                </h5>
+                                <ul className="space-y-2">
+                                  {photo.improvements.map((improvement, i) => (
+                                    <li key={i} className="flex items-start text-sm">
+                                      <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                                      <span className="text-orange-800">{improvement}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
           </div>
+
+          {/* 最终建议 */}
+          <Card className="border-2 border-green-200 bg-green-50/50">
+            <CardHeader>
+              <CardTitle className="flex items-center text-green-700">
+                <TrendingUp className="w-5 h-5 mr-2" />
+                {t("final_suggestions_title")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2">
+                {result.finalSuggestions.map((suggestion, index) => (
+                  <li key={index} className="flex items-start">
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold mr-3 flex-shrink-0 mt-0.5">
+                      {index + 1}
+                    </div>
+                    <span className="text-sm">{suggestion}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
 
           {/* 行动建议 */}
           <Card className="bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">
