@@ -171,7 +171,7 @@
     "feature_privacy_title": "隐私安全",
     "feature_privacy_desc": "数据加密传输，分析后立即删除",
     "upload_placeholder": "拖拽图片到这里，或点击选择",
-    "upload_tip": "支持 JPG、PNG 格式，每张图片不超过 10MB，最多上传 5 张",
+    "upload_tip": "支持 JPG、PNG 格式，每张图片不超过 10MB，最多上传 5 张（大文件自动压缩优化）",
     "select_image": "选择图片",
     "add_image": "添加图片",
     "uploaded_count": "已上传 {count}/{max} 张图片",
@@ -215,6 +215,14 @@
     "toast_upload_required": "请先上传至少一张图片",
     "toast_analysis_complete": "分析完成！",
     "toast_analysis_failed": "分析失败，请重试",
+    "compressing_images": "正在压缩图片...",
+    "compressing_image": "正在压缩 {name}...",
+    "compress_tip": "正在优化图片质量和文件大小，提升上传体验",
+    "compress_failed": "图片压缩失败，将使用原图片",
+    "toast_upload_compressed_success": "成功上传并压缩了 {count} 张图片！",
+    "toast_upload_failed": "上传失败，请重试",
+    "toast_too_large_absolute": "{name} 文件过大（超过50MB），请选择更小的图片",
+    "toast_too_large_replace": "{name} 图片过大（{size}MB），请替换为更小的图片（小于10MB）",
     "error_analysis": "分析错误",
     "error_network": "网络连接失败，请检查网络后重试"
   }

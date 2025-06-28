@@ -139,6 +139,10 @@ export default function ProfileAnalyzer() {
   const [isFakeStreaming, setIsFakeStreaming] = useState(false);
   const streamIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
+  // 图片压缩相关状态
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressProgress, setCompressProgress] = useState(0);
+  
   const MAX_FILES = 5;
 
   // 清理预览URL
@@ -154,7 +158,132 @@ export default function ProfileAnalyzer() {
     };
   }, [previewUrls]);
 
-  const handleFilesUpload = (uploadedFiles: File[]) => {
+  // 图片压缩函数
+  const compressImage = (file: File, maxSizeMB: number = 2, quality: number = 0.8): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        // 根据原始文件大小智能调整压缩参数
+        const fileSizeMB = file.size / (1024 * 1024);
+        let targetQuality = quality;
+        let maxDimension = 1920;
+        
+        if (fileSizeMB > 5) {
+          targetQuality = 0.7;
+          maxDimension = 1800;
+        } else if (fileSizeMB > 3) {
+          targetQuality = 0.75;
+          maxDimension = 1900;
+        }
+        
+        // 计算压缩后的尺寸
+        let { width, height } = img;
+        
+        if (width > height && width > maxDimension) {
+          height = (height * maxDimension) / width;
+          width = maxDimension;
+        } else if (height > maxDimension) {
+          width = (width * maxDimension) / height;
+          height = maxDimension;
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        // 绘制压缩后的图片
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        // 尝试压缩
+        const tryCompress = (attemptQuality: number) => {
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error('压缩失败'));
+                return;
+              }
+              
+              const compressedSizeMB = blob.size / (1024 * 1024);
+              
+              // 如果还是太大且质量还能降低，继续压缩
+              if (compressedSizeMB > maxSizeMB && attemptQuality > 0.3) {
+                tryCompress(Math.max(0.3, attemptQuality - 0.1));
+              } else {
+                const compressedFile = new File([blob], file.name, {
+                  type: file.type,
+                  lastModified: Date.now(),
+                });
+                resolve(compressedFile);
+              }
+            },
+            file.type,
+            attemptQuality
+          );
+        };
+        
+        tryCompress(targetQuality);
+      };
+      
+      img.onerror = () => reject(new Error('图片加载失败'));
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  // 批量压缩图片
+  const compressImages = async (imageFiles: File[]): Promise<File[]> => {
+    const compressedFiles: File[] = [];
+    setIsCompressing(true);
+    setCompressProgress(0);
+    
+    try {
+      for (let i = 0; i < imageFiles.length; i++) {
+        const file = imageFiles[i];
+        const fileSizeMB = file.size / (1024 * 1024);
+        
+        // 智能判断是否需要压缩
+        if (fileSizeMB <= 2) {
+          // 小于2MB，不压缩
+          compressedFiles.push(file);
+        } else {
+          // 压缩图片
+          const fileName = file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name;
+          toast.info(t("compressing_image", { name: fileName }));
+          
+          try {
+            const compressedFile = await compressImage(file, 2, 0.8);
+            compressedFiles.push(compressedFile);
+            
+            const originalSize = (file.size / (1024 * 1024)).toFixed(1);
+            const compressedSize = (compressedFile.size / (1024 * 1024)).toFixed(1);
+            const compressionRatio = ((1 - compressedFile.size / file.size) * 100).toFixed(0);
+            
+            console.log(`图片压缩完成: ${file.name}`);
+            console.log(`原始大小: ${originalSize}MB -> 压缩后: ${compressedSize}MB (压缩率: ${compressionRatio}%)`);
+          } catch (error) {
+            console.error(`图片压缩失败: ${file.name}`, error);
+            // 压缩失败时使用原图片
+            compressedFiles.push(file);
+          }
+        }
+        
+        // 更新进度
+        setCompressProgress(Math.round(((i + 1) / imageFiles.length) * 100));
+      }
+      
+      return compressedFiles;
+    } catch (error) {
+      console.error('批量压缩失败:', error);
+      toast.error(t("compress_failed"));
+      return imageFiles; // 压缩失败时返回原文件
+    } finally {
+      setIsCompressing(false);
+      setCompressProgress(0);
+    }
+  };
+
+  const handleFilesUpload = async (uploadedFiles: File[]) => {
     const validFiles: File[] = [];
     const newPreviewUrls: string[] = [];
     
@@ -165,40 +294,71 @@ export default function ProfileAnalyzer() {
       return;
     }
     
-    uploadedFiles.forEach(file => {
+    // 验证文件类型和大小
+    for (const file of uploadedFiles) {
       if (!file.type.startsWith('image/')) {
         toast.error(t("toast_not_image", { name: file.name }));
-        return;
+        continue;
       }
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error(t("toast_too_large", { name: file.name }));
-        return;
+      
+      const fileSizeMB = file.size / (1024 * 1024);
+      
+      if (fileSizeMB > 50) { // 50MB 绝对上限
+        toast.error(t("toast_too_large_absolute", { name: file.name }));
+        continue;
+      }
+      
+      if (fileSizeMB > 10) { // 10MB 以上提示替换
+        toast.error(t("toast_too_large_replace", { name: file.name, size: fileSizeMB.toFixed(1) }));
+        continue;
       }
       
       validFiles.push(file);
-      newPreviewUrls.push(URL.createObjectURL(file));
-    });
+    }
     
-    if (validFiles.length > 0) {
-      setFiles(prev => [...prev, ...validFiles]);
-      setPreviewUrls(prev => [...prev, ...newPreviewUrls]);
+    if (validFiles.length === 0) {
+      return;
+    }
+    
+    try {
+      // 压缩图片
+      const compressedFiles = await compressImages(validFiles);
       
-      // 重置所有状态
-      setResult(null);
-      setShowThinkingProcess(false);
-      setThinkingComplete(false);
-      setAnalysisResultReady(false);
-      setPendingAnalysisResult(null);
+      // 为压缩后的文件创建预览URL
+      compressedFiles.forEach(file => {
+        newPreviewUrls.push(URL.createObjectURL(file));
+      });
       
-      // 重置假流式状态
-      setFakeStreamText("");
-      setIsFakeStreaming(false);
-      if (streamIntervalRef.current) {
-        clearInterval(streamIntervalRef.current);
-        streamIntervalRef.current = null;
+      if (compressedFiles.length > 0) {
+        setFiles(prev => [...prev, ...compressedFiles]);
+        setPreviewUrls(prev => [...prev, ...newPreviewUrls]);
+        
+        // 重置所有状态
+        setResult(null);
+        setShowThinkingProcess(false);
+        setThinkingComplete(false);
+        setAnalysisResultReady(false);
+        setPendingAnalysisResult(null);
+        
+        // 重置假流式状态
+        setFakeStreamText("");
+        setIsFakeStreaming(false);
+        if (streamIntervalRef.current) {
+          clearInterval(streamIntervalRef.current);
+          streamIntervalRef.current = null;
+        }
+        
+        // 显示上传成功信息
+        const hasCompressed = compressedFiles.some((file, index) => file.size < validFiles[index].size);
+        if (hasCompressed) {
+          toast.success(t("toast_upload_compressed_success", { count: compressedFiles.length }));
+        } else {
+          toast.success(t("toast_upload_success", { count: compressedFiles.length }));
+        }
       }
-      
-      toast.success(t("toast_upload_success", { count: validFiles.length }));
+    } catch (error) {
+      console.error('文件处理失败:', error);
+      toast.error(t("toast_upload_failed"));
     }
   };
 
@@ -244,6 +404,10 @@ export default function ProfileAnalyzer() {
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    // 压缩过程中禁用拖拽
+    if (isCompressing) return;
+    
     if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true);
     } else if (e.type === "dragleave") {
@@ -255,6 +419,9 @@ export default function ProfileAnalyzer() {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
+    
+    // 压缩过程中禁用拖拽
+    if (isCompressing) return;
     
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const droppedFiles = Array.from(e.dataTransfer.files);
@@ -554,21 +721,46 @@ export default function ProfileAnalyzer() {
           <div
             className={`relative flex flex-col items-center justify-center space-y-4 ${
               dragActive ? 'bg-primary/5' : ''
-            }`}
+            } ${isCompressing ? 'opacity-60 pointer-events-none' : ''}`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
             onDrop={handleDrop}
           >
             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-              {files.length > 0 ? (
+              {isCompressing ? (
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
+              ) : files.length > 0 ? (
                 <ImageIcon className="w-8 h-8 text-primary" />
               ) : (
                 <Upload className="w-8 h-8 text-primary" />
               )}
             </div>
             
-            {files.length === 0 && (
+            {/* 压缩进度显示 */}
+            {isCompressing && (
+              <div className="w-full max-w-md">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-primary">
+                    {t("compressing_images")}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    {compressProgress}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+                  <div 
+                    className="bg-gradient-to-r from-primary to-secondary h-2 rounded-full transition-all duration-300 ease-out"
+                    style={{ width: `${compressProgress}%` }}
+                  ></div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1 text-center">
+                  {t("compress_tip")}
+                </p>
+              </div>
+            )}
+            
+            {files.length === 0 && !isCompressing && (
               <div className="text-center">
                 <p className="text-lg font-medium text-foreground mb-2">
                   {t("upload_placeholder")}
@@ -643,13 +835,15 @@ export default function ProfileAnalyzer() {
               type="file"
               accept="image/*"
               multiple
+              disabled={isCompressing}
               onChange={(e) => {
+                if (isCompressing) return;
                 if (e.target.files && e.target.files.length > 0) {
                   const selectedFiles = Array.from(e.target.files);
                   handleFilesUpload(selectedFiles);
                 }
               }}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
             />
             
             <Button 
@@ -658,8 +852,16 @@ export default function ProfileAnalyzer() {
                 input?.click();
               }}
               variant="outline"
+              disabled={isCompressing}
             >
-              {t("select_image")}
+              {isCompressing ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  {t("compressing_images")}
+                </>
+              ) : (
+                t("select_image")
+              )}
             </Button>
           </div>
         </CardContent>
@@ -697,12 +899,17 @@ export default function ProfileAnalyzer() {
           
           <Button
             onClick={analyzeProfileSmart}
-            disabled={isAnalyzing || showThinkingProcess || isFakeStreaming}
+            disabled={isAnalyzing || showThinkingProcess || isFakeStreaming || isCompressing}
             size="lg"
             className="px-8"
             variant="default"
           >
-            {isAnalyzing ? (
+            {isCompressing ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                {t("compressing_images")}
+              </>
+            ) : isAnalyzing ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 {t("analyzing")}
