@@ -27,7 +27,7 @@
     "buttons": [
       {
         "title": "免费开始",
-        "url": "/#pricing",
+        "url": "/profile-analyzer",
         "target": "_self",
         "variant": "default",
         "icon": "RiHeartLine"
@@ -39,14 +39,9 @@
   },
   "hero": {
     "title": "AI助手让交友变得简单",
-    "highlight_text": "lucylucy",
-    "description": "不再为写个人资料发愁，不再为开场白头疼。<br/>lucylucy AI 让你的交友之路更加顺畅和自信。",
-    "announcement": {
-      "label": "最新",
-      "title": "🚀 支持多语言开场白生成",
-      "url": "/#feature"
-    },
-    "tip": "💝 免费试用，按需付费",
+    "highlight_text": "LucyLucy",
+    "description": "不再为写个人资料发愁，不再为开场白头疼。<br/>LucyLucy AI 让你的交友之路更加顺畅和自信。",
+    "tip": "💝 完全免费",
     "buttons": [
       {
         "title": "立即体验",
@@ -54,13 +49,6 @@
         "url": "/profile-analyzer",
         "target": "_self",
         "variant": "default"
-      },
-      {
-        "title": "查看演示",
-        "icon": "RiPlayCircleLine",
-        "url": "/#showcase",
-        "target": "_self",
-        "variant": "outline"
       }
     ],
     "show_happy_users": true,

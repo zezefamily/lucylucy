@@ -27,7 +27,7 @@
     "buttons": [
       {
         "title": "Get Started Free",
-        "url": "/#pricing",
+        "url": "/profile-analyzer",
         "target": "_self",
         "variant": "default",
         "icon": "RiHeartLine"
@@ -41,11 +41,6 @@
     "title": "AI Assistant Makes Dating Simple",
     "highlight_text": "lucylucy",
     "description": "No more struggling with profile writing or awkward opening lines.<br/>lucylucy AI makes your dating journey smoother and more confident.",
-    "announcement": {
-      "label": "New",
-      "title": "🚀 Multi-language opening line generation support",
-      "url": "/#feature"
-    },
     "tip": "💝 Free to try, pay as you grow",
     "buttons": [
       {
@@ -54,13 +49,6 @@
         "url": "/profile-analyzer",
         "target": "_self",
         "variant": "default"
-      },
-      {
-        "title": "Watch Demo",
-        "icon": "RiPlayCircleLine",
-        "url": "/#showcase",
-        "target": "_self",
-        "variant": "outline"
       }
     ],
     "show_happy_users": true,

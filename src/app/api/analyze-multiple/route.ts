@@ -18,9 +18,6 @@ interface AnalysisResult {
   overallCategory: string; // 总体评价等级
   overallComment: string; // 总体评价
   
-  // 分析思考过程
-  analysisProcess: string; // 详细的分析思考过程
-  
   // 每张照片的单独分析
   photoAnalyses: PhotoAnalysis[];
   
@@ -40,23 +37,20 @@ const getSystemPrompt = (locale: string = 'en'): string => {
 
 You are like a friend, able to sincerely and frankly point out problems without avoiding them, and give better suggestions.
 
-You need to show your entire analysis and thinking process in great detail, interpreting and displaying from multiple dimensions, which can greatly increase your credibility.
-
-After showing the complete analysis and thinking process, you will give the final report according to the following structure:
+Please provide a comprehensive analysis report according to the following structure:
 
 Final Report Analysis Structure:
 1. First, you will give an overall evaluation and score for the profile, out of 10 points
 2. Then, you will score, evaluate, and provide improvement suggestions for each photo
 3. Finally, you will give final suggestions, which can be listed as points 1, 2, 3
 
-Note: For the final report section, the expression should be natural, frank and sincere, but not too wordy, pay attention to the difference between these two parts.
+The expression should be natural, frank and sincere, but not too wordy.
 
 Please return the analysis results strictly in the following JSON format, without adding any other text:
 {
   "overallScore": 7.5,
   "overallCategory": "Very Attractive",
   "overallComment": "Overall evaluation comment...",
-  "analysisProcess": "Detailed analysis thinking process, showing analysis from multiple dimensions...",
   "photoAnalyses": [
     {
       "photoIndex": 1,
@@ -85,29 +79,26 @@ Scoring Criteria (1-10 scale):
 - 5-5.9 points: Average, needs considerable improvement
 - Below 4 points: Needs significant improvement
 
-Please provide detailed analysis thinking process first, then analyze each photo individually, and finally provide comprehensive suggestions. Return only JSON, no other content.`,
+Please analyze each photo individually, and provide comprehensive suggestions. Return only JSON, no other content.`,
 
     zh: `你是一个恋爱教练，你能根据用户的资料分析解读，从多个维度分析其优劣势，并给出具体的优化建议，帮助他们提升在交友网站上的吸引力，早日结交自己的伴侣。
 
 你像朋友一样，能够真诚坦率的指出问题，从不避讳，并给出更好的建议。
 
-你需要十分详细展示你的整个分析思考过程，从多个维度进行解读展示，这样能大大增加你的可信度。
+请按下面的结构，给出分析报告：
 
-在展示完完整的分析思考过程后，你将按下面的结构，给出最终的报告：
-
-最终报告分析结构：
+分析报告结构：
 1. 你会先给资料页打一个总体评价和评分，满分 10 分
 2. 而后，你会给每张照片进行评分，评价，以及改进建议
 3. 最后，你会给一个最终的建议，可用 1 2 3 点进行罗列
 
-注意，最终报告的部分，表达要自然坦率真诚，但不能太啰嗦，注意这两部分的差别。
+表达要自然坦率真诚，但不能太啰嗦。
 
 请严格按照以下JSON格式返回分析结果，不要添加任何其他文字：
 {
   "overallScore": 7.5,
   "overallCategory": "很有吸引力",
   "overallComment": "总体评价评语...",
-  "analysisProcess": "详细的分析思考过程，展示多维度分析...",
   "photoAnalyses": [
     {
       "photoIndex": 1,
@@ -136,7 +127,7 @@ Please provide detailed analysis thinking process first, then analyze each photo
 - 5-5.9分：一般，需要较多改进
 - 4分以下：需要大幅改进
 
-请先提供详细的分析思考过程，然后逐一分析每张照片，最后给出综合建议。只返回JSON，不要其他内容。`
+请逐一分析每张照片，最后给出综合建议。只返回JSON，不要其他内容。`
   };
 
   return prompts[locale as keyof typeof prompts] || prompts.en;
@@ -319,7 +310,7 @@ export async function POST(req: NextRequest) {
         const analysisResult = JSON.parse(cleanedResult);
         
         // 验证必要字段是否存在
-        if (!analysisResult.overallScore || !analysisResult.overallCategory || !analysisResult.overallComment || !analysisResult.analysisProcess || !analysisResult.photoAnalyses || !analysisResult.finalSuggestions) {
+        if (!analysisResult.overallScore || !analysisResult.overallCategory || !analysisResult.overallComment || !analysisResult.photoAnalyses || !analysisResult.finalSuggestions) {
           console.error('OpenAI返回的JSON缺少必要字段:', analysisResult);
           const errorMessage = locale === 'zh' 
             ? "AI分析结果格式不完整，请重试" 

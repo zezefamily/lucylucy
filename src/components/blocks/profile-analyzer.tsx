@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Upload, ImageIcon, Star, TrendingUp, Users, MessageCircle, Loader2, X, Plus } from "lucide-react";
 import { toast } from "sonner";
+import AnalysisThinkingProcess from "./analysis-thinking-process";
+import AnalysisThinkingProcessStream from "./analysis-thinking-process-stream";
 
 // 单张照片分析结果
 interface PhotoAnalysis {
@@ -17,15 +19,12 @@ interface PhotoAnalysis {
   comment: string; // 总体评价
 }
 
-// 分析结果接口
+// 分析结果接口 (移除了analysisProcess)
 interface CoachAnalysisResult {
   // 总体分析
   overallScore: number; // 总体评分 (1-10)
   overallCategory: string; // 总体评价等级
   overallComment: string; // 总体评价
-  
-  // 分析思考过程
-  analysisProcess: string; // 详细的分析思考过程
   
   // 每张照片的单独分析
   photoAnalyses: PhotoAnalysis[];
@@ -123,24 +122,35 @@ export default function ProfileAnalyzer() {
   const [files, setFiles] = useState<File[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<CoachAnalysisResult | null>(null);
-  const [streamText, setStreamText] = useState<string>("");
-  const [isStreaming, setIsStreaming] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  
+  // 新增状态控制思考过程和结果显示
+  const [showThinkingProcess, setShowThinkingProcess] = useState(false);
+  const [thinkingComplete, setThinkingComplete] = useState(false);
+  const [analysisResultReady, setAnalysisResultReady] = useState(false);
+  const [pendingAnalysisResult, setPendingAnalysisResult] = useState<CoachAnalysisResult | null>(null);
+  
+  // AI思考过程版本选择 (Plan B: steps, Plan C: stream)
+  const [thinkingProcessVersion, setThinkingProcessVersion] = useState<'steps' | 'stream'>('stream');
+  
+  // 假流式相关状态
   const [fakeStreamText, setFakeStreamText] = useState<string>("");
   const [isFakeStreaming, setIsFakeStreaming] = useState(false);
   const streamIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   
   const MAX_FILES = 5;
 
-  // 清理定时器和预览URL
+  // 清理预览URL
   useEffect(() => {
     return () => {
+      // 清理所有预览URL
+      previewUrls.forEach(url => URL.revokeObjectURL(url));
+      
+      // 清理定时器
       if (streamIntervalRef.current) {
         clearInterval(streamIntervalRef.current);
       }
-      // 清理所有预览URL
-      previewUrls.forEach(url => URL.revokeObjectURL(url));
     };
   }, [previewUrls]);
 
@@ -172,16 +182,21 @@ export default function ProfileAnalyzer() {
     if (validFiles.length > 0) {
       setFiles(prev => [...prev, ...validFiles]);
       setPreviewUrls(prev => [...prev, ...newPreviewUrls]);
-      setResult(null); // 清空之前的结果
-      setStreamText(""); // 清空流式文本
-      setFakeStreamText(""); // 清空假流式文本
       
-      // 清理之前的定时器
+      // 重置所有状态
+      setResult(null);
+      setShowThinkingProcess(false);
+      setThinkingComplete(false);
+      setAnalysisResultReady(false);
+      setPendingAnalysisResult(null);
+      
+      // 重置假流式状态
+      setFakeStreamText("");
+      setIsFakeStreaming(false);
       if (streamIntervalRef.current) {
         clearInterval(streamIntervalRef.current);
         streamIntervalRef.current = null;
       }
-      setIsFakeStreaming(false);
       
       toast.success(t("toast_upload_success", { count: validFiles.length }));
     }
@@ -210,15 +225,18 @@ export default function ProfileAnalyzer() {
     setFiles([]);
     setPreviewUrls([]);
     setResult(null);
-    setFakeStreamText("");
-    setStreamText("");
+    setShowThinkingProcess(false);
+    setThinkingComplete(false);
+    setAnalysisResultReady(false);
+    setPendingAnalysisResult(null);
     
-    // 清理定时器
+    // 重置假流式状态
+    setFakeStreamText("");
+    setIsFakeStreaming(false);
     if (streamIntervalRef.current) {
       clearInterval(streamIntervalRef.current);
       streamIntervalRef.current = null;
     }
-    setIsFakeStreaming(false);
     
     toast.success(t("toast_all_cleared"));
   };
@@ -244,6 +262,123 @@ export default function ProfileAnalyzer() {
     }
   };
 
+  // 思考过程完成的回调
+  const handleThinkingComplete = () => {
+    setThinkingComplete(true);
+    
+    // 如果分析结果已经准备好，开始假流式渲染
+    if (analysisResultReady && pendingAnalysisResult) {
+      const readableText = formatAnalysisToText(pendingAnalysisResult);
+      simulateStreaming(readableText);
+    }
+  };
+
+  // 智能流式分析（协调两个API）
+  const analyzeProfileSmart = async () => {
+    if (files.length === 0) {
+      toast.error(t("toast_upload_required"));
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setResult(null);
+    setShowThinkingProcess(true);
+    setThinkingComplete(false);
+    setAnalysisResultReady(false);
+    setPendingAnalysisResult(null);
+    
+    // 调试信息：确保图片URLs仍然有效
+    console.log('开始分析，当前图片信息：', {
+      filesCount: files.length,
+      previewUrlsCount: previewUrls.length,
+      previewUrls: previewUrls
+    });
+    
+    try {
+      // 创建FormData对象，支持多文件
+      const formData = new FormData();
+      files.forEach((file, index) => {
+        formData.append(`file${index}`, file);
+        console.log(`添加文件 ${index + 1}:`, file.name);
+      });
+      formData.append('fileCount', files.length.toString());
+      formData.append('locale', locale);
+      
+      // 同时发起两个请求：思考过程由组件自己处理，这里只处理实际分析
+      const response = await fetch('/api/analyze-multiple', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      const apiResult = await response.json();
+      
+      if (apiResult.code === 0) {
+        const analysisData = apiResult.data;
+        
+        // 调试信息：查看AI返回的照片分析数据
+        console.log('AI分析结果：', {
+          photoAnalyses: analysisData.photoAnalyses,
+          currentPreviewUrls: previewUrls
+        });
+        
+        setAnalysisResultReady(true);
+        
+        // 如果思考过程已完成，立即显示结果
+        if (thinkingComplete) {
+          setResult(analysisData);
+          setIsAnalyzing(false);
+          toast.success(t("toast_analysis_complete"));
+        } else {
+          // 否则暂存结果，等待思考过程完成
+          setPendingAnalysisResult(analysisData);
+        }
+        
+      } else {
+        toast.error(apiResult.message || t("toast_analysis_failed"));
+        setIsAnalyzing(false);
+        setShowThinkingProcess(false);
+      }
+    } catch (error) {
+      console.error(t("error_analysis"), error);
+      
+      // 提取实际的错误信息
+      let errorMessage = t("error_network");
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        errorMessage = String(error.message);
+      }
+      
+      toast.error(errorMessage);
+      setIsAnalyzing(false);
+      setShowThinkingProcess(false);
+    }
+  };
+
+  // 监听思考完成和结果准备状态
+  useEffect(() => {
+    if (thinkingComplete && analysisResultReady && pendingAnalysisResult && !isFakeStreaming) {
+      // 思考过程完成且分析结果准备好，但假流式还没开始，则开始假流式
+      const readableText = formatAnalysisToText(pendingAnalysisResult);
+      simulateStreaming(readableText);
+    }
+  }, [thinkingComplete, analysisResultReady, pendingAnalysisResult, isFakeStreaming]);
+
+  const getScoreColor = (score: number) => {
+    if (score >= 8) return "text-green-600";
+    if (score >= 6) return "text-yellow-600";
+    return "text-red-600";
+  };
+
+  const getScoreBackground = (score: number) => {
+    if (score >= 8) return "from-green-500 to-green-600";
+    if (score >= 6) return "from-yellow-500 to-yellow-600";
+    return "from-red-500 to-red-600";
+  };
+
   // 模拟流式渲染效果
   const simulateStreaming = (fullText: string) => {
     // 清理之前的定时器
@@ -267,92 +402,17 @@ export default function ProfileAnalyzer() {
           streamIntervalRef.current = null;
         }
         setIsFakeStreaming(false);
+        
+        // 假流式完成后显示最终结果
+        if (pendingAnalysisResult) {
+          setResult(pendingAnalysisResult);
+          setPendingAnalysisResult(null);
+          setIsAnalyzing(false);
+        }
+        
         toast.success(t("toast_analysis_complete"));
       }
-    }, 50); // 每50ms显示一个字符，可调整速度
-  };
-
-  // 智能流式分析（支持多图片）
-  const analyzeProfileSmart = async () => {
-    if (files.length === 0) {
-      toast.error(t("toast_upload_required"));
-      return;
-    }
-
-    setIsFakeStreaming(true);
-    setFakeStreamText("");
-    setResult(null);
-    
-    // 调试信息：确保图片URLs仍然有效
-    console.log('开始分析，当前图片信息：', {
-      filesCount: files.length,
-      previewUrlsCount: previewUrls.length,
-      previewUrls: previewUrls
-    });
-    
-    try {
-      // 创建FormData对象，支持多文件
-      const formData = new FormData();
-      files.forEach((file, index) => {
-        formData.append(`file${index}`, file);
-        console.log(`添加文件 ${index + 1}:`, file.name);
-      });
-      formData.append('fileCount', files.length.toString());
-      formData.append('locale', locale);
-      
-      // 调用多图片分析API
-      const response = await fetch('/api/analyze-multiple', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      const apiResult = await response.json();
-      
-      if (apiResult.code === 0) {
-        // 将结构化数据转换为可读文本
-        const analysisData = apiResult.data;
-        
-        // 调试信息：查看AI返回的照片分析数据
-        console.log('AI分析结果：', {
-          photoAnalyses: analysisData.photoAnalyses,
-          currentPreviewUrls: previewUrls
-        });
-        
-        const readableText = formatAnalysisToText(analysisData);
-        
-        // 开始模拟流式渲染
-        simulateStreaming(readableText);
-        
-        // 计算流式渲染所需时间，然后显示结构化结果
-        const estimatedTime = readableText.length * 50 + 2000;
-        setTimeout(() => {
-          if (!isFakeStreaming) { // 确保流式已完成
-            console.log('设置分析结果，当前previewUrls:', previewUrls);
-            setResult(analysisData);
-          }
-        }, estimatedTime);
-        
-      } else {
-        toast.error(apiResult.message || t("toast_analysis_failed"));
-        setIsFakeStreaming(false);
-      }
-    } catch (error) {
-      console.error(t("error_analysis"), error);
-      
-      // 提取实际的错误信息
-      let errorMessage = t("error_network");
-      
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else if (typeof error === 'string') {
-        errorMessage = error;
-      } else if (error && typeof error === 'object' && 'message' in error) {
-        errorMessage = String(error.message);
-      }
-      
-      toast.error(errorMessage);
-      setIsFakeStreaming(false);
-    }
+    }, 20); // 每20ms显示一个字符，可调整速度
   };
 
   // 将分析结果转换为可读文本
@@ -370,9 +430,6 @@ export default function ProfileAnalyzer() {
 
     const sections = [
       `## 🎯 ${t("dating_coach_analysis_title", { count: files.length })}\n\n`,
-      
-      // 分析思考过程
-      `## 🧠 ${t("analysis_thinking_process")}\n\n${data.analysisProcess || t("no_data")}\n\n---\n\n`,
       
       // 总体评分
       `## 🏆 ${t("overall_evaluation")}\n**${t("overall_score_display", { score: data.overallScore || 0 })}** - ${data.overallCategory || t("no_data")}\n\n${data.overallComment || t("no_data")}\n\n---\n\n`,
@@ -405,18 +462,6 @@ export default function ProfileAnalyzer() {
     );
     
     return validSections.join('');
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 8) return "text-green-600";
-    if (score >= 6) return "text-yellow-600";
-    return "text-red-600";
-  };
-
-  const getScoreBackground = (score: number) => {
-    if (score >= 8) return "from-green-500 to-green-600";
-    if (score >= 6) return "from-yellow-500 to-yellow-600";
-    return "from-red-500 to-red-600";
   };
 
   return (
@@ -540,10 +585,37 @@ export default function ProfileAnalyzer() {
 
       {/* 分析按钮 */}
       {files.length > 0 && (
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          {/* AI思考过程版本选择器 */}
+          {/* <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg border">
+            <span className="text-sm font-medium text-muted-foreground">思考过程显示:</span>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setThinkingProcessVersion('steps')}
+                className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                  thinkingProcessVersion === 'steps'
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-white text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                Plan B (步骤式)
+              </button>
+              <button
+                onClick={() => setThinkingProcessVersion('stream')}
+                className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                  thinkingProcessVersion === 'stream'
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-white text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                Plan C (流式)
+              </button>
+            </div>
+          </div> */}
+          
           <Button
             onClick={analyzeProfileSmart}
-            disabled={isAnalyzing || isStreaming || isFakeStreaming}
+            disabled={isAnalyzing || showThinkingProcess || isFakeStreaming}
             size="lg"
             className="px-8"
             variant="default"
@@ -563,96 +635,78 @@ export default function ProfileAnalyzer() {
         </div>
       )}
 
-      {/* 流式分析结果 */}
-      {(streamText || isStreaming) && (
-        <Card className="border-2 border-primary/30 bg-gradient-to-br from-background via-primary/5 to-secondary/5 shadow-2xl">
-          <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-primary/20">
-            <CardTitle className="flex items-center text-xl">
-              <div className="relative">
-                <MessageCircle className="w-6 h-6 mr-3 text-primary" />
-                {isStreaming && (
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                )}
-              </div>
-              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                {t("ai_realtime_analysis")}
-              </span>
-              {isStreaming && (
-                <div className="ml-auto flex items-center space-x-2">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                  </div>
-                  <span className="text-sm text-muted-foreground">{t("analyzing_status_short")}</span>
-                </div>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="relative">
-              {/* 科技感装饰线 */}
-              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
-              
-              <div className="p-6">
-                <div className="relative">
-                  {/* 左侧装饰条 */}
-                  <div className="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-primary to-secondary rounded-full"></div>
-                  
-                  <div className="pl-6">
-                    <StreamTextRenderer text={streamText} isStreaming={isStreaming} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* 分析思考过程组件 - 根据版本选择渲染不同组件 */}
+      {showThinkingProcess && (
+        <div className="space-y-6">
+          {/* {thinkingProcessVersion === 'steps' ? (
+            <AnalysisThinkingProcess 
+              files={files}
+              locale={locale}
+              onStreamComplete={handleThinkingComplete}
+              isVisible={showThinkingProcess}
+            />
+          ) : (
+            <AnalysisThinkingProcessStream 
+              files={files}
+              locale={locale}
+              onStreamComplete={handleThinkingComplete}
+              isVisible={showThinkingProcess}
+            />
+          )} */}
 
-      {/* 智能流式分析结果 */}
-      {(fakeStreamText || isFakeStreaming) && (
-        <Card className="border-2 border-primary/30 bg-gradient-to-br from-background via-primary/5 to-secondary/5 shadow-2xl">
-          <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-primary/20">
-            <CardTitle className="flex items-center text-xl">
-              <div className="relative">
-                <MessageCircle className="w-6 h-6 mr-3 text-primary" />
-                {isFakeStreaming && (
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                )}
-              </div>
-              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                {t("ai_multi_analysis_report")}
-              </span>
-              {isFakeStreaming && (
-                <div className="ml-auto flex items-center space-x-2">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+          <AnalysisThinkingProcessStream 
+              files={files}
+              locale={locale}
+              onStreamComplete={handleThinkingComplete}
+              isVisible={showThinkingProcess}
+          />
+          
+          {/* 假流式分析结果 - 紧跟在思考过程下方 */}
+          {(fakeStreamText || isFakeStreaming) && (
+            <Card className="border-2 border-primary/30 bg-gradient-to-br from-background via-primary/5 to-secondary/5 shadow-2xl">
+              <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-primary/20">
+                <CardTitle className="flex items-center text-xl">
+                  <div className="relative">
+                    <MessageCircle className="w-6 h-6 mr-3 text-primary" />
+                    {isFakeStreaming && (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    )}
                   </div>
-                  <span className="text-sm text-muted-foreground">{t("comprehensive_analyzing", { count: files.length })}</span>
-                </div>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="relative">
-              {/* 科技感装饰线 */}
-              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
-              
-              <div className="p-6">
+                  <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    {t("ai_multi_analysis_report")}
+                  </span>
+                  {isFakeStreaming && (
+                    <div className="ml-auto flex items-center space-x-2">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      </div>
+                      <span className="text-sm text-muted-foreground">{t("comprehensive_analyzing", { count: files.length })}</span>
+                    </div>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
                 <div className="relative">
-                  {/* 左侧装饰条 */}
-                  <div className="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-primary to-secondary rounded-full"></div>
+                  {/* 科技感装饰线 */}
+                  <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
                   
-                  <div className="pl-6">
-                    <StreamTextRenderer text={fakeStreamText} isStreaming={isFakeStreaming} />
+                  <div className="p-6">
+                    <div className="relative">
+                      {/* 左侧装饰条 */}
+                      <div className="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-primary to-secondary rounded-full"></div>
+                      
+                      <div className="pl-6">
+                        <StreamTextRenderer text={fakeStreamText} isStreaming={isFakeStreaming} />
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       )}
 
       {/* 分析结果 */}
@@ -687,39 +741,6 @@ export default function ProfileAnalyzer() {
                 <div className="text-xs text-muted-foreground mt-1 text-center">
                   {t("match_rate", { rate: result.overallScore * 10 })}
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* 分析思考过程 */}
-          <Card className="border-2 border-blue-200 bg-blue-50/50">
-            <CardHeader>
-              <CardTitle className="flex items-center text-blue-700">
-                <MessageCircle className="w-5 h-5 mr-2" />
-                {t("analysis_thinking_process")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm leading-relaxed whitespace-pre-line">
-                {result.analysisProcess}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* 总体评价 */}
-          <Card className="border-2 border-purple-200 bg-purple-50/50">
-            <CardHeader>
-              <CardTitle className="flex items-center text-purple-700">
-                <Star className="w-5 h-5 mr-2" />
-                {t("overall_evaluation")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="text-lg">
-                <strong>{t("overall_score_display", { score: result.overallScore })}</strong> - {result.overallCategory}
-              </div>
-              <div className="text-sm leading-relaxed">
-                {result.overallComment}
               </div>
             </CardContent>
           </Card>
@@ -901,6 +922,24 @@ export default function ProfileAnalyzer() {
                   </li>
                 ))}
               </ul>
+            </CardContent>
+          </Card>
+
+          {/* 总体评价 */}
+          <Card className="border-2 border-purple-200 bg-purple-50/50">
+            <CardHeader>
+              <CardTitle className="flex items-center text-purple-700">
+                <Star className="w-5 h-5 mr-2" />
+                {t("overall_evaluation")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="text-lg">
+                <strong>{t("overall_score_display", { score: result.overallScore })}</strong> - {result.overallCategory}
+              </div>
+              <div className="text-sm leading-relaxed">
+                {result.overallComment}
+              </div>
             </CardContent>
           </Card>
 
