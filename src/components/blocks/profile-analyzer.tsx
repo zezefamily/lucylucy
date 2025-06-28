@@ -310,7 +310,81 @@ export default function ProfileAnalyzer() {
         body: formData,
       });
       
-      const apiResult = await response.json();
+      // 先检查响应状态
+      if (!response.ok) {
+        // 处理HTTP错误状态
+        const errorText = await response.text();
+        console.error('API错误响应:', { 
+          status: response.status, 
+          statusText: response.statusText, 
+          body: errorText 
+        });
+        
+        let errorMessage: string;
+        
+        if (response.status === 413) {
+          errorMessage = locale === 'zh' 
+            ? "上传的图片过大，请压缩后重试" 
+            : "Uploaded images are too large, please compress and try again";
+        } else if (response.status === 400) {
+          errorMessage = locale === 'zh' 
+            ? "请求参数错误，请检查上传的图片格式" 
+            : "Invalid request parameters, please check image formats";
+        } else if (response.status === 500) {
+          errorMessage = locale === 'zh' 
+            ? "服务器内部错误，请稍后重试" 
+            : "Internal server error, please try again later";
+        } else if (response.status === 502 || response.status === 503 || response.status === 504) {
+          errorMessage = locale === 'zh' 
+            ? "服务暂时不可用，请稍后重试" 
+            : "Service temporarily unavailable, please try again later";
+        } else {
+          errorMessage = locale === 'zh' 
+            ? `请求失败 (错误码: ${response.status})，请稍后重试` 
+            : `Request failed (Error: ${response.status}), please try again later`;
+        }
+        
+        toast.error(errorMessage);
+        setIsAnalyzing(false);
+        setShowThinkingProcess(false);
+        return;
+      }
+      
+      // 检查内容类型
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('响应不是JSON格式:', { contentType });
+        const errorText = await response.text();
+        console.error('响应内容:', errorText);
+        
+        const errorMessage = locale === 'zh' 
+          ? "服务器响应格式错误，请稍后重试" 
+          : "Invalid server response format, please try again later";
+        
+        toast.error(errorMessage);
+        setIsAnalyzing(false);
+        setShowThinkingProcess(false);
+        return;
+      }
+      
+      // 尝试解析JSON
+      let apiResult;
+      try {
+        apiResult = await response.json();
+      } catch (jsonError) {
+        console.error('JSON解析失败:', jsonError);
+        const errorText = await response.text();
+        console.error('原始响应内容:', errorText);
+        
+        const errorMessage = locale === 'zh' 
+          ? "响应解析失败，请稍后重试" 
+          : "Failed to parse response, please try again later";
+        
+        toast.error(errorMessage);
+        setIsAnalyzing(false);
+        setShowThinkingProcess(false);
+        return;
+      }
       
       if (apiResult.code === 0) {
         const analysisData = apiResult.data;
@@ -344,7 +418,15 @@ export default function ProfileAnalyzer() {
       // 提取实际的错误信息
       let errorMessage = t("error_network");
       
-      if (error instanceof Error) {
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        errorMessage = locale === 'zh' 
+          ? "网络连接失败，请检查网络后重试" 
+          : "Network connection failed, please check your connection and try again";
+      } else if (error instanceof SyntaxError && error.message.includes('JSON')) {
+        errorMessage = locale === 'zh' 
+          ? "服务器响应格式错误，请稍后重试" 
+          : "Invalid server response format, please try again later";
+      } else if (error instanceof Error) {
         errorMessage = error.message;
       } else if (typeof error === 'string') {
         errorMessage = error;

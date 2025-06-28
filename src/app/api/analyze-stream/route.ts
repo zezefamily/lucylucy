@@ -3,9 +3,33 @@ import { respErr } from "@/lib/resp";
 import { getOpenAI } from "@/lib/openai-config";
 import { streamText } from "ai";
 
+// Next.js API路由配置 - 增加文件大小限制
+export const runtime = 'nodejs';
+export const maxDuration = 300; // 5分钟超时
+
 // 文件类型验证
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+// 解析FormData的安全包装函数
+async function safeParseFormData(req: NextRequest) {
+  try {
+    // 检查Content-Length头部
+    const contentLength = req.headers.get('content-length');
+    if (contentLength) {
+      const size = parseInt(contentLength, 10);
+      const maxSize = 20 * 1024 * 1024; // 20MB总限制
+      if (size > maxSize) {
+        throw new Error('Request too large');
+      }
+    }
+    
+    return await req.formData();
+  } catch (error) {
+    console.error('FormData解析错误:', error);
+    throw error;
+  }
+}
 
 // 多语言提示词配置
 const getSystemPrompt = (locale: string = 'en'): string => {
@@ -64,7 +88,7 @@ const getUserContentText = (locale: string = 'en'): string => {
 
 export async function POST(req: NextRequest) {
   try {
-    const formData = await req.formData();
+    const formData = await safeParseFormData(req);
     const file = formData.get('file') as File;
     
     // 获取语言参数，默认为英文
