@@ -13,19 +13,14 @@
     "nav": {
       "items": [
         {
-          "title": "Features",
-          "url": "/#feature",
-          "icon": "RiSparkling2Line"
+          "title": "Attraction Analysis",
+          "url": "/profile-analyzer",
+          "icon": "RiStarLine"
         },
         {
-          "title": "Pricing",
-          "url": "/pricing",
-          "icon": "RiMoneyDollarCircleLine"
-        },
-        {
-          "title": "How it Works",
-          "url": "/#usage",
-          "icon": "RiLightbulbLine"
+          "title": "Conversation Starter",
+          "url": "/conversation-starter",
+          "icon": "RiChatSmile3Line"
         }
       ]
     },
@@ -426,11 +421,11 @@
   },
   "footer": {
     "brand": {
-      "title": "lucylucy",
+      "title": "LucyLucy",
       "description": "AI-powered dating assistant that helps you create better profiles and start meaningful conversations.",
       "logo": {
         "src": "/logo.png",
-        "alt": "lucylucy"
+        "alt": "LucyLucy"
       }
     },
     "links": [

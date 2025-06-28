@@ -3,29 +3,24 @@
   "theme": "light",
   "header": {
     "brand": {
-      "title": "lucylucy",
+      "title": "LucyLucy",
       "logo": {
         "src": "/logo.png",
-        "alt": "lucylucy"
+        "alt": "LucyLucy"
       },
       "url": "/"
     },
     "nav": {
-      "items": [
+     "items": [
         {
-          "title": "功能特色",
-          "url": "/#feature",
-          "icon": "RiSparkling2Line"
+          "title": "吸引力评分",
+          "url": "/profile-analyzer",
+          "icon": "RiStarLine"
         },
         {
-          "title": "价格方案",
-          "url": "/pricing",
-          "icon": "RiMoneyDollarCircleLine"
-        },
-        {
-          "title": "使用方法",
-          "url": "/#usage",
-          "icon": "RiLightbulbLine"
+          "title": "开场白",
+          "url": "/conversation-starter",
+          "icon": "RiChatSmile3Line"
         }
       ]
     },
@@ -38,7 +33,7 @@
         "icon": "RiHeartLine"
       }
     ],
-    "show_sign": true,
+    "show_sign": false,
     "show_theme": true,
     "show_locale": true
   },
@@ -426,11 +421,11 @@
   },
   "footer": {
     "brand": {
-      "title": "lucylucy",
+      "title": "LucyLucy",
       "description": "AI驱动的交友助手，帮你创建更好的资料，开始有意义的对话。",
       "logo": {
         "src": "/logo.png",
-        "alt": "lucylucy"
+        "alt": "LucyLucy"
       }
     },
     "links": [
