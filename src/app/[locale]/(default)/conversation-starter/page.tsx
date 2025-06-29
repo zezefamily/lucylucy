@@ -5,9 +5,10 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, Sparkles, RotateCcw, Trash2, Upload, ImageIcon, X, Plus, Heart } from "lucide-react";
+import { Copy, Sparkles, RotateCcw, Trash2, Upload, ImageIcon, X, Plus, Heart, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
+import imageCompression from 'browser-image-compression';
 import { ConversationStarter, ConversationStarterResponse } from "@/types/conversation-starter";
 
 // 打字机效果组件
@@ -71,6 +72,16 @@ export default function ConversationStarterPage() {
   const [visibleStarters, setVisibleStarters] = useState<number[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  
+  // 图片压缩相关状态
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressProgress, setCompressProgress] = useState(0);
+  const [compressionStats, setCompressionStats] = useState<{
+    originalTotalSize: number;
+    compressedTotalSize: number;
+    filesCompressed: number;
+    totalFiles: number;
+  } | null>(null);
   
   const MAX_FILES = 5;
   
@@ -144,7 +155,7 @@ export default function ConversationStarterPage() {
     };
   }, []);
 
-  const handleFilesUpload = (uploadedFiles: File[]) => {
+  const handleFilesUpload = async (uploadedFiles: File[]) => {
     const validFiles: File[] = [];
     const newPreviewUrls: string[] = [];
     
@@ -155,31 +166,65 @@ export default function ConversationStarterPage() {
       return;
     }
     
-    uploadedFiles.forEach(file => {
+    // 验证文件类型和大小
+    for (const file of uploadedFiles) {
       if (!file.type.startsWith('image/')) {
         toast.error(t("toast_not_image", { name: file.name }));
-        return;
+        continue;
       }
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error(t("toast_too_large", { name: file.name }));
-        return;
+      
+      const fileSizeMB = file.size / (1024 * 1024);
+      
+      if (fileSizeMB > 50) { // 50MB 绝对上限
+        toast.error(t("toast_too_large_absolute", { name: file.name }));
+        continue;
+      }
+      
+      if (fileSizeMB > 10) { // 10MB 以上提示替换
+        toast.error(t("toast_too_large_replace", { name: file.name, size: fileSizeMB.toFixed(1) }));
+        continue;
       }
       
       validFiles.push(file);
-      newPreviewUrls.push(URL.createObjectURL(file));
-    });
+    }
     
-    if (validFiles.length > 0) {
-      setFiles(prev => [...prev, ...validFiles]);
-      setPreviewUrls(prev => [...prev, ...newPreviewUrls]);
-      setResult(null); // 清空之前的结果
+    if (validFiles.length === 0) {
+      return;
+    }
+    
+    try {
+      // 压缩图片
+      const compressedFiles = await compressImages(validFiles);
       
-      // 清理之前的定时器
-      clearStreamingTimeouts();
-      setIsStreaming(false);
-      processedResultRef.current = null;
+      // 为压缩后的文件创建预览URL
+      compressedFiles.forEach(file => {
+        newPreviewUrls.push(URL.createObjectURL(file));
+      });
       
-      toast.success(t("toast_upload_success", { count: validFiles.length }));
+      if (compressedFiles.length > 0) {
+        setFiles(prev => [...prev, ...compressedFiles]);
+        setPreviewUrls(prev => [...prev, ...newPreviewUrls]);
+        setResult(null); // 清空之前的结果
+        
+        // 清理之前的定时器
+        clearStreamingTimeouts();
+        setIsStreaming(false);
+        processedResultRef.current = null;
+        
+        // 重置压缩统计
+        setCompressionStats(null);
+        
+        // 显示上传成功信息
+        const hasCompressed = compressedFiles.some((file, index) => file.size < validFiles[index].size);
+        if (hasCompressed) {
+          toast.success(t("toast_upload_compressed_success", { count: compressedFiles.length }));
+        } else {
+          toast.success(t("toast_upload_success", { count: compressedFiles.length }));
+        }
+      }
+    } catch (error) {
+      console.error('文件处理失败:', error);
+      toast.error(t("toast_upload_failed"));
     }
   };
 
@@ -209,12 +254,19 @@ export default function ConversationStarterPage() {
     setIsStreaming(false);
     processedResultRef.current = null;
     
+    // 重置压缩统计
+    setCompressionStats(null);
+    
     toast.success(t("toast_all_cleared"));
   };
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    // 压缩过程中禁用拖拽
+    if (isCompressing) return;
+    
     if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true);
     } else if (e.type === "dragleave") {
@@ -226,6 +278,9 @@ export default function ConversationStarterPage() {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
+    
+    // 压缩过程中禁用拖拽
+    if (isCompressing) return;
     
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const droppedFiles = Array.from(e.dataTransfer.files);
@@ -304,6 +359,177 @@ export default function ConversationStarterPage() {
     }
   };
 
+  // 使用专业的图片压缩库进行压缩
+  const compressImage = async (file: File): Promise<File> => {
+    try {
+      const fileSizeMB = file.size / (1024 * 1024);
+      
+      // 高级压缩配置 - 更激进的压缩设置
+      let options = {
+        maxSizeMB: 1, // 目标大小1MB
+        maxWidthOrHeight: 1024, // 最大宽高1024px
+        useWebWorker: true, // 使用Web Worker提升性能
+        fileType: file.type as any, // 保持原始格式
+        initialQuality: 0.8, // 初始质量
+        alwaysKeepResolution: false, // 允许降低分辨率
+        maxIteration: 10, // 最大压缩迭代次数
+        exifOrientation: 1, // 处理图片方向
+        preserveExif: false, // 移除EXIF数据减小文件
+      };
+      
+      // 根据原始文件大小智能调整压缩参数
+      if (fileSizeMB > 8) {
+        options = {
+          ...options,
+          maxSizeMB: 0.8, // 更激进的压缩
+          maxWidthOrHeight: 800,
+          initialQuality: 0.4,
+          maxIteration: 15,
+        };
+      } else if (fileSizeMB > 5) {
+        options = {
+          ...options,
+          maxSizeMB: 0.9,
+          maxWidthOrHeight: 900,
+          initialQuality: 0.5,
+          maxIteration: 12,
+        };
+      } else if (fileSizeMB > 3) {
+        options = {
+          ...options,
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1024,
+          initialQuality: 0.6,
+          maxIteration: 10,
+        };
+      }
+      
+      // 如果是PNG格式且较大，考虑转换为JPEG以获得更好的压缩
+      if (file.type === 'image/png' && fileSizeMB > 3) {
+        console.log(`PNG文件较大，尝试转换为JPEG格式: ${file.name}`);
+        options.fileType = 'image/jpeg';
+        options.initialQuality = Math.max(0.4, options.initialQuality - 0.1);
+      }
+      
+      console.log(`开始压缩: ${file.name} (${fileSizeMB.toFixed(1)}MB)`, options);
+      
+      const compressedFile = await imageCompression(file, options);
+      
+      // 如果压缩后文件还是很大，进行二次压缩
+      const compressedSizeMB = compressedFile.size / (1024 * 1024);
+      if (compressedSizeMB > 1.2 && options.initialQuality > 0.3) {
+        console.log(`文件仍然较大，进行二次压缩: ${compressedSizeMB.toFixed(1)}MB`);
+        const secondOptions = {
+          ...options,
+          maxSizeMB: 1,
+          initialQuality: Math.max(0.3, options.initialQuality - 0.2),
+          maxWidthOrHeight: Math.max(800, options.maxWidthOrHeight - 200),
+        };
+        
+        return await imageCompression(compressedFile, secondOptions);
+      }
+      
+      return compressedFile;
+    } catch (error) {
+      console.error('图片压缩失败:', error);
+      throw error;
+    }
+  };
+
+  // 批量压缩图片
+  const compressImages = async (imageFiles: File[]): Promise<File[]> => {
+    const compressedFiles: File[] = [];
+    setIsCompressing(true);
+    setCompressProgress(0);
+    
+    // 初始化统计信息
+    let originalTotalSize = 0;
+    let compressedTotalSize = 0;
+    let filesCompressed = 0;
+    
+    try {
+      for (let i = 0; i < imageFiles.length; i++) {
+        const file = imageFiles[i];
+        const fileSizeMB = file.size / (1024 * 1024);
+        originalTotalSize += file.size;
+        
+        // 智能判断是否需要压缩
+        if (fileSizeMB <= 2) {
+          // 小于2MB，不压缩
+          compressedFiles.push(file);
+          compressedTotalSize += file.size;
+          console.log(`跳过压缩: ${file.name} (${fileSizeMB.toFixed(1)}MB)`);
+        } else {
+          // 压缩图片
+          const fileName = file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name;
+          toast.info(t("compressing_image", { name: fileName }));
+          
+          try {
+            const compressedFile = await compressImage(file);
+            compressedFiles.push(compressedFile);
+            compressedTotalSize += compressedFile.size;
+            filesCompressed++;
+            
+            const originalSize = (file.size / (1024 * 1024)).toFixed(1);
+            const compressedSize = (compressedFile.size / (1024 * 1024)).toFixed(1);
+            const compressionRatio = ((1 - compressedFile.size / file.size) * 100).toFixed(0);
+            
+            console.log(`图片压缩完成: ${file.name}`);
+            console.log(`原始大小: ${originalSize}MB -> 压缩后: ${compressedSize}MB (压缩率: ${compressionRatio}%)`);
+            
+            // 如果压缩效果显著，显示提示
+            if (compressedFile.size < file.size * 0.7) {
+              toast.success(t("compress_success", { 
+                name: fileName,
+                original: originalSize,
+                compressed: compressedSize,
+                ratio: compressionRatio
+              }));
+            }
+          } catch (error) {
+            console.error(`图片压缩失败: ${file.name}`, error);
+            // 压缩失败时使用原图片
+            compressedFiles.push(file);
+            compressedTotalSize += file.size;
+            toast.warning(t("compress_fallback", { name: fileName }));
+          }
+        }
+        
+        // 更新进度
+        setCompressProgress(Math.round(((i + 1) / imageFiles.length) * 100));
+      }
+      
+      // 更新压缩统计
+      setCompressionStats({
+        originalTotalSize,
+        compressedTotalSize,
+        filesCompressed,
+        totalFiles: imageFiles.length
+      });
+      
+      // 显示总体压缩效果
+      if (filesCompressed > 0) {
+        const totalSavedMB = ((originalTotalSize - compressedTotalSize) / (1024 * 1024)).toFixed(1);
+        const totalSavedPercent = ((1 - compressedTotalSize / originalTotalSize) * 100).toFixed(0);
+        
+        toast.success(t("compression_complete", {
+          count: filesCompressed,
+          savedMB: totalSavedMB,
+          savedPercent: totalSavedPercent
+        }));
+      }
+      
+      return compressedFiles;
+    } catch (error) {
+      console.error('批量压缩失败:', error);
+      toast.error(t("compress_failed"));
+      return imageFiles; // 压缩失败时返回原文件
+    } finally {
+      setIsCompressing(false);
+      setCompressProgress(0);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="text-center mb-8">
@@ -331,21 +557,46 @@ export default function ConversationStarterPage() {
           <div
             className={`relative flex flex-col items-center justify-center space-y-4 p-8 rounded-lg ${
               dragActive ? 'bg-primary/5' : ''
-            }`}
+            } ${isCompressing ? 'opacity-60 pointer-events-none' : ''}`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
             onDrop={handleDrop}
           >
             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-              {files.length > 0 ? (
+              {isCompressing ? (
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
+              ) : files.length > 0 ? (
                 <ImageIcon className="w-8 h-8 text-primary" />
               ) : (
                 <Upload className="w-8 h-8 text-primary" />
               )}
             </div>
             
-            {files.length === 0 && (
+            {/* 压缩进度显示 */}
+            {isCompressing && (
+              <div className="w-full max-w-md">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-primary">
+                    {t("compressing_images")}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    {compressProgress}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+                  <div 
+                    className="bg-gradient-to-r from-primary to-secondary h-2 rounded-full transition-all duration-300 ease-out"
+                    style={{ width: `${compressProgress}%` }}
+                  ></div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1 text-center">
+                  {t("compress_tip")}
+                </p>
+              </div>
+            )}
+            
+            {files.length === 0 && !isCompressing && (
               <div className="text-center">
                 <p className="text-lg font-medium text-foreground mb-2">
                   {t("upload_placeholder")}
@@ -373,23 +624,46 @@ export default function ConversationStarterPage() {
                   </Button>
                 </div>
                 
+                {/* 压缩统计显示 */}
+                {compressionStats && compressionStats.filesCompressed > 0 && (
+                  <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center text-green-700 dark:text-green-300">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                        {t("compression_stats")}
+                      </div>
+                      <div className="text-green-600 dark:text-green-400 font-medium">
+                        {t("saved_space", {
+                          saved: ((compressionStats.originalTotalSize - compressionStats.compressedTotalSize) / (1024 * 1024)).toFixed(1),
+                          percent: ((1 - compressionStats.compressedTotalSize / compressionStats.originalTotalSize) * 100).toFixed(0)
+                        })}
+                      </div>
+                    </div>
+                    <div className="mt-2 text-xs text-green-600 dark:text-green-400">
+                      {t("files_compressed", { compressed: compressionStats.filesCompressed, total: compressionStats.totalFiles })}
+                    </div>
+                  </div>
+                )}
+                
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                   {previewUrls.map((url, index) => (
                     <div key={index} className="relative group">
-                      <img
-                        src={url}
-                        alt={`图片预览 ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg shadow-md border border-border/50"
-                      />
+                      <div className="aspect-[3/4] bg-muted rounded-lg shadow-md border border-border/50 overflow-hidden">
+                        <img
+                          src={url}
+                          alt={`图片预览 ${index + 1}`}
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
                       <Button
                         onClick={() => removeFile(index)}
                         variant="destructive"
                         size="sm"
-                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute -top-2 -right-2 w-7 h-7 rounded-full p-0 bg-primary hover:bg-primary/80 text-white shadow-lg border-2 border-white transition-all duration-200 hover:scale-110 z-10"
                       >
-                        <X className="w-3 h-3" />
+                        <X className="w-4 h-4" />
                       </Button>
-                      <div className="absolute bottom-1 left-1 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                      <div className="absolute bottom-2 left-2 bg-black/80 text-white text-xs px-2 py-1 rounded-md font-medium shadow-sm">
                         {index + 1}
                       </div>
                     </div>
@@ -398,7 +672,7 @@ export default function ConversationStarterPage() {
                   {/* 添加更多图片按钮 */}
                   {files.length < MAX_FILES && (
                     <div
-                      className="w-full h-32 border-2 border-dashed border-border/50 rounded-lg flex items-center justify-center hover:border-primary/50 transition-colors cursor-pointer"
+                      className="aspect-[3/4] border-2 border-dashed border-border/50 rounded-lg flex items-center justify-center hover:border-primary/50 transition-colors cursor-pointer"
                       onClick={() => {
                         const input = document.querySelector('input[type="file"]') as HTMLInputElement;
                         input?.click();
@@ -418,13 +692,15 @@ export default function ConversationStarterPage() {
               type="file"
               accept="image/*"
               multiple
+              disabled={isCompressing}
               onChange={(e) => {
+                if (isCompressing) return;
                 if (e.target.files && e.target.files.length > 0) {
                   const selectedFiles = Array.from(e.target.files);
                   handleFilesUpload(selectedFiles);
                 }
               }}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
             />
             
             <Button 
@@ -433,8 +709,16 @@ export default function ConversationStarterPage() {
                 input?.click();
               }}
               variant="outline"
+              disabled={isCompressing}
             >
-              {t("select_image")}
+              {isCompressing ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  {t("compressing_images")}
+                </>
+              ) : (
+                t("select_image")
+              )}
             </Button>
           </div>
 
@@ -443,11 +727,16 @@ export default function ConversationStarterPage() {
             <div className="flex justify-center pt-4">
               <Button
                 onClick={handleGenerate}
-                disabled={isLoading || isStreaming}
+                disabled={isLoading || isStreaming || isCompressing}
                 size="lg"
                 className="px-8"
               >
-                {isLoading ? (
+                {isCompressing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    {t("compressing_images")}
+                  </>
+                ) : isLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
                     {t("generating")}
