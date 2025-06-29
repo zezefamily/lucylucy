@@ -223,6 +223,12 @@
     "toast_upload_failed": "上传失败，请重试",
     "toast_too_large_absolute": "{name} 文件过大（超过50MB），请选择更小的图片",
     "toast_too_large_replace": "{name} 图片过大（{size}MB），请替换为更小的图片（小于10MB）",
+    "compress_success": "✨ {name} 压缩成功：{original}MB → {compressed}MB（节省{ratio}%）",
+    "compress_fallback": "⚠️ {name} 压缩失败，使用原始文件",
+    "compression_complete": "🎉 已压缩{count}个文件，节省{savedMB}MB（{savedPercent}%）",
+    "compression_stats": "压缩统计",
+    "saved_space": "节省 {saved}MB（{percent}%）",
+    "files_compressed": "已压缩 {compressed}/{total} 个文件",
     "error_analysis": "分析错误",
     "error_network": "网络连接失败，请检查网络后重试"
   }

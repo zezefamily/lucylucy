@@ -223,6 +223,12 @@
     "toast_upload_failed": "Upload failed, please try again",
     "toast_too_large_absolute": "{name} is too large (over 50MB), please select smaller images",
     "toast_too_large_replace": "{name} is too large ({size}MB), please replace with a smaller image (under 10MB)",
+    "compress_success": "✨ {name} compressed: {original}MB → {compressed}MB (saved {ratio}%)",
+    "compress_fallback": "⚠️ {name} compression failed, using original file",
+    "compression_complete": "🎉 Compressed {count} files, saved {savedMB}MB ({savedPercent}%)",
+    "compression_stats": "Compression Results",
+    "saved_space": "Saved {saved}MB ({percent}%)",
+    "files_compressed": "{compressed} of {total} files compressed",
     "error_analysis": "Analysis error",
     "error_network": "Network connection failed, please check and try again"
   }

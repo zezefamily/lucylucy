@@ -67,6 +67,7 @@
     "@types/mdx": "^2.0.13",
     "@uiw/react-md-editor": "^4.0.5",
     "ai": "^4.1.64",
+    "browser-image-compression": "^2.0.2",
     "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
