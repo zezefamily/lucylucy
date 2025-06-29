@@ -543,7 +543,26 @@ export default function ConversationStarterPage() {
       </div>
 
       {/* 图片上传区域 */}
-      <Card className="mb-8 border-2 border-dashed border-border/50 hover:border-primary/50 transition-colors">
+      <div className="text-center mb-8">
+        {/* 喇叭图标和标题 */}
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <div className="p-2 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg">
+            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M18.5 3A2.5 2.5 0 0 1 21 5.5c0 .44-.06.86-.17 1.25l1.49 2.61A1 1 0 0 1 21.45 11H18a7 7 0 0 1-6.85 5.61l-.15.01V17a2 2 0 0 1-2 2H8a1 1 0 0 1-1-1v-4.66A6.8 6.8 0 0 1 6 13H2.55a1 1 0 0 1-.87-1.36l1.48-2.61A2.52 2.52 0 0 1 3 8.5A2.5 2.5 0 0 1 5.5 6c.06 0 .12 0 .18.01A2.5 2.5 0 0 1 8 4.5c.44 0 .86.06 1.25.17L11.86 3.18A1 1 0 0 1 13.23 4.55L11.74 7.17c.17.39.26.81.26 1.25a2.5 2.5 0 0 1-2.18 2.48c-.06 0-.12.01-.18.01A2.5 2.5 0 0 1 7.5 9c0-.44.06-.86.17-1.25L6.18 5.14A1 1 0 0 1 7.55 3.77L9.83 6.26c.39-.17.81-.26 1.25-.26A2.5 2.5 0 0 1 18.5 3z"/>
+            </svg>
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+            Submit a profile screenshot
+          </h2>
+        </div>
+        
+        {/* 副标题 */}
+        <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
+          Get 5x more replies
+        </p>
+      </div>
+
+      <Card className="mb-8 border-2 border-dashed border-purple-300 hover:border-purple-500 transition-colors bg-gradient-to-br from-purple-50/30 via-white to-blue-50/30">
         <CardHeader>
           <CardTitle className="text-xl flex items-center gap-2">
             <ImageIcon className="w-5 h-5" />
@@ -555,29 +574,19 @@ export default function ConversationStarterPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div
-            className={`relative flex flex-col items-center justify-center space-y-4 p-8 rounded-lg ${
-              dragActive ? 'bg-primary/5' : ''
+            className={`relative flex flex-col items-center justify-center space-y-6 min-h-[320px] ${
+              dragActive ? 'bg-purple-500/5' : ''
             } ${isCompressing ? 'opacity-60 pointer-events-none' : ''}`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
             onDrop={handleDrop}
           >
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-              {isCompressing ? (
-                <Loader2 className="w-8 h-8 text-primary animate-spin" />
-              ) : files.length > 0 ? (
-                <ImageIcon className="w-8 h-8 text-primary" />
-              ) : (
-                <Upload className="w-8 h-8 text-primary" />
-              )}
-            </div>
-            
             {/* 压缩进度显示 */}
             {isCompressing && (
               <div className="w-full max-w-md">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-primary">
+                  <span className="text-sm font-medium text-purple-600">
                     {t("compressing_images")}
                   </span>
                   <span className="text-sm text-muted-foreground">
@@ -586,7 +595,7 @@ export default function ConversationStarterPage() {
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
                   <div 
-                    className="bg-gradient-to-r from-primary to-secondary h-2 rounded-full transition-all duration-300 ease-out"
+                    className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all duration-300 ease-out"
                     style={{ width: `${compressProgress}%` }}
                   ></div>
                 </div>
@@ -597,13 +606,25 @@ export default function ConversationStarterPage() {
             )}
             
             {files.length === 0 && !isCompressing && (
-              <div className="text-center">
-                <p className="text-lg font-medium text-foreground mb-2">
-                  {t("upload_placeholder")}
+              <div className="text-center space-y-6">
+                {/* 上传图标 */}
+                <div className="w-16 h-16 mx-auto">
+                  <svg className="w-full h-full text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                </div>
+                
+                {/* 文案 */}
+                <p className="text-lg text-gray-600 dark:text-gray-400">
+                  (Drag image here or click to upload)
                 </p>
-                <p className="text-sm text-muted-foreground">
-                  {t("upload_tip")}
-                </p>
+              </div>
+            )}
+            
+            {/* 已上传图片预览 */}
+            {files.length > 0 && !isCompressing && (
+              <div className="w-16 h-16 bg-purple-500/10 rounded-full flex items-center justify-center">
+                <ImageIcon className="w-8 h-8 text-purple-500" />
               </div>
             )}
             
@@ -703,13 +724,14 @@ export default function ConversationStarterPage() {
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
             />
             
+            {/* Choose image 按钮 */}
             <Button 
               onClick={() => {
                 const input = document.querySelector('input[type="file"]') as HTMLInputElement;
                 input?.click();
               }}
-              variant="outline"
               disabled={isCompressing}
+              className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-8 py-3 rounded-lg font-medium text-lg shadow-lg hover:shadow-xl transition-all duration-200"
             >
               {isCompressing ? (
                 <>
@@ -717,7 +739,7 @@ export default function ConversationStarterPage() {
                   {t("compressing_images")}
                 </>
               ) : (
-                t("select_image")
+                "Choose image"
               )}
             </Button>
           </div>

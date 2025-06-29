@@ -393,14 +393,6 @@ export default function ProfileAnalyzer() {
         setAnalysisResultReady(false);
         setPendingAnalysisResult(null);
         
-        // 重置假流式状态
-        setFakeStreamText("");
-        setIsFakeStreaming(false);
-        if (streamIntervalRef.current) {
-          clearInterval(streamIntervalRef.current);
-          streamIntervalRef.current = null;
-        }
-        
         // 重置压缩统计
         setCompressionStats(null);
         
@@ -446,14 +438,6 @@ export default function ProfileAnalyzer() {
     setAnalysisResultReady(false);
     setPendingAnalysisResult(null);
     
-    // 重置假流式状态
-    setFakeStreamText("");
-    setIsFakeStreaming(false);
-    if (streamIntervalRef.current) {
-      clearInterval(streamIntervalRef.current);
-      streamIntervalRef.current = null;
-    }
-    
     // 重置压缩统计
     setCompressionStats(null);
     
@@ -492,10 +476,12 @@ export default function ProfileAnalyzer() {
   const handleThinkingComplete = () => {
     setThinkingComplete(true);
     
-    // 如果分析结果已经准备好，开始假流式渲染
+    // 如果分析结果已经准备好，直接显示结果，不再使用假流式
     if (analysisResultReady && pendingAnalysisResult) {
-      const readableText = formatAnalysisToText(pendingAnalysisResult);
-      simulateStreaming(readableText);
+      setResult(pendingAnalysisResult);
+      setPendingAnalysisResult(null);
+      setIsAnalyzing(false);
+      toast.success(t("toast_analysis_complete"));
     }
   };
 
@@ -668,12 +654,14 @@ export default function ProfileAnalyzer() {
 
   // 监听思考完成和结果准备状态
   useEffect(() => {
-    if (thinkingComplete && analysisResultReady && pendingAnalysisResult && !isFakeStreaming) {
-      // 思考过程完成且分析结果准备好，但假流式还没开始，则开始假流式
-      const readableText = formatAnalysisToText(pendingAnalysisResult);
-      simulateStreaming(readableText);
+    if (thinkingComplete && analysisResultReady && pendingAnalysisResult && !result) {
+      // 思考过程完成且分析结果准备好，直接显示结果
+      setResult(pendingAnalysisResult);
+      setPendingAnalysisResult(null);
+      setIsAnalyzing(false);
+      toast.success(t("toast_analysis_complete"));
     }
-  }, [thinkingComplete, analysisResultReady, pendingAnalysisResult, isFakeStreaming]);
+  }, [thinkingComplete, analysisResultReady, pendingAnalysisResult, result, t]);
 
   const getScoreColor = (score: number) => {
     if (score >= 8) return "text-green-600";
@@ -979,7 +967,7 @@ export default function ProfileAnalyzer() {
           
           <Button
             onClick={analyzeProfileSmart}
-            disabled={isAnalyzing || showThinkingProcess || isFakeStreaming || isCompressing}
+            disabled={isAnalyzing || showThinkingProcess || isCompressing}
             size="lg"
             className="px-8"
             variant="default"
@@ -1030,8 +1018,8 @@ export default function ProfileAnalyzer() {
               isVisible={showThinkingProcess}
           />
           
-          {/* 假流式分析结果 - 紧跟在思考过程下方 */}
-          {(fakeStreamText || isFakeStreaming) && (
+          {/* 假流式分析结果 - 暂时隐藏 */}
+          {/* {(fakeStreamText || isFakeStreaming) && (
             <Card className="border-2 border-primary/30 bg-gradient-to-br from-background via-primary/5 to-secondary/5 shadow-2xl">
               <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-primary/20">
                 <CardTitle className="flex items-center text-xl">
@@ -1058,12 +1046,10 @@ export default function ProfileAnalyzer() {
               </CardHeader>
               <CardContent className="p-0">
                 <div className="relative">
-                  {/* 科技感装饰线 */}
                   <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
                   
                   <div className="p-6">
                     <div className="relative">
-                      {/* 左侧装饰条 */}
                       <div className="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-primary to-secondary rounded-full"></div>
                       
                       <div className="pl-6">
@@ -1074,7 +1060,7 @@ export default function ProfileAnalyzer() {
                 </div>
               </CardContent>
             </Card>
-          )}
+          )} */}
         </div>
       )}
 
