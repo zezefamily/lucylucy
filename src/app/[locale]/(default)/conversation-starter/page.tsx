@@ -636,10 +636,13 @@ export default function ConversationStarterPage() {
                     {t("image_count", { count: files.length })} / {MAX_FILES}
                   </p>
                   <Button
-                    onClick={clearAllFiles}
+                    onClick={(e) => {
+                      e.stopPropagation(); // 阻止事件冒泡，防止触发文件选择
+                      clearAllFiles();
+                    }}
                     variant="ghost"
                     size="sm"
-                    className="text-red-600 hover:text-red-700"
+                    className="text-red-600 hover:text-red-700 relative z-10"
                   >
                     {t("clear_images")}
                   </Button>
@@ -743,37 +746,37 @@ export default function ConversationStarterPage() {
               )}
             </Button>
           </div>
-
-          {/* 生成按钮 */}
-          {files.length > 0 && (
-            <div className="flex justify-center pt-4">
-              <Button
-                onClick={handleGenerate}
-                disabled={isLoading || isStreaming || isCompressing}
-                size="lg"
-                className="px-8"
-              >
-                {isCompressing ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    {t("compressing_images")}
-                  </>
-                ) : isLoading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                    {t("generating")}
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    {t("generate")}
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
         </CardContent>
       </Card>
+
+      {/* 生成按钮 - 移出Card外部 */}
+      {files.length > 0 && (
+        <div className="flex justify-center mb-8">
+          <Button
+            onClick={handleGenerate}
+            disabled={isLoading || isStreaming || isCompressing}
+            size="lg"
+            className="px-8 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-medium text-lg shadow-lg hover:shadow-xl transition-all duration-200"
+          >
+            {isCompressing ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                {t("compressing_images")}
+              </>
+            ) : isLoading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                {t("generating")}
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4 mr-2" />
+                {t("generate")}
+              </>
+            )}
+          </Button>
+        </div>
+      )}
 
       {/* Loading State */}
       {isLoading && (

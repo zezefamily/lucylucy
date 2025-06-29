@@ -826,10 +826,13 @@ export default function ProfileAnalyzer() {
                     {t("uploaded_count", { count: files.length, max: MAX_FILES })}
                   </p>
                   <Button
-                    onClick={clearAllFiles}
+                    onClick={(e) => {
+                      e.stopPropagation(); // 阻止事件冒泡，防止触发文件选择
+                      clearAllFiles();
+                    }}
                     variant="ghost"
                     size="sm"
-                    className="text-red-600 hover:text-red-700"
+                    className="text-red-600 hover:text-red-700 relative z-10"
                   >
                     {t("clear_all")}
                   </Button>

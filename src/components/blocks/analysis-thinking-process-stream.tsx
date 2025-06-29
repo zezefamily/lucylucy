@@ -347,7 +347,7 @@ export default function AnalysisThinkingProcessStream({
               ref={contentRef}
               onScroll={handleScroll}
               className={`overflow-y-auto scrollbar-thin scrollbar-thumb-primary/60 scrollbar-track-gray-100 transition-all duration-300 ${
-                streamText || isStreaming || isBuffering ? 'max-h-80 p-6' : 'max-h-0 p-0'
+                streamText || isStreaming || isBuffering ? 'max-h-60 p-6' : 'max-h-0 p-0'
               }`}
               style={{
                 scrollbarWidth: 'thin',
