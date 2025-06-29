@@ -14,7 +14,7 @@
       "items": [
         {
           "title": "Attraction Analysis",
-          "url": "/profile-analyzer",
+          "url": "/",
           "icon": "RiStarLine"
         },
         {
@@ -27,7 +27,7 @@
     "buttons": [
       {
         "title": "Get Started Free",
-        "url": "/profile-analyzer",
+        "url": "/",
         "target": "_self",
         "variant": "default",
         "icon": "RiHeartLine"
@@ -46,7 +46,7 @@
       {
         "title": "Get Started Now",
         "icon": "RiHeartLine",
-        "url": "/profile-analyzer",
+        "url": "/",
         "target": "_self",
         "variant": "default"
       }

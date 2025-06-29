@@ -14,7 +14,7 @@
      "items": [
         {
           "title": "吸引力评分",
-          "url": "/profile-analyzer",
+          "url": "/",
           "icon": "RiStarLine"
         },
         {
@@ -27,7 +27,7 @@
     "buttons": [
       {
         "title": "免费开始",
-        "url": "/profile-analyzer",
+        "url": "/",
         "target": "_self",
         "variant": "default",
         "icon": "RiHeartLine"
@@ -46,7 +46,7 @@
       {
         "title": "立即体验",
         "icon": "RiHeartLine",
-        "url": "/profile-analyzer",
+        "url": "/",
         "target": "_self",
         "variant": "default"
       }
