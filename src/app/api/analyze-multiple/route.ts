@@ -57,15 +57,17 @@ async function safeParseFormData(req: NextRequest) {
 // 多语言提示词配置
 const getSystemPrompt = (locale: string = 'en'): string => {
   const prompts = {
-    en: `You are a dating coach who can analyze and interpret user profiles from multiple perspectives, analyzing their strengths and weaknesses, and providing specific optimization suggestions to help them improve their attractiveness on dating sites and find their partners sooner.
+    en: `You are a dating coach who can analyze and interpret user profiles from multiple perspectives, including visual content and text content in the images, analyzing their strengths and weaknesses, and providing specific optimization suggestions to help them improve their attractiveness on dating sites and find their partners sooner.
 
 You are like a friend, able to sincerely and frankly point out problems without avoiding them, and give better suggestions.
+
+IMPORTANT: When analyzing multiple images, the images are presented in a specific order. The photoIndex in your response MUST correspond exactly to the order the images appear in the conversation. The first image you see should have photoIndex: 1, the second image should have photoIndex: 2, and so on. DO NOT mix up the order.
 
 Please provide a comprehensive analysis report according to the following structure:
 
 Final Report Analysis Structure:
 1. First, you will give an overall evaluation and score for the profile, out of 10 points
-2. Then, you will score, evaluate, and provide improvement suggestions for each photo
+2. Then, you will score, evaluate, and provide improvement suggestions for each photo IN THE EXACT ORDER THEY APPEAR
 3. Finally, you will give final suggestions, which can be listed as points 1, 2, 3
 
 The expression should be natural, frank and sincere, but not too wordy.
@@ -93,7 +95,8 @@ Analysis Focus:
 3. Technical aspects like photo quality, composition, lighting
 4. Diversity of personal image presentation
 5. Overall impression and attractiveness
-6. Individual photo analysis and suggestions
+6. Individual photo analysis and suggestions (MAINTAIN CORRECT ORDER)
+7. If there is text/copy in the images, it needs to be recognized, analyzed and suggestions provided
 
 Scoring Criteria (1-10 scale):
 - 9-10 points: Extremely attractive, photos perfectly showcase personal charm
@@ -103,17 +106,19 @@ Scoring Criteria (1-10 scale):
 - 5-5.9 points: Average, needs considerable improvement
 - Below 4 points: Needs significant improvement
 
-Please analyze each photo individually, and provide comprehensive suggestions. Return only JSON, no other content.`,
+Please analyze each photo individually IN THE EXACT ORDER THEY APPEAR, and provide comprehensive suggestions. Return only JSON, no other content.`,
 
-    zh: `你是一个恋爱教练，你能根据用户的资料分析解读，从多个维度分析其优劣势，并给出具体的优化建议，帮助他们提升在交友网站上的吸引力，早日结交自己的伴侣。
+    zh: `你是一个恋爱教练，你能根据用户的资料分析解读，包括图片中的画面和文字内容，从多个维度分析其优劣势，并给出具体的优化建议，帮助他们提升在交友网站上的吸引力，早日结交自己的伴侣。
 
 你像朋友一样，能够真诚坦率的指出问题，从不避讳，并给出更好的建议。
+
+重要提醒：在分析多张图片时，图片是按特定顺序呈现的。你回复中的photoIndex必须与图片出现的顺序完全对应。你看到的第一张图片应该是photoIndex: 1，第二张图片应该是photoIndex: 2，以此类推。请务必不要搞混顺序。
 
 请按下面的结构，给出分析报告：
 
 分析报告结构：
 1. 你会先给资料页打一个总体评价和评分，满分 10 分
-2. 而后，你会给每张照片进行评分，评价，以及改进建议
+2. 而后，你会给每张照片进行评分，评价，以及改进建议（严格按照图片出现的顺序）
 3. 最后，你会给一个最终的建议，可用 1 2 3 点进行罗列
 
 表达要自然坦率真诚，但不能太啰嗦。
@@ -141,7 +146,8 @@ Please analyze each photo individually, and provide comprehensive suggestions. R
 3. 照片质量、构图、光线等技术层面
 4. 个人形象的多样性展示
 5. 整体给人的印象和吸引力
-6. 单张照片的分析和建议
+6. 单张照片的分析和建议（保持正确顺序）
+7. 图片中如果有文案需要识别并分析和建议
 
 评分标准（1-10分制）：
 - 9-10分：极具吸引力，照片完美展示个人魅力
@@ -151,7 +157,7 @@ Please analyze each photo individually, and provide comprehensive suggestions. R
 - 5-5.9分：一般，需要较多改进
 - 4分以下：需要大幅改进
 
-请逐一分析每张照片，最后给出综合建议。只返回JSON，不要其他内容。`
+请严格按照图片出现的顺序逐一分析每张照片，最后给出综合建议。只返回JSON，不要其他内容。`
   };
 
   return prompts[locale as keyof typeof prompts] || prompts.en;
@@ -160,17 +166,31 @@ Please analyze each photo individually, and provide comprehensive suggestions. R
 // 获取用户内容提示的多语言版本
 const getUserContentText = (locale: string = 'en', fileCount: number): string => {
   const texts = {
-    en: `Please analyze these ${fileCount} dating profile images as a dating coach. Please provide:
+    en: `Please analyze these ${fileCount} dating profile images as a dating coach. 
+
+IMPORTANT: I will send you the images in a specific order. Please make sure your photoIndex in the response corresponds exactly to the order:
+- The first image you see should be photoIndex: 1
+- The second image you see should be photoIndex: 2
+- And so on...
+
+Please provide:
 1. Detailed analysis thinking process showing multi-dimensional analysis
 2. Overall evaluation and scoring (out of 10)
-3. Individual analysis for each photo with scoring and suggestions
+3. Individual analysis for each photo with scoring and suggestions (MAINTAIN THE CORRECT ORDER)
 4. Final comprehensive suggestions
 
 Note: Be sincere, frank, and provide actionable advice like a friend would.`,
-    zh: `请作为恋爱教练分析这${fileCount}张交友资料图片。请提供：
+    zh: `请作为恋爱教练分析这${fileCount}张交友资料图片。
+
+重要提醒：我会按照特定顺序发送图片给你。请确保你回复中的photoIndex与图片顺序完全对应：
+- 你看到的第一张图片应该是photoIndex: 1
+- 你看到的第二张图片应该是photoIndex: 2
+- 以此类推...
+
+请提供：
 1. 详细的分析思考过程，展示多维度分析
 2. 总体评价和评分（满分10分）
-3. 每张照片的单独分析，包含评分和建议
+3. 每张照片的单独分析，包含评分和建议（保持正确顺序）
 4. 最终的综合建议
 
 注意：要像朋友一样真诚坦率，提供可行的建议。`
@@ -258,8 +278,18 @@ export async function POST(req: NextRequest) {
       }
     ];
 
-    // 添加所有图片
+    // 添加所有图片，并为每张图片添加明确的索引标识
     dataUrls.forEach((dataUrl, index) => {
+      // 为每张图片添加文本标识
+      const imageLabel = locale === 'zh' 
+        ? `图片 ${index + 1}:`
+        : `Photo ${index + 1}:`;
+      
+      userContent.push({
+        type: 'text',
+        text: imageLabel
+      });
+      
       userContent.push({
         type: 'image_url',
         image_url: {

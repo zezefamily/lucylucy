@@ -44,7 +44,7 @@ Please demonstrate your analysis thinking step by step, covering:
 4. **Psychological Impact** - What emotions and impressions these photos might evoke
 5. **Comparative Analysis** - How photos work together, consistency, variety
 6. **Target Audience Consideration** - How different demographics might perceive these
-7. **Market Positioning** - Where this profile stands in the dating market
+7. **Attraction Competitiveness Analysis** - Compared to other users, what are the advantages and features
 
 Be detailed and thorough in showing your thinking process. This helps build credibility and trust. Write in a natural, conversational tone as if you're thinking out loud.
 
@@ -62,7 +62,7 @@ Please respond in a natural, flowing narrative format, not structured lists or J
 4. **心理层面影响** - 这些照片可能给人带来什么情感和印象
 5. **综合搭配分析** - 照片之间的协调性、一致性、多样性
 6. **目标受众考量** - 不同群体可能如何看待这些照片
-7. **市场定位分析** - 这个资料在交友市场中的位置
+7. **吸引力竞争力分析** - 相比其他用户的优势和特色
 
 在展示思考过程时要详细透彻，这有助于建立可信度和信任感。用自然、对话式的语调，就像在自言自语思考一样。
 

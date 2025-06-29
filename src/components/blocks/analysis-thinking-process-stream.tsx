@@ -386,8 +386,8 @@ export default function AnalysisThinkingProcessStream({
                         </div>
                         <span className="text-xs text-primary font-medium">
                           {isStreaming 
-                            ? (locale === 'zh' ? '正在思考...' : 'Thinking...') 
-                            : (locale === 'zh' ? '正在输出...' : 'Outputting...')
+                            ? (locale === 'zh' ? '...' : '...') 
+                            : (locale === 'zh' ? '...' : '...')
                           }
                         </span>
                       </div>

@@ -1,6 +1,7 @@
 export interface ConversationStarter {
   starters: string[];
   topic: string;
+  analysis?: string;
 }
 
 export interface ConversationStarterRequest {
@@ -12,5 +13,6 @@ export interface ConversationStarterResponse {
   success: boolean;
   starters: string[];
   topic: string;
+  analysis?: string;
   error?: string;
 } 

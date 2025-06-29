@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -83,11 +83,44 @@ export default function ConversationStarterPage() {
     totalFiles: number;
   } | null>(null);
   
+  // 新增：analysis相关状态
+  const [isShowingAnalysis, setIsShowingAnalysis] = useState(false);
+  const [analysisComplete, setAnalysisComplete] = useState(false);
+  const [analysisTypingComplete, setAnalysisTypingComplete] = useState(false);
+  
   const MAX_FILES = 5;
   
   // 使用 ref 来追踪当前处理的结果，避免重复执行
   const processedResultRef = useRef<ConversationStarter | null>(null);
   const streamingTimeoutsRef = useRef<NodeJS.Timeout[]>([]);
+  const prevLocaleRef = useRef<string>(locale);
+  const completedAnalysisRef = useRef<string>('');
+
+  // 使用 useMemo 来稳定 analysis 内容的渲染
+  const analysisContent = useMemo(() => {
+    if (!result?.analysis) return null;
+    
+    // 如果已经完成打字或者是同一个analysis内容
+    if (analysisTypingComplete || completedAnalysisRef.current === result.analysis) {
+      return <span>{result.analysis}</span>;
+    }
+    
+    // 否则显示TypewriterText
+    return (
+      <TypewriterText 
+        key={`analysis-${result.topic}-${locale}-${result.analysis.substring(0, 50)}`}
+        text={result.analysis} 
+        speed={20}
+        onComplete={() => {
+          setAnalysisComplete(true); 
+          setAnalysisTypingComplete(true);
+          if (result.analysis) {
+            completedAnalysisRef.current = result.analysis;
+          }
+        }}
+      />
+    );
+  }, [result?.analysis, result?.topic, locale, analysisTypingComplete]);
 
   // 清理定时器和预览URL
   useEffect(() => {
@@ -117,30 +150,70 @@ export default function ConversationStarterPage() {
     processedResultRef.current = result;
     setIsStreaming(true);
     setVisibleStarters([]);
+    setIsShowingAnalysis(false);
+    setAnalysisComplete(false);
+    setAnalysisTypingComplete(false);
 
     // 清除之前的定时器
     clearStreamingTimeouts();
     
-    // 逐行显示开场白
-    result.starters.forEach((starter, index) => {
-      const timeout = setTimeout(() => {
-        setVisibleStarters(prev => [...prev, index]);
-        
-        // 如果是最后一行，等待打字完成后结束流式效果
-        if (index === result.starters.length - 1) {
-          // 计算最后一行打字完成的时间
-          const textLength = starter.length;
-          const typingDuration = textLength * 30; // 30ms per character
-          
-          const endTimeout = setTimeout(() => {
-            setIsStreaming(false);
-          }, typingDuration + 500); // 额外等待500ms
-          streamingTimeoutsRef.current.push(endTimeout);
-        }
-      }, index * 1200); // 每行延迟1200ms，给打字机效果留出时间
+    // 如果有analysis内容，先显示analysis
+    if (result.analysis) {
+      // 开始显示analysis
+      const analysisTimeout = setTimeout(() => {
+        setIsShowingAnalysis(true);
+      }, 500);
+      streamingTimeoutsRef.current.push(analysisTimeout);
       
-      streamingTimeoutsRef.current.push(timeout);
-    });
+      // analysis显示完成后，开始显示starters
+      const analysisLength = result.analysis.length;
+      const analysisTypingDuration = analysisLength * 20; // 20ms per character
+      
+      const startersStartTimeout = setTimeout(() => {
+        setAnalysisComplete(true);
+        
+        // 逐行显示开场白
+        result.starters.forEach((starter, index) => {
+          const timeout = setTimeout(() => {
+            setVisibleStarters(prev => [...prev, index]);
+            
+            // 如果是最后一行，等待打字完成后结束流式效果
+            if (index === result.starters.length - 1) {
+              const textLength = starter.length;
+              const typingDuration = textLength * 30; // 30ms per character
+              
+              const endTimeout = setTimeout(() => {
+                setIsStreaming(false);
+              }, typingDuration + 500);
+              streamingTimeoutsRef.current.push(endTimeout);
+            }
+          }, index * 1200); // 每行延迟1200ms
+          
+          streamingTimeoutsRef.current.push(timeout);
+        });
+      }, analysisTypingDuration + 1000); // analysis完成后延迟1秒
+      
+      streamingTimeoutsRef.current.push(startersStartTimeout);
+    } else {
+      // 没有analysis，直接显示starters
+      result.starters.forEach((starter, index) => {
+        const timeout = setTimeout(() => {
+          setVisibleStarters(prev => [...prev, index]);
+          
+          if (index === result.starters.length - 1) {
+            const textLength = starter.length;
+            const typingDuration = textLength * 30;
+            
+            const endTimeout = setTimeout(() => {
+              setIsStreaming(false);
+            }, typingDuration + 500);
+            streamingTimeoutsRef.current.push(endTimeout);
+          }
+        }, index * 1200);
+        
+        streamingTimeoutsRef.current.push(timeout);
+      });
+    }
 
     // 清理函数
     return () => {
@@ -154,6 +227,26 @@ export default function ConversationStarterPage() {
       clearStreamingTimeouts();
     };
   }, []);
+
+  // 监听locale变化，重置相关状态
+  useEffect(() => {
+    // 只有当locale真正发生变化时才重置状态
+    if (prevLocaleRef.current !== locale && result) {
+      // 语言切换时，如果有结果，重置状态以重新播放动画
+      setIsShowingAnalysis(false);
+      setAnalysisComplete(false);
+      setAnalysisTypingComplete(false);
+      setVisibleStarters([]);
+      setIsStreaming(false);
+      clearStreamingTimeouts();
+      // 清理已完成的analysis记录
+      completedAnalysisRef.current = '';
+      // 不重置processedResultRef，让流式输出效果重新触发
+      processedResultRef.current = null;
+    }
+    // 更新上一次的locale
+    prevLocaleRef.current = locale;
+  }, [locale]); // 只依赖locale
 
   const handleFilesUpload = async (uploadedFiles: File[]) => {
     const validFiles: File[] = [];
@@ -209,6 +302,10 @@ export default function ConversationStarterPage() {
         // 清理之前的定时器
         clearStreamingTimeouts();
         setIsStreaming(false);
+        setIsShowingAnalysis(false);
+        setAnalysisComplete(false);
+        setAnalysisTypingComplete(false);
+        completedAnalysisRef.current = '';
         processedResultRef.current = null;
         
         // 重置压缩统计
@@ -248,10 +345,14 @@ export default function ConversationStarterPage() {
     setPreviewUrls([]);
     setResult(null);
     setVisibleStarters([]);
+    setIsShowingAnalysis(false);
+    setAnalysisComplete(false);
+    setAnalysisTypingComplete(false);
     
     // 清理定时器
     clearStreamingTimeouts();
     setIsStreaming(false);
+    completedAnalysisRef.current = '';
     processedResultRef.current = null;
     
     // 重置压缩统计
@@ -299,7 +400,11 @@ export default function ConversationStarterPage() {
     setIsLoading(true);
     setResult(null);
     setVisibleStarters([]);
+    setIsShowingAnalysis(false);
+    setAnalysisComplete(false);
+    setAnalysisTypingComplete(false);
     setIsStreaming(false);
+    completedAnalysisRef.current = '';
     processedResultRef.current = null;
     
     try {
@@ -319,10 +424,12 @@ export default function ConversationStarterPage() {
       const data = await response.json();
 
       if (data.code === 0 && data.data?.starters?.length > 0) {
-        setResult({
+        const resultData = {
           starters: data.data.starters,
-          topic: data.data.topic
-        });
+          topic: data.data.topic,
+          analysis: data.data.analysis
+        };
+        setResult(resultData);
         toast.success(t("toast_analysis_complete"));
       } else {
         toast.error(data.message || t("no_results"));
@@ -349,7 +456,11 @@ export default function ConversationStarterPage() {
     clearStreamingTimeouts();
     setResult(null);
     setVisibleStarters([]);
+    setIsShowingAnalysis(false);
+    setAnalysisComplete(false);
+    setAnalysisTypingComplete(false);
     setIsStreaming(false);
+    completedAnalysisRef.current = '';
     processedResultRef.current = null;
   };
 
@@ -552,13 +663,13 @@ export default function ConversationStarterPage() {
             </svg>
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-            Submit a profile screenshot
+            {t("profile_screenshot_title")}
           </h2>
         </div>
         
         {/* 副标题 */}
         <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
-          Get 5x more replies
+          {t("profile_screenshot_subtitle")}
         </p>
       </div>
 
@@ -616,7 +727,7 @@ export default function ConversationStarterPage() {
                 
                 {/* 文案 */}
                 <p className="text-lg text-gray-600 dark:text-gray-400">
-                  (Drag image here or click to upload)
+                  {t("drag_upload_text")}
                 </p>
               </div>
             )}
@@ -675,7 +786,7 @@ export default function ConversationStarterPage() {
                       <div className="aspect-[3/4] bg-muted rounded-lg shadow-md border border-border/50 overflow-hidden">
                         <img
                           src={url}
-                          alt={`图片预览 ${index + 1}`}
+                          alt={t("image_preview_alt", { index: index + 1 })}
                           className="w-full h-full object-contain"
                         />
                       </div>
@@ -742,7 +853,7 @@ export default function ConversationStarterPage() {
                   {t("compressing_images")}
                 </>
               ) : (
-                "Choose image"
+                t("choose_image")
               )}
             </Button>
           </div>
@@ -833,10 +944,47 @@ export default function ConversationStarterPage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
+            {/* Lucy的分析思考过程 */}
+            {result.analysis && (
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center">
+                    <span className="text-white text-sm font-bold">L</span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    {t("lucy_analysis_title")}
+                  </h3>
+                </div>
+                
+                <div className={`transition-opacity duration-700 ease-out ${
+                  isShowingAnalysis ? 'opacity-100' : 'opacity-0'
+                }`}>
+                  {isShowingAnalysis && (
+                    <div className="bg-gradient-to-r from-purple-50/50 to-pink-50/50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg p-4 border border-purple-200/50 dark:border-purple-700/50">
+                      <div className="text-sm leading-relaxed text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                        {analysisContent}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* 分隔线 */}
+                {analysisComplete && (
+                  <div className="mt-6 mb-4 flex items-center">
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-purple-300 to-transparent"></div>
+                    <div className="px-4 text-sm font-medium text-purple-600 dark:text-purple-400">
+                      {t("recommended_starters")}
+                    </div>
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-purple-300 to-transparent"></div>
+                  </div>
+                )}
+              </div>
+            )}
+            
             {/* 显示已流式输出的开场白 */}
             {result.starters.map((starter, index) => (
               <div
-                key={`starter-${index}`}
+                key={`starter-wrapper-${index}`}
                 className={`transition-opacity duration-700 ease-out ${
                   visibleStarters.includes(index)
                     ? 'opacity-100'
@@ -850,6 +998,7 @@ export default function ConversationStarterPage() {
                     </div>
                     <div className="flex-1 text-sm leading-relaxed">
                       <TypewriterText 
+                        key={`starter-${index}-${result.topic}-${locale}-${starter.substring(0, 30)}`}
                         text={starter} 
                         speed={30}
                       />

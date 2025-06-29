@@ -71,8 +71,8 @@ export async function POST(req: NextRequest) {
       {
         type: 'text',
         text: isChineseLocale 
-          ? `请分析这${files.length}张照片中的人物，基于他们的外貌、穿着、风格、兴趣爱好和个性特征，生成10个个性化的聊天开场白。这些开场白应该能够提升交友成功率、增加好感度和兴趣度。`
-          : `Please analyze the person(s) in these ${files.length} photo(s), and based on their appearance, clothing, style, interests, and personality traits, generate 10 personalized conversation starters that would increase dating success rate, likability, and interest.`
+          ? `请分析这${files.length}张照片中的人物，基于他们的外貌、穿着、风格、兴趣爱好和个性特征，生成5组不同风格的个性化聊天开场白。这些开场白应该能够提升交友成功率、增加好感度和兴趣度。`
+          : `Please analyze the person(s) in these ${files.length} photo(s), and based on their appearance, clothing, style, interests, and personality traits, generate 5 different styles of personalized conversation starters that would increase dating success rate, likability, and interest.`
       }
     ];
 
@@ -87,44 +87,48 @@ export async function POST(req: NextRequest) {
     });
 
     const systemPrompt = isChineseLocale 
-      ? `你是一位专业的交友顾问和心理学专家。请根据用户上传的照片分析对方的特征，生成高质量的个性化开场白。
+      ? `你是一个恋爱教练，名叫 Lucy。
+你能根据用户提交所匹配对象的资料页和照片信息，针对性生成不同风格的开场白，帮助他们提升回复率。
 
-分析维度：
-1. 外貌特征和风格品味
-2. 穿着打扮和时尚感
-3. 兴趣爱好和生活方式
-4. 性格特质和气质
-5. 社交场景和环境背景
+你需要一步步详细展示你的分析思考过程，这样可以提升专业性和可信度，包括：
+• 对对方兴趣爱好和性格的判断
+• 对三观和感情观的判断
+• 可能喜欢什么类型的人
+• 你的对话策略和写作思路
+
+然后给出5组不同风格的高回复率开场白。
 
 开场白要求：
-- 个性化：针对对方的具体特征
-- 自然友好：不显突兀或刻意
-- 引起兴趣：能够激发对话欲望  
-- 增加好感：展现你的观察力和真诚
-- 实用性强：适合在真实社交场景使用
-- 避免过于直接或唐突的表达
-- 每个开场白应该简洁明了，易于使用
+• 语气自然随意，接近真实对话
+• 内容简短，避免过长
+• 不要使用引号
 
-请直接列出10个开场白，每行一个，不需要编号或额外说明。`
-      : `You are a professional dating coach and psychology expert. Please analyze the characteristics of the person(s) in the uploaded photos and generate high-quality personalized conversation starters.
+请按照以下JSON格式返回结果，注意只返回JSON内容，不要使用markdown代码块：
+{
+  "analysis": "这里是完整的分析思考过程",
+  "starters": ["开场白1", "开场白2", "开场白3", "开场白4", "开场白5"]
+}`
+      : `You are a dating coach named Lucy.
+You can generate targeted conversation starters in different styles based on the profile and photos of the person the user wants to match with, helping them improve response rates.
 
-Analysis dimensions:
-1. Physical features and style taste
-2. Clothing and fashion sense  
-3. Hobbies and lifestyle
-4. Personality traits and temperament
-5. Social scenes and environmental background
+You need to show your detailed analysis and thinking process step by step to enhance professionalism and credibility, including:
+• Judgment on the person's interests and personality
+• Assessment of their values and relationship views
+• What type of person they might like
+• Your conversation strategy and writing approach
+
+Then provide 5 different styles of high-response-rate conversation starters.
 
 Conversation starter requirements:
-- Personalized: Target specific characteristics of the person
-- Natural and friendly: Not awkward or forced
-- Interest-generating: Able to spark desire for conversation
-- Likability-enhancing: Show your observation skills and sincerity
-- Practical: Suitable for real social scenarios
-- Avoid overly direct or abrupt expressions
-- Each starter should be concise and easy to use
+• Natural and casual tone, close to real conversation
+• Keep content brief, avoid being too lengthy
+• Do not use quotation marks
 
-Please list 10 conversation starters directly, one per line, without numbering or additional explanations.`;
+Please return the result in the following JSON format, only return JSON content without markdown code blocks:
+{
+  "analysis": "Complete analysis and thinking process here",
+  "starters": ["starter1", "starter2", "starter3", "starter4", "starter5"]
+}`;
 
     try {
       const response = await getOpenAIClient().chat.completions.create({
@@ -141,6 +145,7 @@ Please list 10 conversation starters directly, one per line, without numbering o
         ],
         temperature: 0.8,
         max_tokens: 1000,
+        response_format: { type: "json_object" },
       });
 
       const result = response.choices[0].message.content;
@@ -149,12 +154,49 @@ Please list 10 conversation starters directly, one per line, without numbering o
         return respErr("AI 分析失败，请重试");
       }
 
-      // 解析生成的开场白
-      const starters = result
-        .split('\n')
-        .filter(line => line.trim().length > 0)
-        .map(line => line.replace(/^\d+\.\s*/, '').trim())
-        .filter(line => line.length > 5);
+      // 解析JSON响应
+      let parsedResult;
+      try {
+        // 尝试直接解析JSON
+        parsedResult = JSON.parse(result);
+      } catch (parseError) {
+        console.error("直接JSON解析失败，尝试提取JSON内容:", parseError);
+        console.log("原始响应内容:", result);
+        
+        // 尝试从markdown代码块中提取JSON
+        let jsonContent = result;
+        
+        // 移除可能的markdown代码块标记
+        jsonContent = jsonContent.replace(/```json\s*/gi, '').replace(/```\s*$/gi, '');
+        jsonContent = jsonContent.replace(/```\s*/gi, '');
+        
+        // 尝试找到JSON对象的开始和结束
+        const jsonStart = jsonContent.indexOf('{');
+        const jsonEnd = jsonContent.lastIndexOf('}');
+        
+        if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+          jsonContent = jsonContent.substring(jsonStart, jsonEnd + 1);
+          
+          try {
+            parsedResult = JSON.parse(jsonContent);
+            console.log("成功从文本中提取JSON");
+          } catch (secondError) {
+            console.error("提取JSON失败:", secondError);
+            console.log("提取的内容:", jsonContent);
+            return respErr("AI响应格式错误，请重试");
+          }
+        } else {
+          console.error("未找到有效的JSON结构");
+          return respErr("AI响应格式错误，请重试");
+        }
+      }
+
+      // 验证响应结构
+      if (!parsedResult.analysis || !Array.isArray(parsedResult.starters)) {
+        return respErr("AI响应结构不完整，请重试");
+      }
+
+      const { analysis, starters } = parsedResult;
 
       if (starters.length === 0) {
         return respErr("未能生成有效的开场白，请重试");
@@ -162,6 +204,7 @@ Please list 10 conversation starters directly, one per line, without numbering o
 
       return respData({
         success: true,
+        analysis,
         starters,
         topic: `基于${files.length}张图片的分析`, // 用于显示的主题描述
         imageCount: files.length
