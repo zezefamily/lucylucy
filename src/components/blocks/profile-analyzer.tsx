@@ -150,7 +150,7 @@ export default function ProfileAnalyzer() {
     totalFiles: number;
   } | null>(null);
   
-  const MAX_FILES = 5;
+  const MAX_FILES = 9;
 
   // 清理预览URL
   useEffect(() => {

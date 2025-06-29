@@ -88,7 +88,7 @@ export default function ConversationStarterPage() {
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [analysisTypingComplete, setAnalysisTypingComplete] = useState(false);
   
-  const MAX_FILES = 5;
+  const MAX_FILES = 9;
   
   // 使用 ref 来追踪当前处理的结果，避免重复执行
   const processedResultRef = useRef<ConversationStarter | null>(null);
