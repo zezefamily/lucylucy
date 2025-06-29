@@ -163,7 +163,9 @@
     "based_on_photos": "基于 {count} 张图片",
     "completion_message": "开场白生成完成！选择最适合的来开始对话吧 ❤️",
     "lucy_analysis_title": "Lucy 的分析思考过程",
-    "recommended_starters": "推荐开场白"
+    "recommended_starters": "推荐开场白",
+    "upload_format_tip": "支持 JPG、PNG、GIF 等格式，最大 10MB",
+    "upload_icon_alt": "上传图标"
   },
   "profile_analyzer": {
     "page_title": "交友照片分析器 - lucylucy",
@@ -179,6 +181,7 @@
     "feature_privacy_desc": "数据加密传输，分析后立即删除",
     "upload_placeholder": "拖拽图片到这里，或点击选择",
     "upload_tip": "支持 JPG、PNG 格式，每张图片不超过 10MB，最多上传 5 张（大文件自动压缩优化）",
+    "upload_guide_image": "上传引导图",
     "select_image": "选择图片",
     "add_image": "添加图片",
     "uploaded_count": "已上传 {count}/{max} 张图片",

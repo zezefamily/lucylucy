@@ -163,7 +163,9 @@
     "based_on_photos": "Based on {count} photos",
     "completion_message": "Conversation starters generated! Choose the most suitable one to start chatting ❤️",
     "lucy_analysis_title": "Lucy's Analysis Process",
-    "recommended_starters": "Recommended Starters"
+    "recommended_starters": "Recommended Starters",
+    "upload_format_tip": "Supports JPG, PNG, GIF formats, max 10MB",
+    "upload_icon_alt": "Upload Icon"
   },
   "profile_analyzer": {
     "page_title": "Dating Photo Analyzer - lucylucy",
@@ -179,6 +181,7 @@
     "feature_privacy_desc": "Encrypted transmission, data deleted after analysis",
     "upload_placeholder": "Drag images here or click to select",
     "upload_tip": "Supports JPG, PNG formats, max 10MB per image, up to 5 images (auto-compression for large files)",
+    "upload_guide_image": "Upload Guide Image",
     "select_image": "Select Image",
     "add_image": "Add Image",
     "uploaded_count": "Uploaded {count}/{max} images",

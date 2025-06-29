@@ -3,10 +3,10 @@
   "theme": "light",
   "header": {
     "brand": {
-      "title": "LucyLucy",
+      "title": "Lucy AI",
       "logo": {
         "src": "/logo.png",
-        "alt": "LucyLucy"
+        "alt": "Lucy AI"
       },
       "url": "/"
     },
@@ -409,11 +409,11 @@
   },
   "footer": {
     "brand": {
-      "title": "LucyLucy",
+      "title": "Lucy AI",
       "description": "AI-powered dating assistant that helps you create better profiles and start meaningful conversations.",
       "logo": {
         "src": "/logo.png",
-        "alt": "LucyLucy"
+        "alt": "Lucy AI"
       }
     },
     "links": [

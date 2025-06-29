@@ -809,6 +809,19 @@ export default function ProfileAnalyzer() {
             
             {files.length === 0 && !isCompressing && (
               <div className="text-center">
+                {/* 引导图片 */}
+                <div className="mb-6 flex justify-center">
+                  <div className="relative">
+                    <img
+                      src="/imgs/lucy/profile_analyzer_upload_icon.png"
+                      alt={t("upload_guide_image")}
+                      className="w-48 h-48 md:w-56 md:h-56 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300"
+                    />
+                    {/* 装饰性光环效果 */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-secondary/10 rounded-full animate-pulse"></div>
+                  </div>
+                </div>
+                
                 <p className="text-lg font-medium text-foreground mb-2">
                   {t("upload_placeholder")}
                 </p>

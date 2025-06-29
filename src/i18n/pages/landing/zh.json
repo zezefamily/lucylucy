@@ -3,10 +3,10 @@
   "theme": "light",
   "header": {
     "brand": {
-      "title": "LucyLucy",
+      "title": "Lucy AI",
       "logo": {
         "src": "/logo.png",
-        "alt": "LucyLucy"
+        "alt": "Lucy AI"
       },
       "url": "/"
     },
@@ -409,11 +409,11 @@
   },
   "footer": {
     "brand": {
-      "title": "LucyLucy",
+      "title": "Lucy AI",
       "description": "AI驱动的交友助手，帮你创建更好的资料，开始有意义的对话。",
       "logo": {
         "src": "/logo.png",
-        "alt": "LucyLucy"
+        "alt": "Lucy AI"
       }
     },
     "links": [

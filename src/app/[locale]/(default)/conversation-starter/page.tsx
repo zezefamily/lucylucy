@@ -718,26 +718,37 @@ export default function ConversationStarterPage() {
             
             {files.length === 0 && !isCompressing && (
               <div className="text-center space-y-6">
-                {/* 上传图标 */}
-                <div className="w-16 h-16 mx-auto">
-                  <svg className="w-full h-full text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                  </svg>
+                {/* 上传图标 - 使用用户提供的图片 */}
+                <div className="w-50 h-50 md:w-50 md:h-50 mx-auto flex items-center justify-center">
+                  <img 
+                    src="/imgs/lucy/conversation_starter_upload_icon.png" 
+                    alt={t("upload_icon_alt")}
+                    className="w-full h-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-300"
+                  />
                 </div>
                 
                 {/* 文案 */}
-                <p className="text-lg text-gray-600 dark:text-gray-400">
-                  {t("drag_upload_text")}
-                </p>
+                <div className="space-y-3">
+                  <p className="text-xl md:text-2xl font-medium text-gray-800 dark:text-gray-200">
+                    {t("drag_upload_text")}
+                  </p>
+                  <p className="text-sm md:text-base text-gray-500 dark:text-gray-400">
+                    {t("upload_format_tip")}
+                  </p>
+                </div>
               </div>
             )}
             
             {/* 已上传图片预览 */}
-            {files.length > 0 && !isCompressing && (
-              <div className="w-16 h-16 bg-purple-500/10 rounded-full flex items-center justify-center">
-                <ImageIcon className="w-8 h-8 text-purple-500" />
+            {/* {files.length > 0 && !isCompressing && (
+              <div className="w-20 h-20 bg-purple-500/10 rounded-full flex items-center justify-center">
+                <img 
+                  src="/imgs/lucy/conversation_starter_upload_icon.png" 
+                  alt={t("upload_icon_alt")}
+                  className="w-12 h-12 object-contain opacity-70"
+                />
               </div>
-            )}
+            )} */}
             
             {/* 图片预览网格 */}
             {files.length > 0 && (
