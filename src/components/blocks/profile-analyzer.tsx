@@ -1327,11 +1327,6 @@ export default function ProfileAnalyzer() {
                     {t("try_conversation_starter")}
                   </a>
                 </Button>
-                <Button variant="outline" asChild>
-                  <a href="/stream-analyzer">
-                    {t("try_stream_analyzer")}
-                  </a>
-                </Button>
               </div>
             </CardContent>
           </Card>
