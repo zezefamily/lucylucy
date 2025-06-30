@@ -139,6 +139,7 @@
     "result_description": "基于图片分析生成",
     "copy": "复制",
     "copied": "已复制！",
+    "copy_manual_hint": "请手动复制选中的文本 (Ctrl+C / Cmd+C)",
     "clear": "清空",
     "clear_images": "清空图片",
     "try_again": "重新生成",

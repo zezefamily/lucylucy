@@ -5,11 +5,11 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, Sparkles, RotateCcw, Trash2, Upload, ImageIcon, X, Plus, Heart, Loader2 } from "lucide-react";
+import { Copy, Sparkles, RotateCcw, Trash2, X, Plus, Heart, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
 import imageCompression from 'browser-image-compression';
-import { ConversationStarter, ConversationStarterResponse } from "@/types/conversation-starter";
+import { ConversationStarter } from "@/types/conversation-starter";
 
 // 打字机效果组件
 const TypewriterText = ({ 
@@ -444,11 +444,59 @@ export default function ConversationStarterPage() {
 
   const handleCopy = async (text: string) => {
     try {
-      await navigator.clipboard.writeText(text);
-      toast.success(t("copied"));
+      // 检查是否支持现代 Clipboard API
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        toast.success(t("copied"));
+        return;
+      }
+      
+      // Fallback: 使用传统的 execCommand 方法
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      if (successful) {
+        toast.success(t("copied"));
+      } else {
+        throw new Error('execCommand failed');
+      }
     } catch (error) {
       console.error("Failed to copy:", error);
-      toast.error(t("toast_copy_failed"));
+      
+      // 最终 fallback: 提示用户手动复制
+      if (typeof window !== 'undefined') {
+        // 尝试选中文本让用户手动复制
+        const selection = window.getSelection();
+        if (selection) {
+          selection.removeAllRanges();
+          const range = document.createRange();
+          const textNode = document.createTextNode(text);
+          document.body.appendChild(textNode);
+          range.selectNode(textNode);
+          selection.addRange(range);
+          
+          toast.info(t("copy_manual_hint") || "Please manually copy the selected text (Ctrl+C / Cmd+C)");
+          
+          // 3秒后清理
+          setTimeout(() => {
+            document.body.removeChild(textNode);
+            selection.removeAllRanges();
+          }, 3000);
+        } else {
+          toast.error(t("toast_copy_failed"));
+        }
+      } else {
+        toast.error(t("toast_copy_failed"));
+      }
     }
   };
 
@@ -1020,7 +1068,7 @@ export default function ConversationStarterPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleCopy(starter)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300"
                     >
                       <Copy className="w-4 h-4" />
                     </Button>
