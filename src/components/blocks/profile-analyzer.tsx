@@ -930,23 +930,26 @@ export default function ProfileAnalyzer() {
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
             />
             
-            <Button 
-              onClick={() => {
-                const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-                input?.click();
-              }}
-              disabled={isCompressing}
-              className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-8 py-3 rounded-lg font-medium text-lg shadow-lg hover:shadow-xl transition-all duration-200"
-            >
-              {isCompressing ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {t("compressing_images")}
-                </>
-              ) : (
-                t("select_image")
-              )}
-            </Button>
+            {/* 只在没有图片时显示select_image按钮 */}
+            {files.length === 0 && !isCompressing && (
+              <Button 
+                onClick={() => {
+                  const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+                  input?.click();
+                }}
+                disabled={isCompressing}
+                className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-8 py-3 rounded-lg font-medium text-lg shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                {isCompressing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    {t("compressing_images")}
+                  </>
+                ) : (
+                  t("select_image")
+                )}
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>

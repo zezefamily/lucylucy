@@ -124,7 +124,7 @@
   },
   "conversation_starter": {
     "title": "AI 开场白生成器",
-    "description": "上传对方的资料图片，AI 为你生成个性化的聊天开场白",
+    "description": "上传对方的资料图片，Lucy 为你生成个性化的聊天开场白",
     "profile_screenshot_title": "提交个人资料截图",
     "profile_screenshot_subtitle": "获得5倍更多回复",
     "upload_title": "上传图片",
