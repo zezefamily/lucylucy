@@ -40,7 +40,7 @@ export default async function HomePage({ params }: Props) {
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
               {t("title")}
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               {t("subtitle")}
             </p>
           </div>
@@ -54,7 +54,7 @@ export default async function HomePage({ params }: Props) {
                 </svg>
               </div>
               <h3 className="text-xs md:text-base font-semibold mb-1 md:mb-2 leading-tight">{t("feature_ai_score_title")}</h3>
-              <p className="text-[10px] md:text-sm text-muted-foreground leading-tight hidden md:block">
+              <p className="text-[10px] md:text-sm text-gray-600 leading-tight hidden md:block">
                 {t("feature_ai_score_desc")}
               </p>
             </div>
@@ -66,7 +66,7 @@ export default async function HomePage({ params }: Props) {
                 </svg>
               </div>
               <h3 className="text-xs md:text-base font-semibold mb-1 md:mb-2 leading-tight">{t("feature_advice_title")}</h3>
-              <p className="text-[10px] md:text-sm text-muted-foreground leading-tight hidden md:block">
+              <p className="text-[10px] md:text-sm text-gray-600 leading-tight hidden md:block">
                 {t("feature_advice_desc")}
               </p>
             </div>
@@ -78,7 +78,7 @@ export default async function HomePage({ params }: Props) {
                 </svg>
               </div>
               <h3 className="text-xs md:text-base font-semibold mb-1 md:mb-2 leading-tight">{t("feature_privacy_title")}</h3>
-              <p className="text-[10px] md:text-sm text-muted-foreground leading-tight hidden md:block">
+              <p className="text-[10px] md:text-sm text-gray-600 leading-tight hidden md:block">
                 {t("feature_privacy_desc")}
               </p>
             </div>

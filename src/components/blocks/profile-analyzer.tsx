@@ -774,7 +774,7 @@ export default function ProfileAnalyzer() {
             onDragOver={handleDrag}
             onDrop={handleDrop}
           >
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+            {/* <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
               {isCompressing ? (
                 <Loader2 className="w-8 h-8 text-primary animate-spin" />
               ) : files.length > 0 ? (
@@ -782,7 +782,7 @@ export default function ProfileAnalyzer() {
               ) : (
                 <Upload className="w-8 h-8 text-primary" />
               )}
-            </div>
+            </div> */}
             
             {/* 压缩进度显示 */}
             {isCompressing && (
@@ -935,8 +935,8 @@ export default function ProfileAnalyzer() {
                 const input = document.querySelector('input[type="file"]') as HTMLInputElement;
                 input?.click();
               }}
-              variant="outline"
               disabled={isCompressing}
+              className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-8 py-3 rounded-lg font-medium text-lg shadow-lg hover:shadow-xl transition-all duration-200"
             >
               {isCompressing ? (
                 <>

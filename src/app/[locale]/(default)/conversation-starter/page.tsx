@@ -648,33 +648,33 @@ export default function ConversationStarterPage() {
           <Heart className="w-8 h-8 text-primary" />
           {t("title")}
         </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
           {t("description")}
         </p>
       </div>
 
       {/* 图片上传区域 */}
-      <div className="text-center mb-8">
-        {/* 喇叭图标和标题 */}
+      {/* <div className="text-center mb-8"> */}
+        {/* 喇叭图标和标题
         <div className="flex items-center justify-center gap-3 mb-4">
           <div className="p-2 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg">
             <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
               <path d="M18.5 3A2.5 2.5 0 0 1 21 5.5c0 .44-.06.86-.17 1.25l1.49 2.61A1 1 0 0 1 21.45 11H18a7 7 0 0 1-6.85 5.61l-.15.01V17a2 2 0 0 1-2 2H8a1 1 0 0 1-1-1v-4.66A6.8 6.8 0 0 1 6 13H2.55a1 1 0 0 1-.87-1.36l1.48-2.61A2.52 2.52 0 0 1 3 8.5A2.5 2.5 0 0 1 5.5 6c.06 0 .12 0 .18.01A2.5 2.5 0 0 1 8 4.5c.44 0 .86.06 1.25.17L11.86 3.18A1 1 0 0 1 13.23 4.55L11.74 7.17c.17.39.26.81.26 1.25a2.5 2.5 0 0 1-2.18 2.48c-.06 0-.12.01-.18.01A2.5 2.5 0 0 1 7.5 9c0-.44.06-.86.17-1.25L6.18 5.14A1 1 0 0 1 7.55 3.77L9.83 6.26c.39-.17.81-.26 1.25-.26A2.5 2.5 0 0 1 18.5 3z"/>
             </svg>
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
             {t("profile_screenshot_title")}
           </h2>
-        </div>
+        </div> */}
         
-        {/* 副标题 */}
-        <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
+        {/* 副标题
+        <p className="text-lg text-gray-600 mb-8">
           {t("profile_screenshot_subtitle")}
-        </p>
-      </div>
+        </p> */}
+      {/* </div> */}
 
       <Card className="mb-8 border-2 border-dashed border-purple-300 hover:border-purple-500 transition-colors bg-gradient-to-br from-purple-50/30 via-white to-blue-50/30">
-        <CardHeader>
+        {/* <CardHeader>
           <CardTitle className="text-xl flex items-center gap-2">
             <ImageIcon className="w-5 h-5" />
             {t("upload_title")}
@@ -682,7 +682,7 @@ export default function ConversationStarterPage() {
           <CardDescription>
             {t("upload_description")}
           </CardDescription>
-        </CardHeader>
+        </CardHeader> */}
         <CardContent className="space-y-4">
           <div
             className={`relative flex flex-col items-center justify-center space-y-6 min-h-[320px] ${
@@ -700,17 +700,17 @@ export default function ConversationStarterPage() {
                   <span className="text-sm font-medium text-purple-600">
                     {t("compressing_images")}
                   </span>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-sm text-gray-600">
                     {compressProgress}%
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+                <div className="w-full bg-gray-200 rounded-full h-2">
                   <div 
                     className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all duration-300 ease-out"
                     style={{ width: `${compressProgress}%` }}
                   ></div>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1 text-center">
+                <p className="text-xs text-gray-600 mt-1 text-center">
                   {t("compress_tip")}
                 </p>
               </div>
@@ -729,10 +729,10 @@ export default function ConversationStarterPage() {
                 
                 {/* 文案 */}
                 <div className="space-y-3">
-                  <p className="text-xl md:text-2xl font-medium text-gray-800 dark:text-gray-200">
+                  <p className="text-xl md:text-2xl font-medium text-gray-800">
                     {t("drag_upload_text")}
                   </p>
-                  <p className="text-sm md:text-base text-gray-500 dark:text-gray-400">
+                  <p className="text-sm md:text-base text-gray-500">
                     {t("upload_format_tip")}
                   </p>
                 </div>
@@ -754,7 +754,7 @@ export default function ConversationStarterPage() {
             {files.length > 0 && (
               <div className="mt-4 w-full">
                 <div className="flex items-center justify-between mb-4">
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-gray-600">
                     {t("image_count", { count: files.length })} / {MAX_FILES}
                   </p>
                   <Button
@@ -772,20 +772,20 @@ export default function ConversationStarterPage() {
                 
                 {/* 压缩统计显示 */}
                 {compressionStats && compressionStats.filesCompressed > 0 && (
-                  <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                     <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center text-green-700 dark:text-green-300">
+                      <div className="flex items-center text-green-700">
                         <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                         {t("compression_stats")}
                       </div>
-                      <div className="text-green-600 dark:text-green-400 font-medium">
+                      <div className="text-green-600 font-medium">
                         {t("saved_space", {
                           saved: ((compressionStats.originalTotalSize - compressionStats.compressedTotalSize) / (1024 * 1024)).toFixed(1),
                           percent: ((1 - compressionStats.compressedTotalSize / compressionStats.originalTotalSize) * 100).toFixed(0)
                         })}
                       </div>
                     </div>
-                    <div className="mt-2 text-xs text-green-600 dark:text-green-400">
+                    <div className="mt-2 text-xs text-green-600">
                       {t("files_compressed", { compressed: compressionStats.filesCompressed, total: compressionStats.totalFiles })}
                     </div>
                   </div>
@@ -825,8 +825,8 @@ export default function ConversationStarterPage() {
                       }}
                     >
                       <div className="text-center">
-                        <Plus className="w-6 h-6 text-muted-foreground mx-auto mb-1" />
-                        <p className="text-xs text-muted-foreground">{t("add_more")}</p>
+                        <Plus className="w-6 h-6 text-gray-600 mx-auto mb-1" />
+                        <p className="text-xs text-gray-600">{t("add_more")}</p>
                       </div>
                     </div>
                   )}
@@ -962,7 +962,7 @@ export default function ConversationStarterPage() {
                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center">
                     <span className="text-white text-sm font-bold">L</span>
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  <h3 className="text-lg font-semibold text-gray-900">
                     {t("lucy_analysis_title")}
                   </h3>
                 </div>
@@ -971,8 +971,8 @@ export default function ConversationStarterPage() {
                   isShowingAnalysis ? 'opacity-100' : 'opacity-0'
                 }`}>
                   {isShowingAnalysis && (
-                    <div className="bg-gradient-to-r from-purple-50/50 to-pink-50/50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg p-4 border border-purple-200/50 dark:border-purple-700/50">
-                      <div className="text-sm leading-relaxed text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                    <div className="bg-gradient-to-r from-purple-50/50 to-pink-50/50 rounded-lg p-4 border border-purple-200/50">
+                      <div className="text-sm leading-relaxed text-gray-700 whitespace-pre-wrap">
                         {analysisContent}
                       </div>
                     </div>
@@ -983,7 +983,7 @@ export default function ConversationStarterPage() {
                 {analysisComplete && (
                   <div className="mt-6 mb-4 flex items-center">
                     <div className="flex-1 h-px bg-gradient-to-r from-transparent via-purple-300 to-transparent"></div>
-                    <div className="px-4 text-sm font-medium text-purple-600 dark:text-purple-400">
+                    <div className="px-4 text-sm font-medium text-purple-600">
                       {t("recommended_starters")}
                     </div>
                     <div className="flex-1 h-px bg-gradient-to-r from-transparent via-purple-300 to-transparent"></div>
@@ -1053,7 +1053,7 @@ export default function ConversationStarterPage() {
               <div className="mt-6 p-4 rounded-lg bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20">
                 <div className="flex items-center space-x-2">
                   <Heart className="w-4 h-4 text-green-600" />
-                  <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                  <span className="text-sm font-medium text-green-700">
                     {t("completion_message")}
                   </span>
                 </div>
