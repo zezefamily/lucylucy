@@ -525,11 +525,11 @@ export default function ConversationStarterPage() {
       
       // 高级压缩配置 - 更激进的压缩设置
       let options = {
-        maxSizeMB: 1, // 目标大小1MB
-        maxWidthOrHeight: 1024, // 最大宽高1024px
+        maxSizeMB: 0.6, // 目标大小0.8MB，更适合网络传输
+        maxWidthOrHeight: 800, // 最大宽高1024px
         useWebWorker: true, // 使用Web Worker提升性能
         fileType: file.type as any, // 保持原始格式
-        initialQuality: 0.8, // 初始质量
+        initialQuality: 0.75, // 初始质量略微降低
         alwaysKeepResolution: false, // 允许降低分辨率
         maxIteration: 10, // 最大压缩迭代次数
         exifOrientation: 1, // 处理图片方向
@@ -540,7 +540,7 @@ export default function ConversationStarterPage() {
       if (fileSizeMB > 8) {
         options = {
           ...options,
-          maxSizeMB: 0.8, // 更激进的压缩
+          maxSizeMB: 0.6, // 大文件压缩得更小
           maxWidthOrHeight: 800,
           initialQuality: 0.4,
           maxIteration: 15,
@@ -548,23 +548,33 @@ export default function ConversationStarterPage() {
       } else if (fileSizeMB > 5) {
         options = {
           ...options,
-          maxSizeMB: 0.9,
+          maxSizeMB: 0.7,
           maxWidthOrHeight: 900,
           initialQuality: 0.5,
           maxIteration: 12,
         };
-      } else if (fileSizeMB > 3) {
+      } else if (fileSizeMB > 2) {
+        // 2-5MB的文件，适度压缩
         options = {
           ...options,
-          maxSizeMB: 1,
+          maxSizeMB: 0.8,
           maxWidthOrHeight: 1024,
           initialQuality: 0.6,
           maxIteration: 10,
         };
+      } else {
+        // 1-2MB的文件，轻度压缩保持质量
+        options = {
+          ...options,
+          maxSizeMB: 0.9,
+          maxWidthOrHeight: 1200,
+          initialQuality: 0.75,
+          maxIteration: 8,
+        };
       }
       
       // 如果是PNG格式且较大，考虑转换为JPEG以获得更好的压缩
-      if (file.type === 'image/png' && fileSizeMB > 3) {
+      if (file.type === 'image/png' && fileSizeMB > 2) {
         console.log(`PNG文件较大，尝试转换为JPEG格式: ${file.name}`);
         options.fileType = 'image/jpeg';
         options.initialQuality = Math.max(0.4, options.initialQuality - 0.1);
@@ -576,11 +586,11 @@ export default function ConversationStarterPage() {
       
       // 如果压缩后文件还是很大，进行二次压缩
       const compressedSizeMB = compressedFile.size / (1024 * 1024);
-      if (compressedSizeMB > 1.2 && options.initialQuality > 0.3) {
+      if (compressedSizeMB > 1.0 && options.initialQuality > 0.3) {
         console.log(`文件仍然较大，进行二次压缩: ${compressedSizeMB.toFixed(1)}MB`);
         const secondOptions = {
           ...options,
-          maxSizeMB: 1,
+          maxSizeMB: 0.8,
           initialQuality: Math.max(0.3, options.initialQuality - 0.2),
           maxWidthOrHeight: Math.max(800, options.maxWidthOrHeight - 200),
         };
@@ -613,15 +623,16 @@ export default function ConversationStarterPage() {
         originalTotalSize += file.size;
         
         // 智能判断是否需要压缩
-        if (fileSizeMB <= 2) {
-          // 小于2MB，不压缩
+        if (fileSizeMB <= 1) {
+          // 小于1MB，不压缩 - 已经足够小且质量适中
           compressedFiles.push(file);
           compressedTotalSize += file.size;
-          console.log(`跳过压缩: ${file.name} (${fileSizeMB.toFixed(1)}MB)`);
+          console.log(`跳过压缩: ${file.name} (${fileSizeMB.toFixed(1)}MB - 文件已足够小)`);
         } else {
+          // 大于1MB需要压缩 - 优化网络传输和服务器性能
           // 压缩图片
           const fileName = file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name;
-          toast.info(t("compressing_image", { name: fileName }));
+          // toast.info(t("compressing_image", { name: fileName }));
           
           try {
             const compressedFile = await compressImage(file);
@@ -637,20 +648,20 @@ export default function ConversationStarterPage() {
             console.log(`原始大小: ${originalSize}MB -> 压缩后: ${compressedSize}MB (压缩率: ${compressionRatio}%)`);
             
             // 如果压缩效果显著，显示提示
-            if (compressedFile.size < file.size * 0.7) {
-              toast.success(t("compress_success", { 
-                name: fileName,
-                original: originalSize,
-                compressed: compressedSize,
-                ratio: compressionRatio
-              }));
-            }
+            // if (compressedFile.size < file.size * 0.7) {
+            //   toast.success(t("compress_success", { 
+            //     name: fileName,
+            //     original: originalSize,
+            //     compressed: compressedSize,
+            //     ratio: compressionRatio
+            //   }));
+            // }
           } catch (error) {
             console.error(`图片压缩失败: ${file.name}`, error);
             // 压缩失败时使用原图片
             compressedFiles.push(file);
             compressedTotalSize += file.size;
-            toast.warning(t("compress_fallback", { name: fileName }));
+            // toast.warning(t("compress_fallback", { name: fileName }));
           }
         }
         
@@ -667,16 +678,16 @@ export default function ConversationStarterPage() {
       });
       
       // 显示总体压缩效果
-      if (filesCompressed > 0) {
-        const totalSavedMB = ((originalTotalSize - compressedTotalSize) / (1024 * 1024)).toFixed(1);
-        const totalSavedPercent = ((1 - compressedTotalSize / originalTotalSize) * 100).toFixed(0);
-        
-        toast.success(t("compression_complete", {
-          count: filesCompressed,
-          savedMB: totalSavedMB,
-          savedPercent: totalSavedPercent
-        }));
-      }
+      // if (filesCompressed > 0) {
+      //   const totalSavedMB = ((originalTotalSize - compressedTotalSize) / (1024 * 1024)).toFixed(1);
+      //   const totalSavedPercent = ((1 - compressedTotalSize / originalTotalSize) * 100).toFixed(0);
+      //   
+      //   toast.success(t("compression_complete", {
+      //     count: filesCompressed,
+      //     savedMB: totalSavedMB,
+      //     savedPercent: totalSavedPercent
+      //   }));
+      // }
       
       return compressedFiles;
     } catch (error) {

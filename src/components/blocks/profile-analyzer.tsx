@@ -268,7 +268,7 @@ export default function ProfileAnalyzer() {
         } else {
           // 压缩图片
           const fileName = file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name;
-          toast.info(t("compressing_image", { name: fileName }));
+          // toast.info(t("compressing_image", { name: fileName }));
           
           try {
             const compressedFile = await compressImage(file);
@@ -284,14 +284,14 @@ export default function ProfileAnalyzer() {
             console.log(`原始大小: ${originalSize}MB -> 压缩后: ${compressedSize}MB (压缩率: ${compressionRatio}%)`);
             
             // 如果压缩效果显著，显示提示
-            if (compressedFile.size < file.size * 0.7) {
-              toast.success(t("compress_success", { 
-                name: fileName,
-                original: originalSize,
-                compressed: compressedSize,
-                ratio: compressionRatio
-              }));
-            }
+            // if (compressedFile.size < file.size * 0.7) {
+            //   toast.success(t("compress_success", { 
+            //     name: fileName,
+            //     original: originalSize,
+            //     compressed: compressedSize,
+            //     ratio: compressionRatio
+            //   }));
+            // }
           } catch (error) {
             console.error(`图片压缩失败: ${file.name}`, error);
             // 压缩失败时使用原图片
@@ -314,16 +314,16 @@ export default function ProfileAnalyzer() {
       });
       
       // 显示总体压缩效果
-      if (filesCompressed > 0) {
-        const totalSavedMB = ((originalTotalSize - compressedTotalSize) / (1024 * 1024)).toFixed(1);
-        const totalSavedPercent = ((1 - compressedTotalSize / originalTotalSize) * 100).toFixed(0);
-        
-        toast.success(t("compression_complete", {
-          count: filesCompressed,
-          savedMB: totalSavedMB,
-          savedPercent: totalSavedPercent
-        }));
-      }
+      // if (filesCompressed > 0) {
+      //   const totalSavedMB = ((originalTotalSize - compressedTotalSize) / (1024 * 1024)).toFixed(1);
+      //   const totalSavedPercent = ((1 - compressedTotalSize / originalTotalSize) * 100).toFixed(0);
+      //   
+      //   toast.success(t("compression_complete", {
+      //     count: filesCompressed,
+      //     savedMB: totalSavedMB,
+      //     savedPercent: totalSavedPercent
+      //   }));
+      // }
       
       return compressedFiles;
     } catch (error) {
@@ -398,11 +398,11 @@ export default function ProfileAnalyzer() {
         
         // 显示上传成功信息
         const hasCompressed = compressedFiles.some((file, index) => file.size < validFiles[index].size);
-        if (hasCompressed) {
-          toast.success(t("toast_upload_compressed_success", { count: compressedFiles.length }));
-        } else {
-          toast.success(t("toast_upload_success", { count: compressedFiles.length }));
-        }
+        // if (hasCompressed) {
+        //   toast.success(t("toast_upload_compressed_success", { count: compressedFiles.length }));
+        // } else {
+        //   toast.success(t("toast_upload_success", { count: compressedFiles.length }));
+        // }
       }
     } catch (error) {
       console.error('文件处理失败:', error);
