@@ -973,22 +973,23 @@ export default function ConversationStarterPage() {
       {/* Results with Streaming Effect */}
       {result && !isLoading && (
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex-1 min-w-0">
               <CardTitle className="text-xl flex items-center gap-2">
                 <Heart className="w-5 h-5 text-primary" />
                 {t("result_title")}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="mt-1">
                 {t("result_description")} • {t("based_on_photos", { count: files.length })} • {t("success_tip")}
               </CardDescription>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-shrink-0">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleTryAgain}
                 disabled={isLoading || isStreaming}
+                className="flex-1 sm:flex-none"
               >
                 <RotateCcw className="w-4 h-4 mr-2" />
                 {t("try_again")}
@@ -998,6 +999,7 @@ export default function ConversationStarterPage() {
                 size="sm"
                 onClick={handleClear}
                 disabled={isStreaming}
+                className="flex-1 sm:flex-none"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
                 {t("clear")}

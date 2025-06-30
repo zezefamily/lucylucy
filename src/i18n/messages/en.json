@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "LucyLucy - AI Dating Assistant | Profile Analyzer & Conversation Starter",
-    "description": "LucyLucy is your AI-powered dating assistant. Upload photos to get charm ratings, personalized improvement suggestions, and conversation starters to boost your dating success.",
-    "keywords": "AI Dating Assistant, Profile Analyzer, Conversation Starter, Dating AI, LucyLucy"
+    "title": "LucyAI - AI Dating Assistant | Profile Analyzer & Conversation Starter",
+    "description": "LucyAI is your AI-powered dating assistant. Upload photos to get charm ratings, personalized improvement suggestions, and conversation starters to boost your dating success.",
+    "keywords": "AI Dating Assistant, Profile Analyzer, Conversation Starter, Dating AI, LucyAI"
   },
   "user": {
     "sign_in": "Sign In",
@@ -134,7 +134,7 @@
     "upload_tip": "Upload photos to generate personalized conversation starters",
     "choose_image": "Create a line they won't forget",
     "generate": "Generate Starters",
-    "generating": "AI is analyzing...",
+    "generating": "Lucy is analyzing...",
     "result_title": "Personalized Conversation Starters",
     "result_description": "Based on photo analysis",
     "copy": "Copy",
@@ -150,7 +150,7 @@
     "image_preview_alt": "Image preview {index}",
     "remove_image": "Remove photo",
     "add_more": "Add more",
-    "analyzing_tip": "AI is analyzing the person's features, style and interests in the photos...",
+    "analyzing_tip": "Lucy is analyzing the person's features, style and interests in the photos...",
     "success_tip": "Personalized conversation starters generated based on photo analysis to boost your dating success!",
     "select_image": "Select Images",
     "toast_max_files": "Maximum {max} photos allowed",
@@ -159,7 +159,7 @@
     "toast_upload_success": "Successfully uploaded {count} photos!",
     "toast_image_removed": "Photo removed",
     "toast_all_cleared": "All photos cleared",
-    "toast_analysis_complete": "AI analysis complete!",
+    "toast_analysis_complete": "Lucy analysis complete!",
     "toast_copy_failed": "Failed to copy",
     "based_on_photos": "Based on {count} photos",
     "completion_message": "Conversation starters generated! Choose the most suitable one to start chatting ❤️",
@@ -169,13 +169,13 @@
     "upload_icon_alt": "Upload Icon"
   },
   "profile_analyzer": {
-    "page_title": "Dating Photo Analyzer - lucylucy",
+    "page_title": "Dating Photo Analyzer - LucyLucy",
     "page_description": "Upload photos for professional dating coach analysis to boost your dating appeal.",
     "title": "Dating Photo Analyzer",
     "subtitle": "AI Dating Coach for Your Profile Photos",
     "description": "Upload your photos for professional dating coach analysis",
     "feature_ai_score_title": "AI Rating",
-    "feature_ai_score_desc": "AI-powered 1-10 charm rating system",
+    "feature_ai_score_desc": "LucyAI-powered 1-10 charm rating system",
     "feature_advice_title": "Professional Advice",
     "feature_advice_desc": "Specific optimization tips for photos, style, and expression",
     "feature_privacy_title": "Privacy & Security",

@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "LucyLucy - AI Dating Assistant | Profile Analyzer & Conversation Starter",
-    "description": "LucyLucy is your AI-powered dating assistant. Upload photos to get charm ratings, personalized improvement suggestions, and conversation starters to boost your dating success.",
-    "keywords": "AI Dating Assistant, Profile Analyzer, Conversation Starter, Dating AI, LucyLucy"
+    "title": "LucyAI - AI Dating Assistant | Profile Analyzer & Conversation Starter",
+    "description": "LucyAI is your AI-powered dating assistant. Upload photos to get charm ratings, personalized improvement suggestions, and conversation starters to boost your dating success.",
+    "keywords": "AI Dating Assistant, Profile Analyzer, Conversation Starter, Dating AI, LucyAI"
   },
   "user": {
     "sign_in": "登录",
@@ -134,7 +134,7 @@
     "upload_tip": "上传照片，生成专属开场白",
     "choose_image": "创建让 TA 过目不忘的开场白",
     "generate": "生成开场白",
-    "generating": "AI 正在分析中...",
+    "generating": "Lucy 正在分析中...",
     "result_title": "个性化开场白",
     "result_description": "基于图片分析生成",
     "copy": "复制",
@@ -150,7 +150,7 @@
     "image_preview_alt": "图片预览 {index}",
     "remove_image": "移除图片",
     "add_more": "添加更多",
-    "analyzing_tip": "AI 正在分析图片中人物的特征、风格和兴趣爱好...",
+    "analyzing_tip": "Lucy 正在分析图片中人物的特征、风格和兴趣爱好...",
     "success_tip": "基于图片分析生成的个性化开场白，助你提升交友成功率！",
     "select_image": "选择图片",
     "toast_max_files": "最多只能上传{max}张图片",
@@ -159,7 +159,7 @@
     "toast_upload_success": "成功上传{count}张图片！",
     "toast_image_removed": "图片已移除",
     "toast_all_cleared": "已清空所有图片",
-    "toast_analysis_complete": "AI分析完成！",
+    "toast_analysis_complete": "Lucy 分析完成！",
     "toast_copy_failed": "复制失败",
     "based_on_photos": "基于 {count} 张图片",
     "completion_message": "开场白生成完成！选择最适合的来开始对话吧 ❤️",
@@ -169,13 +169,13 @@
     "upload_icon_alt": "上传图标"
   },
   "profile_analyzer": {
-    "page_title": "交友照片分析器 - lucylucy",
+    "page_title": "交友照片分析器 - LucyLucy",
     "page_description": "上传照片，获得专业恋爱教练的真诚分析，提升你的交友魅力。",
     "title": "交友照片分析器",
     "subtitle": "AI恋爱教练为你的约会照片把脉",
     "description": "上传照片，获得专业恋爱教练的真诚分析",
     "feature_ai_score_title": "智能评分",
-    "feature_ai_score_desc": "基于AI分析的1-10分魅力评分系统",
+    "feature_ai_score_desc": "基于LucyAI分析的1-10分魅力评分系统",
     "feature_advice_title": "专业建议",
     "feature_advice_desc": "针对照片、风格、表达的具体优化建议",
     "feature_privacy_title": "隐私安全",
