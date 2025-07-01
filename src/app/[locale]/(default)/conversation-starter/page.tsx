@@ -523,11 +523,14 @@ export default function ConversationStarterPage() {
     try {
       const fileSizeMB = file.size / (1024 * 1024);
       
+      // 检测是否是Safari浏览器
+      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+      
       // 高级压缩配置 - 更激进的压缩设置
       let options = {
         maxSizeMB: 0.6, // 目标大小0.8MB，更适合网络传输
         maxWidthOrHeight: 800, // 最大宽高1024px
-        useWebWorker: true, // 使用Web Worker提升性能
+        useWebWorker: !isSafari, // Safari浏览器禁用Web Worker
         fileType: file.type as any, // 保持原始格式
         initialQuality: 0.75, // 初始质量略微降低
         alwaysKeepResolution: false, // 允许降低分辨率
@@ -573,14 +576,39 @@ export default function ConversationStarterPage() {
         };
       }
       
+      // Safari浏览器特殊处理 - 降低压缩参数以减少内存使用
+      if (isSafari) {
+        options = {
+          ...options,
+          maxWidthOrHeight: Math.min(options.maxWidthOrHeight, 800), // Safari限制最大尺寸
+          maxIteration: Math.min(options.maxIteration, 8), // 减少迭代次数
+          initialQuality: Math.max(options.initialQuality, 0.6), // 提高初始质量，减少压缩强度
+        };
+        
+        // 对于大文件，Safari使用更保守的压缩策略
+        if (fileSizeMB > 5) {
+          options.maxSizeMB = Math.max(options.maxSizeMB, 1.5); // 不要压缩太小
+          options.maxWidthOrHeight = 600; // 进一步限制尺寸
+        }
+      }
+      
       // 如果是PNG格式且较大，考虑转换为JPEG以获得更好的压缩
       if (file.type === 'image/png' && fileSizeMB > 2) {
         console.log(`PNG文件较大，尝试转换为JPEG格式: ${file.name}`);
         options.fileType = 'image/jpeg';
         options.initialQuality = Math.max(0.4, options.initialQuality - 0.1);
+        
+        // Safari对格式转换更敏感，使用更保守的参数
+        if (isSafari) {
+          options.initialQuality = Math.max(0.7, options.initialQuality);
+        }
       }
       
-      console.log(`开始压缩: ${file.name} (${fileSizeMB.toFixed(1)}MB)`, options);
+      console.log(`开始压缩: ${file.name} (${fileSizeMB.toFixed(1)}MB)`, {
+        ...options,
+        isSafari,
+        browserUserAgent: navigator.userAgent
+      });
       
       const compressedFile = await imageCompression(file, options);
       
@@ -601,6 +629,27 @@ export default function ConversationStarterPage() {
       return compressedFile;
     } catch (error) {
       console.error('图片压缩失败:', error);
+      
+      // Safari特定错误处理
+      if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
+        console.error('Safari浏览器压缩失败，错误详情:', {
+          error: error,
+          fileName: file.name,
+          fileSize: file.size,
+          fileType: file.type,
+          userAgent: navigator.userAgent
+        });
+        
+        // 如果是内存相关错误，提供更友好的错误信息
+        if (error instanceof Error && 
+            (error.message.includes('memory') || 
+             error.message.includes('worker') || 
+             error.message.includes('load failed'))) {
+          const newError = new Error(`Safari浏览器图片处理失败: ${file.name}。建议尝试使用更小的图片或切换到Chrome浏览器。`);
+          throw newError;
+        }
+      }
+      
       throw error;
     }
   };

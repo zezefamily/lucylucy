@@ -301,12 +301,12 @@ export default function AnalysisThinkingProcessStream({
       <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-primary/20 pb-4">
         <CardTitle className="flex items-center justify-between text-xl">
           <div className="flex items-center">
-            <div className="relative">
+            {/* <div className="relative">
               <Brain className="w-6 h-6 mr-3 text-primary" />
               {isStreaming && (
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full animate-pulse"></div>
               )}
-            </div>
+            </div> */}
             <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               {t("ai_thinking_process")}
             </span>
@@ -384,12 +384,12 @@ export default function AnalysisThinkingProcessStream({
                           <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
                           <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                         </div>
-                        <span className="text-xs text-primary font-medium">
+                        {/* <span className="text-xs text-primary font-medium">
                           {isStreaming 
                             ? (locale === 'zh' ? '...' : '...') 
                             : (locale === 'zh' ? '...' : '...')
                           }
-                        </span>
+                        </span> */}
                       </div>
                     )}
                   </div>
