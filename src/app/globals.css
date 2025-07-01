@@ -25,3 +25,15 @@ textarea {
 button {
   @apply cursor-pointer border-border outline-ring/50;
 }
+
+/* iOS 安全区域支持 */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* 确保在不支持安全区域的设备上有默认的底部间距 */
+.safe-area-pb {
+  padding-bottom: 8px;
+}

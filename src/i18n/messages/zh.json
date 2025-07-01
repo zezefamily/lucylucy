@@ -242,5 +242,9 @@
     "files_compressed": "已压缩 {compressed}/{total} 个文件",
     "error_analysis": "分析错误",
     "error_network": "网络连接失败，请检查网络后重试"
+  },
+  "tabbar": {
+    "photo_analyzer": "照片分析",
+    "conversation_starter": "开场白"
   }
 }

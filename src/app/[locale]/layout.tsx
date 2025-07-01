@@ -8,6 +8,7 @@ import { Metadata } from "next";
 import { NextAuthSessionProvider } from "@/auth/session";
 import { NextIntlClientProvider } from "next-intl";
 import { ThemeProvider } from "@/providers/theme";
+import MobileTabBar from "@/components/ui/mobile-tabbar";
 
 export async function generateMetadata({
   params,
@@ -46,7 +47,16 @@ export default async function LocaleLayout({
       <NextAuthSessionProvider>
         <AppContextProvider>
           <ThemeProvider attribute="class" disableTransitionOnChange>
-            {children}
+            <div className="min-h-screen">
+              {/* 主要内容区域，为移动端TabBar预留底部空间 */}
+              <div className="pb-0 md:pb-0 min-h-screen">
+                <div className="pb-20 md:pb-0">
+                  {children}
+                </div>
+              </div>
+              {/* 移动端底部TabBar */}
+              <MobileTabBar />
+            </div>
           </ThemeProvider>
         </AppContextProvider>
       </NextAuthSessionProvider>

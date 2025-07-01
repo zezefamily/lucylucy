@@ -242,5 +242,9 @@
     "files_compressed": "{compressed} of {total} files compressed",
     "error_analysis": "Analysis error",
     "error_network": "Network connection failed, please check and try again"
+  },
+  "tabbar": {
+    "photo_analyzer": "Photo Analyzer",
+    "conversation_starter": "Chat Starter"
   }
 }
