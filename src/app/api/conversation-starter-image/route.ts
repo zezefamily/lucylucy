@@ -5,7 +5,7 @@ import OpenAI from "openai";
 // 文件类型验证
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const MAX_FILES = 5;
+const MAX_FILES = 9;
 
 // 创建 OpenAI 客户端的函数
 function getOpenAIClient() {
@@ -22,11 +22,17 @@ export async function POST(req: NextRequest) {
     const locale = formData.get('locale') as string || 'zh';
     
     if (fileCount === 0) {
-      return respErr("请上传至少一张图片");
+      const errorMessage = locale === 'zh' 
+        ? "请上传至少一张图片" 
+        : "Please upload at least one image";
+      return respErr(errorMessage);
     }
 
     if (fileCount > MAX_FILES) {
-      return respErr(`最多只能上传${MAX_FILES}张图片`);
+      const errorMessage = locale === 'zh' 
+        ? `最多只能上传${MAX_FILES}张图片` 
+        : `Maximum ${MAX_FILES} images allowed`;
+      return respErr(errorMessage);
     }
 
     const files: File[] = [];
@@ -42,12 +48,18 @@ export async function POST(req: NextRequest) {
 
       // 验证文件类型
       if (!ALLOWED_TYPES.includes(file.type)) {
-        return respErr(`图片 ${i + 1} 格式不支持，仅支持 JPG、PNG、WEBP 格式`);
+        const errorMessage = locale === 'zh' 
+          ? `图片 ${i + 1} 格式不支持，仅支持 JPG、PNG、WEBP 格式` 
+          : `Image ${i + 1} format not supported, only JPG, PNG, WEBP formats are supported`;
+        return respErr(errorMessage);
       }
 
       // 验证文件大小
       if (file.size > MAX_FILE_SIZE) {
-        return respErr(`图片 ${i + 1} 大小超过10MB限制`);
+        const errorMessage = locale === 'zh' 
+          ? `图片 ${i + 1} 大小超过10MB限制` 
+          : `Image ${i + 1} size exceeds 10MB limit`;
+        return respErr(errorMessage);
       }
 
       files.push(file);
@@ -60,7 +72,10 @@ export async function POST(req: NextRequest) {
     }
 
     if (files.length === 0) {
-      return respErr("未找到有效的图片文件");
+      const errorMessage = locale === 'zh' 
+        ? "未找到有效的图片文件" 
+        : "No valid image files found";
+      return respErr(errorMessage);
     }
 
     const modelName = "gpt-4o";
@@ -151,7 +166,10 @@ Please return the result in the following JSON format, only return JSON content 
       const result = response.choices[0].message.content;
       
       if (!result) {
-        return respErr("AI 分析失败，请重试");
+        const errorMessage = locale === 'zh' 
+          ? "AI 分析失败，请重试" 
+          : "AI analysis failed, please try again";
+        return respErr(errorMessage);
       }
 
       // 解析JSON响应
@@ -183,23 +201,35 @@ Please return the result in the following JSON format, only return JSON content 
           } catch (secondError) {
             console.error("提取JSON失败:", secondError);
             console.log("提取的内容:", jsonContent);
-            return respErr("AI响应格式错误，请重试");
+            const errorMessage = locale === 'zh' 
+              ? "AI响应格式错误，请重试" 
+              : "AI response format error, please try again";
+            return respErr(errorMessage);
           }
         } else {
           console.error("未找到有效的JSON结构");
-          return respErr("AI响应格式错误，请重试");
+          const errorMessage = locale === 'zh' 
+            ? "AI响应格式错误，请重试" 
+            : "AI response format error, please try again";
+          return respErr(errorMessage);
         }
       }
 
       // 验证响应结构
       if (!parsedResult.analysis || !Array.isArray(parsedResult.starters)) {
-        return respErr("AI响应结构不完整，请重试");
+        const errorMessage = locale === 'zh' 
+          ? "AI响应结构不完整，请重试" 
+          : "AI response structure incomplete, please try again";
+        return respErr(errorMessage);
       }
 
       const { analysis, starters } = parsedResult;
 
       if (starters.length === 0) {
-        return respErr("未能生成有效的开场白，请重试");
+        const errorMessage = locale === 'zh' 
+          ? "未能生成有效的开场白，请重试" 
+          : "Unable to generate effective conversation starters, please try again";
+        return respErr(errorMessage);
       }
 
       return respData({
@@ -230,7 +260,10 @@ Please return the result in the following JSON format, only return JSON content 
         }
       }
       
-      return respErr("AI服务暂时不可用，请稍后重试");
+      const errorMessage = locale === 'zh' 
+        ? "AI服务暂时不可用，请稍后重试" 
+        : "AI service temporarily unavailable, please try again later";
+      return respErr(errorMessage);
     }
     
   } catch (error) {
