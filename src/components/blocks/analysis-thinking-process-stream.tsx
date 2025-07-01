@@ -297,16 +297,10 @@ export default function AnalysisThinkingProcessStream({
   if (!isVisible) return null;
 
   return (
-    <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-white to-secondary/5 shadow-lg">
-      <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-primary/20 pb-4">
-        <CardTitle className="flex items-center justify-between text-xl">
+    <Card className="pt-0 pb-6 border-1 border-primary/20 bg-gradient-to-br from-primary/5 via-white to-secondary/5 shadow-lg">
+      <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-primary/20 flex items-center h-16 rounded-t-2xl">
+        <CardTitle className="pt-6 flex items-center justify-between text-xl w-full min-h-[2.5rem]">
           <div className="flex items-center">
-            {/* <div className="relative">
-              <Brain className="w-6 h-6 mr-3 text-primary" />
-              {isStreaming && (
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full animate-pulse"></div>
-              )}
-            </div> */}
             <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               {t("ai_thinking_process")}
             </span>

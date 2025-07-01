@@ -898,20 +898,20 @@ export default function ProfileAnalyzer() {
                 
                 {/* 压缩统计显示 */}
                 {compressionStats && compressionStats.filesCompressed > 0 && (
-                  <div className="mb-6 card-glass rounded-2xl p-4 border border-accent-green/20">
+                  <div className="mb-6 card-glass rounded-2xl p-4 border border-emerald-200/40 dark:border-emerald-800/40">
                     <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center text-accent-green">
-                        <div className="w-2 h-2 bg-accent-green rounded-full mr-2 glow-accent"></div>
+                      <div className="flex items-center text-emerald-700 dark:text-emerald-400">
+                        <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2 shadow-sm"></div>
                         {t("compression_stats")}
                       </div>
-                      <div className="text-accent-green font-medium">
+                      <div className="text-emerald-700 dark:text-emerald-400 font-medium">
                         {t("saved_space", {
                           saved: ((compressionStats.originalTotalSize - compressionStats.compressedTotalSize) / (1024 * 1024)).toFixed(1),
                           percent: ((1 - compressionStats.compressedTotalSize / compressionStats.originalTotalSize) * 100).toFixed(0)
                         })}
                       </div>
                     </div>
-                    <div className="mt-2 text-xs text-accent-green/80">
+                    <div className="mt-2 text-xs text-emerald-600/80 dark:text-emerald-500/80">
                       {t("files_compressed", { compressed: compressionStats.filesCompressed, total: compressionStats.totalFiles })}
                     </div>
                   </div>
@@ -1064,8 +1064,8 @@ export default function ProfileAnalyzer() {
       {result && (
         <div className="space-y-8">
           {/* 评分卡片 */}
-          <Card className="card-glass border-2 border-primary/20 elevation-3">
-            <CardHeader className="text-center pb-6 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-t-2xl">
+          <Card className="pt-0 pb-6 card-glass border-2 border-primary/20 elevation-3">
+            <CardHeader className="pt-6 text-center pb-6 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-t-2xl">
               <CardTitle className="text-3xl font-bold text-gradient-primary">{t("comprehensive_score")}</CardTitle>
               <CardDescription className="text-lg">{t("based_on_analysis", { count: files.length })}</CardDescription>
             </CardHeader>
@@ -1184,15 +1184,15 @@ export default function ProfileAnalyzer() {
                             
                             {/* 优势和改进建议 */}
                             <div className="grid gap-4">
-                              <div className="card-glass rounded-2xl p-6 border border-accent-green/20">
-                                <h5 className="font-semibold text-accent-green mb-4 flex items-center">
-                                  <div className="w-2 h-2 bg-accent-green rounded-full mr-2 glow-accent"></div>
+                              <div className="card-glass rounded-2xl p-6 border border-emerald-200/40 dark:border-emerald-800/40">
+                                <h5 className="font-semibold text-emerald-700 dark:text-emerald-400 mb-4 flex items-center">
+                                  <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2 shadow-sm"></div>
                                   {t("photo_strengths")}
                                 </h5>
                                 <ul className="space-y-3">
                                   {photo.strengths.map((strength, i) => (
                                     <li key={i} className="flex items-start text-sm">
-                                      <div className="w-1.5 h-1.5 bg-accent-green rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                                       <span className="text-foreground/80">{strength}</span>
                                     </li>
                                   ))}
@@ -1225,9 +1225,9 @@ export default function ProfileAnalyzer() {
           </div>
 
           {/* 最终建议 */}
-          <Card className="card-glass border-2 border-accent-green/20 elevation-2">
-            <CardHeader className="bg-gradient-to-r from-accent-green/10 to-accent-green/5 rounded-t-2xl">
-              <CardTitle className="flex items-center text-2xl font-bold text-gradient-accent">
+          <Card className="py-0 card-glass border-2 border-emerald-200/40 dark:border-emerald-800/40 elevation-2">
+            <CardHeader className="py-4 bg-gradient-to-r from-emerald-100/50 to-emerald-50/30 dark:from-emerald-900/20 dark:to-emerald-800/10 rounded-t-2xl">
+              <CardTitle className="flex items-center text-2xl font-bold text-emerald-700 dark:text-emerald-400">
                 <TrendingUp className="w-6 h-6 mr-3" />
                 {t("final_suggestions_title")}
               </CardTitle>
@@ -1236,7 +1236,7 @@ export default function ProfileAnalyzer() {
               <ul className="space-y-4">
                 {result.finalSuggestions.map((suggestion, index) => (
                   <li key={index} className="flex items-start">
-                    <div className="w-8 h-8 bg-gradient-accent rounded-full flex items-center justify-center text-accent-green-foreground text-sm font-bold mr-4 flex-shrink-0 mt-0.5 glow-accent">
+                    <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white text-sm font-bold mr-4 flex-shrink-0 mt-0.5 shadow-lg">
                       {index + 1}
                     </div>
                     <span className="text-base leading-relaxed text-foreground/80">{suggestion}</span>
@@ -1247,8 +1247,8 @@ export default function ProfileAnalyzer() {
           </Card>
 
           {/* 总体评价 */}
-          <Card className="card-glass border-2 border-primary/20 elevation-2">
-            <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-t-2xl">
+          <Card className="py-0 card-glass border-2 border-primary/20 elevation-2">
+            <CardHeader className="py-4 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-t-2xl">
               <CardTitle className="flex items-center text-2xl font-bold text-gradient-primary">
                 <Star className="w-6 h-6 mr-3" />
                 {t("overall_evaluation")}
