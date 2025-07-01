@@ -34,7 +34,7 @@
       }
     ],
     "show_sign": false,
-    "show_theme": true,
+    "show_theme": false,
     "show_locale": true
   },
   "hero": {
@@ -96,7 +96,7 @@
   },
   "introduce": {
     "name": "introduce",
-    "title": "Why lucylucy?",
+    "title": "Why Lucy AI?",
     "label": "About Us",
     "description": "We understand the struggle of online dating. That's why we created an AI assistant to help you shine in the digital dating world.",
     "image": {

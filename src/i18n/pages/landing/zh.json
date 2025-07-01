@@ -34,7 +34,7 @@
       }
     ],
     "show_sign": false,
-    "show_theme": true,
+    "show_theme": false,
     "show_locale": true
   },
   "hero": {
