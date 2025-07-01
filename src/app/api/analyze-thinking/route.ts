@@ -9,7 +9,7 @@ export const maxDuration = 300; // 5分钟超时
 // 文件类型验证
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const MAX_FILES = 5;
+const MAX_FILES = 9;
 
 // 解析FormData的安全包装函数
 async function safeParseFormData(req: NextRequest) {
