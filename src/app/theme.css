@@ -1,105 +1,152 @@
 :root {
-  --background: oklch(0.99 0.01 270); /* 极淡的米白 */
-  --foreground: oklch(0.25 0.05 260); /* 深紫灰 */
-  --card: oklch(0.98 0.02 280); /* 淡紫白 */
-  --card-foreground: oklch(0.25 0.05 260);
-  --popover: oklch(0.99 0.01 270);
-  --popover-foreground: oklch(0.25 0.05 260);
-  --primary: oklch(0.65 0.18 285); /* 清新淡紫 */
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.68 0.12 220); /* 柔和蓝色 */
-  --secondary-foreground: oklch(1 0 0);
-  --muted: oklch(0.95 0.02 275); /* 极淡紫 */
+  /* 主配色方案 */
+  --background: #EAEBFD; /* 浅蓝背景 */
+  --foreground: oklch(0.15 0.05 260); /* 深色文字 */
+  --card: #FFFFFF; /* 白色卡片 */
+  --card-foreground: oklch(0.15 0.05 260);
+  --popover: #FFFFFF;
+  --popover-foreground: oklch(0.15 0.05 260);
+  --primary: #9174FF; /* 紫色主色 */
+  --primary-foreground: #FFFFFF;
+  --secondary: #FDB7FD; /* 粉色辅助色 */
+  --secondary-foreground: #FFFFFF;
+  --accent-green: #CCFF00; /* 荧光绿 */
+  --accent-green-foreground: oklch(0.15 0.05 260);
+  --muted: oklch(0.96 0.02 275); /* 极淡紫 */
   --muted-foreground: oklch(0.45 0.05 260);
-  --accent: oklch(0.92 0.05 285); /* 淡紫色强调 */
-  --accent-foreground: oklch(0.65 0.18 285);
+  --accent: oklch(0.94 0.03 285); /* 淡紫色强调 */
+  --accent-foreground: oklch(0.15 0.05 260);
   --destructive: oklch(0.62 0.24 25.77);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.90 0.03 280); /* 淡紫边框 */
-  --input: oklch(0.97 0.02 275);
-  --ring: oklch(0.65 0.18 285);
-  --chart-1: oklch(0.65 0.18 285);
-  --chart-2: oklch(0.68 0.12 220);
-  --chart-3: oklch(0.72 0.15 200);
+  --border: oklch(0.92 0.02 280); /* 淡紫边框 */
+  --input: #FFFFFF;
+  --ring: #9174FF;
+  
+  /* 图表配色 */
+  --chart-1: #9174FF;
+  --chart-2: #FDB7FD;
+  --chart-3: #CCFF00;
   --chart-4: oklch(0.75 0.12 180);
   --chart-5: oklch(0.70 0.20 300);
-  --sidebar: oklch(0.98 0.02 280);
-  --sidebar-foreground: oklch(0.25 0.05 260);
-  --sidebar-primary: oklch(0.65 0.18 285);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.92 0.05 285);
-  --sidebar-accent-foreground: oklch(0.65 0.18 285);
-  --sidebar-border: oklch(0.90 0.03 280);
-  --sidebar-ring: oklch(0.65 0.18 285);
+  
+  /* 侧边栏配色 */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: oklch(0.15 0.05 260);
+  --sidebar-primary: #9174FF;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: oklch(0.94 0.03 285);
+  --sidebar-accent-foreground: oklch(0.15 0.05 260);
+  --sidebar-border: oklch(0.92 0.02 280);
+  --sidebar-ring: #9174FF;
+  
+  /* 字体配置 */
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-serif: "Playfair Display", Georgia, serif;
   --font-mono: "JetBrains Mono", Menlo, monospace;
-  --radius: 0.75rem; /* 更温柔的圆角 */
-  --shadow-2xs: 0px 1px 2px 0px rgba(139, 92, 246, 0.08);
-  --shadow-xs: 0px 1px 3px 0px rgba(139, 92, 246, 0.10);
-  --shadow-sm: 0px 1px 3px 0px rgba(139, 92, 246, 0.10),
-    0px 1px 2px -1px rgba(139, 92, 246, 0.10);
-  --shadow: 0px 1px 3px 0px rgba(139, 92, 246, 0.10),
-    0px 1px 2px -1px rgba(139, 92, 246, 0.10);
-  --shadow-md: 0px 4px 6px -1px rgba(139, 92, 246, 0.10),
-    0px 2px 4px -2px rgba(139, 92, 246, 0.10);
-  --shadow-lg: 0px 10px 15px -3px rgba(139, 92, 246, 0.10),
-    0px 4px 6px -4px rgba(139, 92, 246, 0.10);
-  --shadow-xl: 0px 20px 25px -5px rgba(139, 92, 246, 0.10),
-    0px 8px 10px -6px rgba(139, 92, 246, 0.10);
-  --shadow-2xl: 0px 25px 50px -12px rgba(139, 92, 246, 0.25);
+  
+  /* 圆角配置 - 更柔和 */
+  --radius: 1rem;
+  
+  /* 微光效果和渐变 */
+  --glow-primary: 0 0 20px rgba(145, 116, 255, 0.3);
+  --glow-secondary: 0 0 20px rgba(253, 183, 253, 0.3);
+  --glow-accent: 0 0 20px rgba(204, 255, 0, 0.3);
+  
+  /* 流体渐变 */
+  --gradient-primary: linear-gradient(135deg, #9174FF 0%, #FDB7FD 100%);
+  --gradient-secondary: linear-gradient(135deg, #FDB7FD 0%, #CCFF00 100%);
+  --gradient-accent: linear-gradient(135deg, #CCFF00 0%, #9174FF 100%);
+  --gradient-bg: linear-gradient(135deg, #EAEBFD 0%, #FFFFFF 50%, #EAEBFD 100%);
+  
+  /* 阴影系统 - 三级明暗层级 */
+  --shadow-2xs: 0px 1px 2px 0px rgba(145, 116, 255, 0.08);
+  --shadow-xs: 0px 1px 3px 0px rgba(145, 116, 255, 0.12);
+  --shadow-sm: 0px 2px 4px 0px rgba(145, 116, 255, 0.12),
+    0px 1px 2px -1px rgba(145, 116, 255, 0.08);
+  --shadow: 0px 4px 6px -1px rgba(145, 116, 255, 0.15),
+    0px 2px 4px -2px rgba(145, 116, 255, 0.10);
+  --shadow-md: 0px 6px 10px -2px rgba(145, 116, 255, 0.15),
+    0px 2px 4px -2px rgba(145, 116, 255, 0.10);
+  --shadow-lg: 0px 12px 20px -4px rgba(145, 116, 255, 0.20),
+    0px 4px 8px -4px rgba(145, 116, 255, 0.15);
+  --shadow-xl: 0px 20px 25px -5px rgba(145, 116, 255, 0.25),
+    0px 8px 10px -6px rgba(145, 116, 255, 0.15);
+  --shadow-2xl: 0px 25px 50px -12px rgba(145, 116, 255, 0.35);
 }
 
 .dark {
-  --background: oklch(0.10 0.02 270); /* 深色背景 */
-  --foreground: oklch(0.95 0.02 280); /* 淡紫白文字 */
-  --card: oklch(0.15 0.03 270);
-  --card-foreground: oklch(0.95 0.02 280);
-  --popover: oklch(0.10 0.02 270);
-  --popover-foreground: oklch(0.95 0.02 280);
-  --primary: oklch(0.70 0.20 285); /* 亮淡紫 */
-  --primary-foreground: oklch(0.10 0.02 270);
-  --secondary: oklch(0.72 0.15 220); /* 柔和蓝色 */
-  --secondary-foreground: oklch(0.10 0.02 270);
-  --muted: oklch(0.20 0.02 270);
-  --muted-foreground: oklch(0.65 0.05 280);
-  --accent: oklch(0.25 0.05 285);
-  --accent-foreground: oklch(0.70 0.20 285);
+  --background: oklch(0.08 0.02 260); /* 深色背景 */
+  --foreground: #FFFFFF; /* 白色文字 */
+  --card: oklch(0.12 0.03 260);
+  --card-foreground: #FFFFFF;
+  --popover: oklch(0.08 0.02 260);
+  --popover-foreground: #FFFFFF;
+  --primary: #9174FF; /* 保持紫色主色 */
+  --primary-foreground: #FFFFFF;
+  --secondary: #FDB7FD; /* 保持粉色辅助色 */
+  --secondary-foreground: #FFFFFF;
+  --accent-green: #CCFF00; /* 保持荧光绿 */
+  --accent-green-foreground: oklch(0.08 0.02 260);
+  --muted: oklch(0.18 0.02 260);
+  --muted-foreground: oklch(0.70 0.05 280);
+  --accent: oklch(0.20 0.03 285);
+  --accent-foreground: #FFFFFF;
   --destructive: oklch(0.62 0.24 25.77);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.25 0.03 270);
-  --input: oklch(0.20 0.03 270);
-  --ring: oklch(0.70 0.20 285);
-  --chart-1: oklch(0.70 0.20 285);
-  --chart-2: oklch(0.72 0.15 220);
-  --chart-3: oklch(0.75 0.18 200);
-  --chart-4: oklch(0.78 0.15 180);
+  --border: oklch(0.22 0.03 260);
+  --input: oklch(0.15 0.03 260);
+  --ring: #9174FF;
+  
+  /* 图表配色 */
+  --chart-1: #9174FF;
+  --chart-2: #FDB7FD;
+  --chart-3: #CCFF00;
+  --chart-4: oklch(0.75 0.15 180);
   --chart-5: oklch(0.73 0.22 300);
-  --sidebar: oklch(0.15 0.03 270);
-  --sidebar-foreground: oklch(0.95 0.02 280);
-  --sidebar-primary: oklch(0.70 0.20 285);
-  --sidebar-primary-foreground: oklch(0.10 0.02 270);
-  --sidebar-accent: oklch(0.25 0.05 285);
-  --sidebar-accent-foreground: oklch(0.70 0.20 285);
-  --sidebar-border: oklch(0.25 0.03 270);
-  --sidebar-ring: oklch(0.70 0.20 285);
+  
+  /* 侧边栏配色 */
+  --sidebar: oklch(0.12 0.03 260);
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #9174FF;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: oklch(0.20 0.03 285);
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: oklch(0.22 0.03 260);
+  --sidebar-ring: #9174FF;
+  
+  /* 字体配置 */
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-serif: "Playfair Display", Georgia, serif;
   --font-mono: "JetBrains Mono", Menlo, monospace;
-  --radius: 0.75rem;
-  --shadow-2xs: 0px 1px 2px 0px rgba(139, 92, 246, 0.15);
-  --shadow-xs: 0px 1px 3px 0px rgba(139, 92, 246, 0.20);
-  --shadow-sm: 0px 1px 3px 0px rgba(139, 92, 246, 0.20),
-    0px 1px 2px -1px rgba(139, 92, 246, 0.20);
-  --shadow: 0px 1px 3px 0px rgba(139, 92, 246, 0.20),
-    0px 1px 2px -1px rgba(139, 92, 246, 0.20);
-  --shadow-md: 0px 4px 6px -1px rgba(139, 92, 246, 0.20),
-    0px 2px 4px -2px rgba(139, 92, 246, 0.20);
-  --shadow-lg: 0px 10px 15px -3px rgba(139, 92, 246, 0.20),
-    0px 4px 6px -4px rgba(139, 92, 246, 0.20);
-  --shadow-xl: 0px 20px 25px -5px rgba(139, 92, 246, 0.20),
-    0px 8px 10px -6px rgba(139, 92, 246, 0.20);
-  --shadow-2xl: 0px 25px 50px -12px rgba(139, 92, 246, 0.35);
+  
+  /* 圆角配置 */
+  --radius: 1rem;
+  
+  /* 微光效果和渐变 */
+  --glow-primary: 0 0 20px rgba(145, 116, 255, 0.4);
+  --glow-secondary: 0 0 20px rgba(253, 183, 253, 0.4);
+  --glow-accent: 0 0 20px rgba(204, 255, 0, 0.4);
+  
+  /* 流体渐变 */
+  --gradient-primary: linear-gradient(135deg, #9174FF 0%, #FDB7FD 100%);
+  --gradient-secondary: linear-gradient(135deg, #FDB7FD 0%, #CCFF00 100%);
+  --gradient-accent: linear-gradient(135deg, #CCFF00 0%, #9174FF 100%);
+  --gradient-bg: linear-gradient(135deg, oklch(0.08 0.02 260) 0%, oklch(0.12 0.03 260) 50%, oklch(0.08 0.02 260) 100%);
+  
+  /* 阴影系统 - 深色模式 */
+  --shadow-2xs: 0px 1px 2px 0px rgba(145, 116, 255, 0.15);
+  --shadow-xs: 0px 1px 3px 0px rgba(145, 116, 255, 0.20);
+  --shadow-sm: 0px 2px 4px 0px rgba(145, 116, 255, 0.20),
+    0px 1px 2px -1px rgba(145, 116, 255, 0.15);
+  --shadow: 0px 4px 6px -1px rgba(145, 116, 255, 0.25),
+    0px 2px 4px -2px rgba(145, 116, 255, 0.20);
+  --shadow-md: 0px 6px 10px -2px rgba(145, 116, 255, 0.25),
+    0px 2px 4px -2px rgba(145, 116, 255, 0.20);
+  --shadow-lg: 0px 12px 20px -4px rgba(145, 116, 255, 0.30),
+    0px 4px 8px -4px rgba(145, 116, 255, 0.25);
+  --shadow-xl: 0px 20px 25px -5px rgba(145, 116, 255, 0.35),
+    0px 8px 10px -6px rgba(145, 116, 255, 0.25);
+  --shadow-2xl: 0px 25px 50px -12px rgba(145, 116, 255, 0.45);
 }
 
 @theme inline {
@@ -153,4 +200,81 @@
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
+}
+
+/* 自定义动画 */
+@keyframes breathe {
+  0%, 100% { 
+    transform: scale(1); 
+  }
+  50% { 
+    transform: scale(1.05); 
+  }
+}
+
+.animate-breathe {
+  animation: breathe 3s ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* 晃动动画 - "快来点我呀"效果 */
+@keyframes wiggle {
+  0%, 100% { 
+    transform: rotate(0deg); 
+  }
+  25% { 
+    transform: rotate(-3deg); 
+  }
+  75% { 
+    transform: rotate(3deg); 
+  }
+}
+
+.animate-wiggle {
+  animation: wiggle 0.8s ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* 间歇性晃动动画 - 更自然的"快来点我呀"效果 */
+@keyframes wiggle-interval {
+  0%, 15%, 85%, 100% { 
+    transform: rotate(0deg); 
+  }
+  2% { 
+    transform: rotate(-4deg); 
+  }
+  4% { 
+    transform: rotate(4deg); 
+  }
+  6% { 
+    transform: rotate(-3deg); 
+  }
+  8% { 
+    transform: rotate(3deg); 
+  }
+  10% { 
+    transform: rotate(-2deg); 
+  }
+  12% { 
+    transform: rotate(0deg); 
+  }
+}
+
+.animate-wiggle-interval {
+  animation: wiggle-interval 4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* 轻微的跳动效果 */
+@keyframes bounce-subtle {
+  0%, 100% { 
+    transform: translateY(0px); 
+  }
+  50% { 
+    transform: translateY(-2px); 
+  }
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 1.5s ease-in-out infinite;
 }

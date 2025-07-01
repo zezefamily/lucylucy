@@ -812,45 +812,35 @@ export default function ProfileAnalyzer() {
   return (
     <div className="space-y-8">
       {/* 文件上传区域 */}
-      <Card className="border-2 border-dashed border-border/50 hover:border-primary/50 transition-colors">
+      <Card className="card-glass border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 hover-lift">
         <CardContent className="p-8">
           <div
-            className={`relative flex flex-col items-center justify-center space-y-4 ${
-              dragActive ? 'bg-primary/5' : ''
-            } ${isCompressing ? 'opacity-60 pointer-events-none' : ''}`}
+            className={`relative flex flex-col items-center justify-center space-y-6 ${
+              dragActive ? 'bg-gradient-primary/10 rounded-2xl' : ''
+            } ${isCompressing ? 'opacity-60 pointer-events-none' : ''} transition-all duration-300`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
             onDrop={handleDrop}
           >
-            {/* <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-              {isCompressing ? (
-                <Loader2 className="w-8 h-8 text-primary animate-spin" />
-              ) : files.length > 0 ? (
-                <ImageIcon className="w-8 h-8 text-primary" />
-              ) : (
-                <Upload className="w-8 h-8 text-primary" />
-              )}
-            </div> */}
-            
             {/* 压缩进度显示 */}
             {isCompressing && (
-              <div className="w-full max-w-md">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-primary">
+              <div className="w-full max-w-md card-glass rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-medium text-gradient-primary">
                     {t("compressing_images")}
                   </span>
                   <span className="text-sm text-muted-foreground">
                     {compressProgress}%
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+                <div className="w-full bg-muted/50 rounded-full h-3 elevation-1">
                   <div 
-                    className="bg-gradient-to-r from-primary to-secondary h-2 rounded-full transition-all duration-300 ease-out"
+                    className="bg-gradient-primary h-3 rounded-full transition-all duration-300 ease-out glow-primary"
                     style={{ width: `${compressProgress}%` }}
                   ></div>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1 text-center">
+                <p className="text-xs text-muted-foreground mt-2 text-center">
                   {t("compress_tip")}
                 </p>
               </div>
@@ -859,42 +849,48 @@ export default function ProfileAnalyzer() {
             {files.length === 0 && !isCompressing && (
               <div className="text-center">
                 {/* 引导图片 */}
-                <div className="mb-6 flex justify-center">
+                <div className="mb-8 flex justify-center">
                   <div className="relative">
                     <img
                       src="/imgs/lucy/profile_analyzer_upload_icon.png"
                       alt={t("upload_guide_image")}
-                      className="w-48 h-48 md:w-56 md:h-56 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300"
+                      className="w-48 h-48 md:w-56 md:h-56 object-contain opacity-90 hover:opacity-100 transition-all duration-300 float-animation"
                     />
                     {/* 装饰性光环效果 */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-secondary/10 rounded-full animate-pulse"></div>
+                    <div className="absolute inset-0 bg-gradient-primary rounded-full blur-3xl opacity-20 animate-pulse"></div>
                   </div>
                 </div>
                 
-                <p className="text-lg font-medium text-foreground mb-2">
-                  {t("upload_placeholder")}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {t("upload_tip")}
-                </p>
+                <div className="space-y-4">
+                  <h3 className="text-2xl font-bold text-gradient-primary">
+                    {t("upload_placeholder")}
+                  </h3>
+                  <p className="text-base text-foreground/70 max-w-md mx-auto leading-relaxed">
+                    {t("upload_tip")}
+                  </p>
+                </div>
               </div>
             )}
             
             {/* 图片预览网格 */}
             {files.length > 0 && (
-              <div className="mt-4 w-full">
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-sm text-muted-foreground">
-                    {t("uploaded_count", { count: files.length, max: MAX_FILES })}
-                  </p>
+              <div className="mt-6 w-full relative z-20">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-gradient-primary rounded-full glow-primary"></div>
+                    <p className="text-sm font-medium text-foreground">
+                      {t("uploaded_count", { count: files.length, max: MAX_FILES })}
+                    </p>
+                  </div>
                   <Button
                     onClick={(e) => {
-                      e.stopPropagation(); // 阻止事件冒泡，防止触发文件选择
+                      e.preventDefault();
+                      e.stopPropagation();
                       clearAllFiles();
                     }}
                     variant="ghost"
                     size="sm"
-                    className="text-red-600 hover:text-red-700 relative z-10"
+                    className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 relative z-30 pointer-events-auto"
                   >
                     {t("clear_all")}
                   </Button>
@@ -902,20 +898,20 @@ export default function ProfileAnalyzer() {
                 
                 {/* 压缩统计显示 */}
                 {compressionStats && compressionStats.filesCompressed > 0 && (
-                  <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                  <div className="mb-6 card-glass rounded-2xl p-4 border border-accent-green/20">
                     <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center text-green-700 dark:text-green-300">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                      <div className="flex items-center text-accent-green">
+                        <div className="w-2 h-2 bg-accent-green rounded-full mr-2 glow-accent"></div>
                         {t("compression_stats")}
                       </div>
-                      <div className="text-green-600 dark:text-green-400 font-medium">
+                      <div className="text-accent-green font-medium">
                         {t("saved_space", {
                           saved: ((compressionStats.originalTotalSize - compressionStats.compressedTotalSize) / (1024 * 1024)).toFixed(1),
                           percent: ((1 - compressionStats.compressedTotalSize / compressionStats.originalTotalSize) * 100).toFixed(0)
                         })}
                       </div>
                     </div>
-                    <div className="mt-2 text-xs text-green-600 dark:text-green-400">
+                    <div className="mt-2 text-xs text-accent-green/80">
                       {t("files_compressed", { compressed: compressionStats.filesCompressed, total: compressionStats.totalFiles })}
                     </div>
                   </div>
@@ -924,23 +920,31 @@ export default function ProfileAnalyzer() {
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                   {previewUrls.map((url, index) => (
                     <div key={index} className="relative group">
-                      <div className="aspect-[3/4] bg-muted rounded-lg shadow-md border border-border/50 overflow-hidden">
+                      {/* 图片容器 - 移除overflow-hidden避免裁剪按钮 */}
+                      <div className="aspect-[3/4] card-glass rounded-2xl hover-lift relative">
                         <img
                           src={url}
                           alt={t("image_preview", { index: index + 1 })}
-                          className="w-full h-full object-contain"
+                          className="w-full h-full object-cover rounded-2xl"
                         />
-                      </div>
-                      <Button
-                        onClick={() => removeFile(index)}
-                        variant="destructive"
-                        size="sm"
-                        className="absolute -top-2 -right-2 w-7 h-7 rounded-full p-0 bg-primary hover:bg-primary/80 text-white shadow-lg border-2 border-white transition-all duration-200 hover:scale-110 z-10"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                      <div className="absolute bottom-2 left-2 bg-black/80 text-white text-xs px-2 py-1 rounded-md font-medium shadow-sm">
-                        {index + 1}
+                        
+                        {/* 删除按钮 - 确保在最高层级 */}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            removeFile(index);
+                          }}
+                          className="absolute top-1 right-1 w-8 h-8 rounded-full bg-primary/90 hover:bg-primary text-white shadow-lg hover:shadow-xl z-[60] flex items-center justify-center border-2 border-white/80 hover:scale-110 transition-all duration-200 backdrop-blur-sm"
+                          type="button"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                        
+                        {/* 编号标签 - 左下角，优化颜色显示 */}
+                        <div className="absolute bottom-2 left-2 w-6 h-6 bg-primary/90 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg z-[50] border-2 border-white/80 backdrop-blur-sm">
+                          {index + 1}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -948,15 +952,15 @@ export default function ProfileAnalyzer() {
                   {/* 添加更多图片按钮 */}
                   {files.length < MAX_FILES && (
                     <div
-                      className="aspect-[3/4] border-2 border-dashed border-border/50 rounded-lg flex items-center justify-center hover:border-primary/50 transition-colors cursor-pointer"
+                      className="aspect-[3/4] border-2 border-dashed border-primary/30 rounded-2xl flex items-center justify-center hover:border-primary/60 hover:bg-primary/5 transition-all duration-300 cursor-pointer group"
                       onClick={() => {
                         const input = document.querySelector('input[type="file"]') as HTMLInputElement;
                         input?.click();
                       }}
                     >
                       <div className="text-center">
-                        <Plus className="w-6 h-6 text-muted-foreground mx-auto mb-1" />
-                        <p className="text-xs text-muted-foreground">{t("add_image")}</p>
+                        <Plus className="w-8 h-8 text-primary mx-auto mb-2 group-hover:scale-110 transition-transform duration-300" />
+                        <p className="text-xs text-primary font-medium">{t("add_image")}</p>
                       </div>
                     </div>
                   )}
@@ -964,6 +968,7 @@ export default function ProfileAnalyzer() {
               </div>
             )}
             
+            {/* 文件上传input - 只在没有图片时激活 */}
             <input
               type="file"
               accept="image/*"
@@ -976,7 +981,11 @@ export default function ProfileAnalyzer() {
                   handleFilesUpload(selectedFiles);
                 }
               }}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-[5]"
+              style={{ 
+                pointerEvents: files.length > 0 ? 'none' : 'auto',
+                display: files.length > 0 ? 'none' : 'block'
+              }}
             />
             
             {/* 只在没有图片时显示select_image按钮 */}
@@ -987,15 +996,21 @@ export default function ProfileAnalyzer() {
                   input?.click();
                 }}
                 disabled={isCompressing}
-                className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-8 py-3 rounded-lg font-medium text-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                size="lg"
+                className={`px-8 py-4 text-lg font-semibold ${
+                  !isCompressing ? 'animate-wiggle-interval' : ''
+                }`}
               >
                 {isCompressing ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                     {t("compressing_images")}
                   </>
                 ) : (
-                  t("select_image")
+                  <>
+                    <Upload className="w-5 h-5 mr-2" />
+                    {t("select_image")}
+                  </>
                 )}
               </Button>
             )}
@@ -1005,54 +1020,27 @@ export default function ProfileAnalyzer() {
 
       {/* 分析按钮 */}
       {files.length > 0 && (
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          {/* AI思考过程版本选择器 */}
-          {/* <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg border">
-            <span className="text-sm font-medium text-muted-foreground">思考过程显示:</span>
-            <div className="flex space-x-2">
-              <button
-                onClick={() => setThinkingProcessVersion('steps')}
-                className={`px-3 py-1 text-xs rounded-md transition-colors ${
-                  thinkingProcessVersion === 'steps'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                Plan B (步骤式)
-              </button>
-              <button
-                onClick={() => setThinkingProcessVersion('stream')}
-                className={`px-3 py-1 text-xs rounded-md transition-colors ${
-                  thinkingProcessVersion === 'stream'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                Plan C (流式)
-              </button>
-            </div>
-          </div> */}
-          
+        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
           <Button
             onClick={analyzeProfileSmart}
             disabled={isAnalyzing || showThinkingProcess || isCompressing}
             size="lg"
-            className="px-8"
+            className="px-10 py-4 text-lg font-semibold min-w-[200px]"
             variant="default"
           >
             {isCompressing ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                 {t("compressing_images")}
               </>
             ) : isAnalyzing ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                 {t("analyzing")}
               </>
             ) : (
               <>
-                <Star className="w-4 h-4 mr-2" />
+                <Star className="w-5 h-5 mr-2" />
                 {t("analyze_images", { count: files.length })}
               </>
             )}
@@ -1060,108 +1048,52 @@ export default function ProfileAnalyzer() {
         </div>
       )}
 
-      {/* 分析思考过程组件 - 根据版本选择渲染不同组件 */}
+      {/* 分析思考过程组件 */}
       {showThinkingProcess && (
         <div className="space-y-6">
-          {/* {thinkingProcessVersion === 'steps' ? (
-            <AnalysisThinkingProcess 
-              files={files}
-              locale={locale}
-              onStreamComplete={handleThinkingComplete}
-              isVisible={showThinkingProcess}
-            />
-          ) : (
-            <AnalysisThinkingProcessStream 
-              files={files}
-              locale={locale}
-              onStreamComplete={handleThinkingComplete}
-              isVisible={showThinkingProcess}
-            />
-          )} */}
-
           <AnalysisThinkingProcessStream 
               files={files}
               locale={locale}
               onStreamComplete={handleThinkingComplete}
               isVisible={showThinkingProcess}
           />
-          
-          {/* 假流式分析结果 - 暂时隐藏 */}
-          {/* {(fakeStreamText || isFakeStreaming) && (
-            <Card className="border-2 border-primary/30 bg-gradient-to-br from-background via-primary/5 to-secondary/5 shadow-2xl">
-              <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-primary/20">
-                <CardTitle className="flex items-center text-xl">
-                  <div className="relative">
-                    <MessageCircle className="w-6 h-6 mr-3 text-primary" />
-                    {isFakeStreaming && (
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                    )}
-                  </div>
-                  <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                    {t("ai_multi_analysis_report")}
-                  </span>
-                  {isFakeStreaming && (
-                    <div className="ml-auto flex items-center space-x-2">
-                      <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                      </div>
-                      <span className="text-sm text-muted-foreground">{t("comprehensive_analyzing", { count: files.length })}</span>
-                    </div>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="relative">
-                  <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
-                  
-                  <div className="p-6">
-                    <div className="relative">
-                      <div className="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-primary to-secondary rounded-full"></div>
-                      
-                      <div className="pl-6">
-                        <StreamTextRenderer text={fakeStreamText} isStreaming={isFakeStreaming} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )} */}
         </div>
       )}
 
       {/* 分析结果 */}
       {result && (
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* 评分卡片 */}
-          <Card className="border-2 border-primary/20">
-            <CardHeader className="text-center pb-4">
-              <CardTitle className="text-2xl">{t("comprehensive_score")}</CardTitle>
-              <CardDescription>{t("based_on_analysis", { count: files.length })}</CardDescription>
+          <Card className="card-glass border-2 border-primary/20 elevation-3">
+            <CardHeader className="text-center pb-6 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-t-2xl">
+              <CardTitle className="text-3xl font-bold text-gradient-primary">{t("comprehensive_score")}</CardTitle>
+              <CardDescription className="text-lg">{t("based_on_analysis", { count: files.length })}</CardDescription>
             </CardHeader>
-            <CardContent className="text-center space-y-4">
-              <div className={`text-6xl font-bold ${getScoreColor(result.overallScore)}`}>
-                {result.overallScore}
+            <CardContent className="text-center space-y-6 p-8">
+              <div className="relative inline-block">
+                <div className={`text-8xl font-bold ${getScoreColor(result.overallScore)} mb-2`}>
+                  {result.overallScore}
+                </div>
+                <div className="text-2xl text-muted-foreground">/ 10</div>
+                <div className="absolute inset-0 bg-gradient-primary rounded-full blur-3xl opacity-20 animate-pulse"></div>
               </div>
-              <div className="text-xl text-muted-foreground">/ 10</div>
+              
               <Badge 
                 variant="secondary" 
-                className={`text-lg px-4 py-1 bg-gradient-to-r ${getScoreBackground(result.overallScore)} text-white`}
+                className={`text-xl px-6 py-2 bg-gradient-primary text-white shadow-lg glow-primary`}
               >
                 {result.overallCategory}
               </Badge>
               
               {/* 自定义进度条 */}
-              <div className="mt-4">
-                <div className="w-full bg-gray-200 rounded-full h-3 dark:bg-gray-700">
+              <div className="mt-6 max-w-md mx-auto">
+                <div className="w-full bg-muted/50 rounded-full h-4 elevation-1">
                   <div 
-                    className={`h-3 rounded-full bg-gradient-to-r ${getScoreBackground(result.overallScore)} transition-all duration-1000 ease-out`}
+                    className={`h-4 rounded-full bg-gradient-primary transition-all duration-1000 ease-out glow-primary`}
                     style={{ width: `${result.overallScore * 10}%` }}
                   ></div>
                 </div>
-                <div className="text-xs text-muted-foreground mt-1 text-center">
+                <div className="text-sm text-muted-foreground mt-2 text-center font-medium">
                   {t("match_rate", { rate: result.overallScore * 10 })}
                 </div>
               </div>
@@ -1169,55 +1101,31 @@ export default function ProfileAnalyzer() {
           </Card>
 
           {/* 每张照片分析 */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold flex items-center">
-              <ImageIcon className="w-5 h-5 mr-2" />
-              {t("individual_photo_analysis")}
-            </h3>
+          <div className="space-y-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-1 h-8 bg-gradient-primary rounded-full glow-primary"></div>
+              <h3 className="text-2xl font-bold text-gradient-primary">
+                {t("individual_photo_analysis")}
+              </h3>
+            </div>
             
-            {/* 调试信息面板 - 开发环境 */}
-            {process.env.NODE_ENV === 'development' && (
-              <Card className="bg-yellow-50 border-yellow-200">
-                <CardContent className="p-4">
-                  <h4 className="font-medium text-yellow-800 mb-2">调试信息:</h4>
-                  <div className="text-xs text-yellow-700 space-y-1">
-                    <div>总上传图片数: {files.length}</div>
-                    <div>预览URL数量: {previewUrls.length}</div>
-                    <div>分析结果数量: {result?.photoAnalyses?.length || 0}</div>
-                    <div>预览URLs: {previewUrls.map((url, i) => `${i + 1}: ${url.substring(0, 50)}...`).join(' | ')}</div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-            
-            <div className="grid gap-6">
+            <div className="grid gap-8">
               {result.photoAnalyses.map((photo, index) => {
                 const imageUrl = previewUrls[photo.photoIndex - 1];
                 const isImageAvailable = !!imageUrl;
                 
-                // 开发环境调试日志
-                if (process.env.NODE_ENV === 'development') {
-                  console.log(`照片 ${photo.photoIndex} 分析:`, {
-                    photoIndex: photo.photoIndex,
-                    arrayIndex: photo.photoIndex - 1,
-                    imageUrl: imageUrl,
-                    isAvailable: isImageAvailable,
-                    totalUrls: previewUrls.length
-                  });
-                }
-                
                 return (
-                  <Card key={index} className="border-l-4 border-l-primary overflow-hidden">
+                  <Card key={index} className="card-glass border-l-4 border-l-primary overflow-hidden hover-lift">
                     <CardContent className="p-0">
                       <div className="grid md:grid-cols-5 gap-0">
                         {/* 左侧图片展示 */}
                         <div className="md:col-span-2 relative">
-                          <div className="aspect-[3/4] bg-muted flex items-center justify-center border-r border-border/50">
+                          <div className="aspect-[3/4] bg-muted/30 flex items-center justify-center">
                             {isImageAvailable ? (
                               <img
                                 src={imageUrl}
                                 alt={t("photo_number", { num: photo.photoIndex })}
-                                className="w-full h-full object-contain"
+                                className="w-full h-full object-cover"
                                 onError={(e) => {
                                   console.error(`图片加载失败: 照片${photo.photoIndex}`, {
                                     src: imageUrl,
@@ -1229,88 +1137,78 @@ export default function ProfileAnalyzer() {
                               <div className="flex flex-col items-center justify-center text-muted-foreground p-4 text-center">
                                 <ImageIcon className="w-12 h-12 mb-2" />
                                 <span className="text-sm font-medium">{t("photo_number", { num: photo.photoIndex })}</span>
-                                <span className="text-xs mt-1 text-red-500">图片URL不可用</span>
-                                {process.env.NODE_ENV === 'development' && (
-                                  <div className="text-xs mt-2 text-gray-500">
-                                    <div>期望索引: {photo.photoIndex - 1}</div>
-                                    <div>URL数量: {previewUrls.length}</div>
-                                  </div>
-                                )}
                               </div>
                             )}
                           </div>
                           {/* 评分徽章 */}
-                          <div className="absolute top-3 right-3">
+                          <div className="absolute top-4 right-4">
                             <Badge 
                               variant="secondary" 
-                              className={`text-sm px-3 py-1 bg-gradient-to-r ${getScoreBackground(photo.score)} text-white font-bold shadow-lg`}
+                              className={`text-lg px-4 py-2 bg-gradient-primary text-white font-bold shadow-lg glow-primary`}
                             >
                               {photo.score}/10
                             </Badge>
                           </div>
                           {/* 照片编号 */}
-                          <div className="absolute bottom-3 left-3">
-                            <div className="bg-black/70 text-white text-xs px-2 py-1 rounded font-medium">
+                          <div className="absolute bottom-4 left-4">
+                            <div className="card-glass text-foreground text-sm px-3 py-2 rounded-xl font-medium border border-white/20">
                               {t("photo_number", { num: photo.photoIndex })}
                             </div>
                           </div>
-                          {/* 调试信息 - 开发时可以显示，上线时删除 */}
-                          {process.env.NODE_ENV === 'development' && (
-                            <div className="absolute top-3 left-3 bg-blue-500 text-white text-xs px-2 py-1 rounded">
-                              索引: {photo.photoIndex - 1} / 总数: {previewUrls.length}
-                            </div>
-                          )}
                         </div>
                         
                         {/* 右侧分析内容 */}
-                        <div className="md:col-span-3 p-6">
-                          <div className="space-y-4">
+                        <div className="md:col-span-3 p-8">
+                          <div className="space-y-6">
                             {/* 标题和评分 */}
                             <div className="flex items-center justify-between">
-                              <h4 className="text-lg font-semibold">
+                              <h4 className="text-xl font-bold text-gradient-primary">
                                 {t("photo_number", { num: photo.photoIndex })}
                               </h4>
-                              <div className="flex items-center space-x-2">
+                              <div className="flex items-center space-x-3">
                                 <span className="text-sm text-muted-foreground">{t("score_colon")}:</span>
-                                <span className={`text-lg font-bold ${getScoreColor(photo.score)}`}>
+                                <span className={`text-2xl font-bold ${getScoreColor(photo.score)}`}>
                                   {photo.score}/10
                                 </span>
                               </div>
                             </div>
                             
                             {/* 评价 */}
-                            <div className="bg-muted/50 rounded-lg p-4">
-                              <h5 className="font-medium mb-2 text-primary">{t("photo_comment")}:</h5>
-                              <p className="text-sm leading-relaxed">{photo.comment}</p>
+                            <div className="card-glass rounded-2xl p-6 border border-primary/10">
+                              <h5 className="font-semibold mb-3 text-gradient-primary flex items-center">
+                                <MessageCircle className="w-4 h-4 mr-2" />
+                                {t("photo_comment")}:
+                              </h5>
+                              <p className="text-sm leading-relaxed text-foreground/80">{photo.comment}</p>
                             </div>
                             
                             {/* 优势和改进建议 */}
                             <div className="grid gap-4">
-                              <div className="bg-green-50/50 rounded-lg p-4 border border-green-200/50">
-                                <h5 className="font-medium text-green-700 mb-3 flex items-center">
-                                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                              <div className="card-glass rounded-2xl p-6 border border-accent-green/20">
+                                <h5 className="font-semibold text-accent-green mb-4 flex items-center">
+                                  <div className="w-2 h-2 bg-accent-green rounded-full mr-2 glow-accent"></div>
                                   {t("photo_strengths")}
                                 </h5>
-                                <ul className="space-y-2">
+                                <ul className="space-y-3">
                                   {photo.strengths.map((strength, i) => (
                                     <li key={i} className="flex items-start text-sm">
-                                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
-                                      <span className="text-green-800">{strength}</span>
+                                      <div className="w-1.5 h-1.5 bg-accent-green rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                                      <span className="text-foreground/80">{strength}</span>
                                     </li>
                                   ))}
                                 </ul>
                               </div>
                               
-                              <div className="bg-orange-50/50 rounded-lg p-4 border border-orange-200/50">
-                                <h5 className="font-medium text-orange-700 mb-3 flex items-center">
-                                  <div className="w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
+                              <div className="card-glass rounded-2xl p-6 border border-secondary/20">
+                                <h5 className="font-semibold text-secondary mb-4 flex items-center">
+                                  <div className="w-2 h-2 bg-secondary rounded-full mr-2 glow-secondary"></div>
                                   {t("photo_improvements")}
                                 </h5>
-                                <ul className="space-y-2">
+                                <ul className="space-y-3">
                                   {photo.improvements.map((improvement, i) => (
                                     <li key={i} className="flex items-start text-sm">
-                                      <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
-                                      <span className="text-orange-800">{improvement}</span>
+                                      <div className="w-1.5 h-1.5 bg-secondary rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                                      <span className="text-foreground/80">{improvement}</span>
                                     </li>
                                   ))}
                                 </ul>
@@ -1327,21 +1225,21 @@ export default function ProfileAnalyzer() {
           </div>
 
           {/* 最终建议 */}
-          <Card className="border-2 border-green-200 bg-green-50/50">
-            <CardHeader>
-              <CardTitle className="flex items-center text-green-700">
-                <TrendingUp className="w-5 h-5 mr-2" />
+          <Card className="card-glass border-2 border-accent-green/20 elevation-2">
+            <CardHeader className="bg-gradient-to-r from-accent-green/10 to-accent-green/5 rounded-t-2xl">
+              <CardTitle className="flex items-center text-2xl font-bold text-gradient-accent">
+                <TrendingUp className="w-6 h-6 mr-3" />
                 {t("final_suggestions_title")}
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
+            <CardContent className="p-8">
+              <ul className="space-y-4">
                 {result.finalSuggestions.map((suggestion, index) => (
                   <li key={index} className="flex items-start">
-                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold mr-3 flex-shrink-0 mt-0.5">
+                    <div className="w-8 h-8 bg-gradient-accent rounded-full flex items-center justify-center text-accent-green-foreground text-sm font-bold mr-4 flex-shrink-0 mt-0.5 glow-accent">
                       {index + 1}
                     </div>
-                    <span className="text-sm">{suggestion}</span>
+                    <span className="text-base leading-relaxed text-foreground/80">{suggestion}</span>
                   </li>
                 ))}
               </ul>
@@ -1349,32 +1247,32 @@ export default function ProfileAnalyzer() {
           </Card>
 
           {/* 总体评价 */}
-          <Card className="border-2 border-purple-200 bg-purple-50/50">
-            <CardHeader>
-              <CardTitle className="flex items-center text-purple-700">
-                <Star className="w-5 h-5 mr-2" />
+          <Card className="card-glass border-2 border-primary/20 elevation-2">
+            <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-t-2xl">
+              <CardTitle className="flex items-center text-2xl font-bold text-gradient-primary">
+                <Star className="w-6 h-6 mr-3" />
                 {t("overall_evaluation")}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="text-lg">
-                <strong>{t("overall_score_display", { score: result.overallScore })}</strong> - {result.overallCategory}
+            <CardContent className="space-y-6 p-8">
+              <div className="text-xl font-bold text-gradient-primary">
+                {t("overall_score_display", { score: result.overallScore })} - {result.overallCategory}
               </div>
-              <div className="text-sm leading-relaxed">
+              <div className="text-base leading-relaxed text-foreground/80">
                 {result.overallComment}
               </div>
             </CardContent>
           </Card>
 
           {/* 行动建议 */}
-          <Card className="bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">
-            <CardContent className="p-6 text-center">
-              <h3 className="text-lg font-semibold mb-2">{t("action_title")}</h3>
-              <p className="text-muted-foreground mb-4">
+          <Card className="card-glass bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20 elevation-2">
+            <CardContent className="p-8 text-center">
+              <h3 className="text-2xl font-bold mb-4 text-gradient-primary">{t("action_title")}</h3>
+              <p className="text-foreground/70 mb-6 text-lg">
                 {t("action_description", { count: files.length })}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild>
+                <Button asChild size="lg" className="px-8">
                   <a href="/conversation-starter">
                     {t("try_conversation_starter")}
                   </a>

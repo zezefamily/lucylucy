@@ -750,430 +750,439 @@ export default function ConversationStarterPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-4 flex items-center justify-center gap-2">
-          <Heart className="w-8 h-8 text-primary" />
-          {t("title")}
-        </h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          {t("description")}
-        </p>
+    <div className="min-h-screen bg-gradient-fluid relative overflow-hidden">
+      {/* 背景装饰元素 */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-primary rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-secondary rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-1/2 transform -translate-x-1/2 w-80 h-80 bg-gradient-accent rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
       </div>
-
-      {/* 图片上传区域 */}
-      {/* <div className="text-center mb-8"> */}
-        {/* 喇叭图标和标题
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <div className="p-2 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg">
-            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M18.5 3A2.5 2.5 0 0 1 21 5.5c0 .44-.06.86-.17 1.25l1.49 2.61A1 1 0 0 1 21.45 11H18a7 7 0 0 1-6.85 5.61l-.15.01V17a2 2 0 0 1-2 2H8a1 1 0 0 1-1-1v-4.66A6.8 6.8 0 0 1 6 13H2.55a1 1 0 0 1-.87-1.36l1.48-2.61A2.52 2.52 0 0 1 3 8.5A2.5 2.5 0 0 1 5.5 6c.06 0 .12 0 .18.01A2.5 2.5 0 0 1 8 4.5c.44 0 .86.06 1.25.17L11.86 3.18A1 1 0 0 1 13.23 4.55L11.74 7.17c.17.39.26.81.26 1.25a2.5 2.5 0 0 1-2.18 2.48c-.06 0-.12.01-.18.01A2.5 2.5 0 0 1 7.5 9c0-.44.06-.86.17-1.25L6.18 5.14A1 1 0 0 1 7.55 3.77L9.83 6.26c.39-.17.81-.26 1.25-.26A2.5 2.5 0 0 1 18.5 3z"/>
-            </svg>
+      
+      <div className="container mx-auto px-4 py-12 relative z-10">
+        <div className="max-w-4xl mx-auto">
+          {/* 页面标题 */}
+          <div className="text-center mb-16">
+            <div className="relative inline-block">
+              <h1 className="text-4xl md:text-6xl font-bold text-gradient-primary mb-6 float-animation flex items-center justify-center gap-3">
+                <Heart className="w-12 h-12 md:w-16 md:h-16 text-primary" />
+                {t("title")}
+              </h1>
+              <div className="absolute -inset-4 bg-gradient-primary rounded-full blur-2xl opacity-20 animate-pulse"></div>
+            </div>
+            <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto leading-relaxed">
+              {t("description")}
+            </p>
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-            {t("profile_screenshot_title")}
-          </h2>
-        </div> */}
-        
-        {/* 副标题
-        <p className="text-lg text-gray-600 mb-8">
-          {t("profile_screenshot_subtitle")}
-        </p> */}
-      {/* </div> */}
 
-      <Card className="mb-8 border-2 border-dashed border-purple-300 hover:border-purple-500 transition-colors bg-gradient-to-br from-purple-50/30 via-white to-blue-50/30">
-        {/* <CardHeader>
-          <CardTitle className="text-xl flex items-center gap-2">
-            <ImageIcon className="w-5 h-5" />
-            {t("upload_title")}
-          </CardTitle>
-          <CardDescription>
-            {t("upload_description")}
-          </CardDescription>
-        </CardHeader> */}
-        <CardContent className="space-y-4">
-          <div
-            className={`relative flex flex-col items-center justify-center space-y-6 min-h-[320px] ${
-              dragActive ? 'bg-purple-500/5' : ''
-            } ${isCompressing ? 'opacity-60 pointer-events-none' : ''}`}
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-          >
-            {/* 压缩进度显示 */}
-            {isCompressing && (
-              <div className="w-full max-w-md">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-purple-600">
-                    {t("compressing_images")}
-                  </span>
-                  <span className="text-sm text-gray-600">
-                    {compressProgress}%
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all duration-300 ease-out"
-                    style={{ width: `${compressProgress}%` }}
-                  ></div>
-                </div>
-                <p className="text-xs text-gray-600 mt-1 text-center">
-                  {t("compress_tip")}
-                </p>
-              </div>
-            )}
-            
-            {files.length === 0 && !isCompressing && (
-              <div className="text-center space-y-6">
-                {/* 上传图标 - 使用用户提供的图片 */}
-                <div className="w-50 h-50 md:w-50 md:h-50 mx-auto flex items-center justify-center">
-                  <img 
-                    src="/imgs/lucy/conversation_starter_upload_icon.png" 
-                    alt={t("upload_icon_alt")}
-                    className="w-full h-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                
-                {/* 文案 */}
-                <div className="space-y-3">
-                  <p className="text-xl md:text-2xl font-medium text-gray-800">
-                    {t("drag_upload_text")}
-                  </p>
-                  <p className="text-sm md:text-base text-gray-500">
-                    {t("upload_format_tip")}
-                  </p>
-                </div>
-              </div>
-            )}
-            
-            {/* 已上传图片预览 */}
-            {/* {files.length > 0 && !isCompressing && (
-              <div className="w-20 h-20 bg-purple-500/10 rounded-full flex items-center justify-center">
-                <img 
-                  src="/imgs/lucy/conversation_starter_upload_icon.png" 
-                  alt={t("upload_icon_alt")}
-                  className="w-12 h-12 object-contain opacity-70"
-                />
-              </div>
-            )} */}
-            
-            {/* 图片预览网格 */}
-            {files.length > 0 && (
-              <div className="mt-4 w-full">
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-sm text-gray-600">
-                    {t("image_count", { count: files.length })} / {MAX_FILES}
-                  </p>
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation(); // 阻止事件冒泡，防止触发文件选择
-                      clearAllFiles();
-                    }}
-                    variant="ghost"
-                    size="sm"
-                    className="text-red-600 hover:text-red-700 relative z-10"
+          {/* 图片上传区域 */}
+          <div className="relative mb-8">
+            <div className="absolute inset-0 bg-gradient-primary rounded-3xl blur-3xl opacity-10"></div>
+            <div className="relative">
+              <Card className="card-glass border-2 border-dashed border-primary/30 hover:border-primary/50 transition-all duration-300 bg-gradient-to-br from-primary/5 via-card to-secondary/5">
+                <CardContent className="space-y-4">
+                  <div
+                    className={`relative flex flex-col items-center justify-center space-y-6 min-h-[320px] ${
+                      dragActive ? 'bg-primary/10' : ''
+                    } ${isCompressing ? 'opacity-60 pointer-events-none' : ''}`}
+                    onDragEnter={handleDrag}
+                    onDragLeave={handleDrag}
+                    onDragOver={handleDrag}
+                    onDrop={handleDrop}
                   >
-                    {t("clear_images")}
-                  </Button>
-                </div>
-                
-                {/* 压缩统计显示 */}
-                {compressionStats && compressionStats.filesCompressed > 0 && (
-                  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center text-green-700">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                        {t("compression_stats")}
+                    {/* 压缩进度显示 */}
+                    {isCompressing && (
+                      <div className="w-full max-w-md">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-primary">
+                            {t("compressing_images")}
+                          </span>
+                          <span className="text-sm text-foreground/60">
+                            {compressProgress}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-muted rounded-full h-2">
+                          <div 
+                            className="bg-gradient-primary h-2 rounded-full transition-all duration-300 ease-out glow-primary"
+                            style={{ width: `${compressProgress}%` }}
+                          ></div>
+                        </div>
+                        <p className="text-xs text-foreground/60 mt-1 text-center">
+                          {t("compress_tip")}
+                        </p>
                       </div>
-                      <div className="text-green-600 font-medium">
-                        {t("saved_space", {
-                          saved: ((compressionStats.originalTotalSize - compressionStats.compressedTotalSize) / (1024 * 1024)).toFixed(1),
-                          percent: ((1 - compressionStats.compressedTotalSize / compressionStats.originalTotalSize) * 100).toFixed(0)
-                        })}
+                    )}
+                    
+                    {files.length === 0 && !isCompressing && (
+                      <div className="text-center space-y-6">
+                        {/* 上传图标 */}
+                        <div className="w-50 h-50 md:w-50 md:h-50 mx-auto flex items-center justify-center">
+                          <img 
+                            src="/imgs/lucy/conversation_starter_upload_icon.png" 
+                            alt={t("upload_icon_alt")}
+                            className="w-full h-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-300 animate-breathe"
+                          />
+                        </div>
+                        
+                        {/* 文案 */}
+                        <div className="space-y-3">
+                          <h3 className="text-2xl font-bold text-gradient-primary">
+                            {t("drag_upload_text")}
+                          </h3>
+                          <p className="text-sm md:text-base text-foreground/70">
+                            {t("upload_format_tip")}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="mt-2 text-xs text-green-600">
-                      {t("files_compressed", { compressed: compressionStats.filesCompressed, total: compressionStats.totalFiles })}
-                    </div>
-                  </div>
-                )}
-                
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                  {previewUrls.map((url, index) => (
-                    <div key={index} className="relative group">
-                      <div className="aspect-[3/4] bg-muted rounded-lg shadow-md border border-border/50 overflow-hidden">
-                        <img
-                          src={url}
-                          alt={t("image_preview_alt", { index: index + 1 })}
-                          className="w-full h-full object-contain"
-                        />
+                    )}
+                    
+                    {/* 图片预览网格 */}
+                    {files.length > 0 && (
+                      <div className="mt-4 w-full">
+                        <div className="flex items-center justify-between mb-4">
+                          <p className="text-sm text-foreground/70">
+                            {t("image_count", { count: files.length })} / {MAX_FILES}
+                          </p>
+                          <Button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              clearAllFiles();
+                            }}
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive/80 relative z-10"
+                          >
+                            {t("clear_images")}
+                          </Button>
+                        </div>
+                        
+                        {/* 压缩统计显示 */}
+                        {compressionStats && compressionStats.filesCompressed > 0 && (
+                          <div className="mb-4 p-3 bg-accent-green/10 border border-accent-green/20 rounded-lg">
+                            <div className="flex items-center justify-between text-sm">
+                              <div className="flex items-center text-accent-green">
+                                <div className="w-2 h-2 bg-accent-green rounded-full mr-2"></div>
+                                {t("compression_stats")}
+                              </div>
+                              <div className="text-accent-green font-medium">
+                                {t("saved_space", {
+                                  saved: ((compressionStats.originalTotalSize - compressionStats.compressedTotalSize) / (1024 * 1024)).toFixed(1),
+                                  percent: ((1 - compressionStats.compressedTotalSize / compressionStats.originalTotalSize) * 100).toFixed(0)
+                                })}
+                              </div>
+                            </div>
+                            <div className="mt-2 text-xs text-accent-green/80">
+                              {t("files_compressed", { compressed: compressionStats.filesCompressed, total: compressionStats.totalFiles })}
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                          {previewUrls.map((url, index) => (
+                            <div key={index} className="relative group">
+                              {/* 图片容器 - 移除overflow-hidden避免裁剪按钮 */}
+                              <div className="aspect-[3/4] bg-muted rounded-lg shadow-md border border-border/50 elevation-1 hover:elevation-2 transition-all duration-300">
+                                <img
+                                  src={url}
+                                  alt={t("image_preview_alt", { index: index + 1 })}
+                                  className="w-full h-full object-contain rounded-lg"
+                                />
+                                
+                                {/* 删除按钮 - 优化颜色显示，浮在照片右上角 */}
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    removeFile(index);
+                                  }}
+                                  className="absolute top-1 right-1 w-8 h-8 rounded-full bg-primary/90 hover:bg-primary text-white shadow-lg hover:shadow-xl z-[60] flex items-center justify-center border-2 border-white/80 hover:scale-110 transition-all duration-200 backdrop-blur-sm"
+                                  type="button"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                                
+                                {/* 编号标签 - 左下角，优化颜色显示 */}
+                                <div className="absolute bottom-2 left-2 w-6 h-6 bg-primary/90 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg z-[50] border-2 border-white/80 backdrop-blur-sm">
+                                  {index + 1}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                          
+                          {/* 添加更多图片按钮 */}
+                          {files.length < MAX_FILES && (
+                            <div
+                              className="aspect-[3/4] border-2 border-dashed border-border/50 rounded-lg flex items-center justify-center hover:border-primary/50 transition-colors cursor-pointer bg-muted/20"
+                              onClick={() => {
+                                const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+                                input?.click();
+                              }}
+                            >
+                              <div className="text-center">
+                                <Plus className="w-6 h-6 text-foreground/60 mx-auto mb-1" />
+                                <p className="text-xs text-foreground/60">{t("add_more")}</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <Button
-                        onClick={() => removeFile(index)}
-                        variant="destructive"
-                        size="sm"
-                        className="absolute -top-2 -right-2 w-7 h-7 rounded-full p-0 bg-primary hover:bg-primary/80 text-white shadow-lg border-2 border-white transition-all duration-200 hover:scale-110 z-10"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                      <div className="absolute bottom-2 left-2 bg-black/80 text-white text-xs px-2 py-1 rounded-md font-medium shadow-sm">
-                        {index + 1}
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {/* 添加更多图片按钮 */}
-                  {files.length < MAX_FILES && (
-                    <div
-                      className="aspect-[3/4] border-2 border-dashed border-border/50 rounded-lg flex items-center justify-center hover:border-primary/50 transition-colors cursor-pointer"
-                      onClick={() => {
-                        const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-                        input?.click();
+                    )}
+                    
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      disabled={isCompressing}
+                      onChange={(e) => {
+                        if (isCompressing) return;
+                        if (e.target.files && e.target.files.length > 0) {
+                          const selectedFiles = Array.from(e.target.files);
+                          handleFilesUpload(selectedFiles);
+                        }
                       }}
-                    >
-                      <div className="text-center">
-                        <Plus className="w-6 h-6 text-gray-600 mx-auto mb-1" />
-                        <p className="text-xs text-gray-600">{t("add_more")}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-            
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              disabled={isCompressing}
-              onChange={(e) => {
-                if (isCompressing) return;
-                if (e.target.files && e.target.files.length > 0) {
-                  const selectedFiles = Array.from(e.target.files);
-                  handleFilesUpload(selectedFiles);
-                }
-              }}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-            />
-            
-            {/* 只在没有图片时显示Choose image按钮 */}
-            {files.length === 0 && !isCompressing && (
-              <Button 
-                onClick={() => {
-                  const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-                  input?.click();
-                }}
-                disabled={isCompressing}
-                className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-8 py-3 rounded-lg font-medium text-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                    />
+                    
+                    {/* 只在没有图片时显示Choose image按钮 */}
+                    {files.length === 0 && !isCompressing && (
+                      <Button 
+                        onClick={() => {
+                          const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+                          input?.click();
+                        }}
+                        disabled={isCompressing}
+                        className={`btn-modern bg-gradient-primary hover:bg-gradient-primary/90 text-white px-8 py-3 rounded-xl font-medium text-lg shadow-lg hover:shadow-xl transition-all duration-300 glow-primary ${
+                          !isCompressing ? 'animate-wiggle-interval' : ''
+                        }`}
+                      >
+                        {isCompressing ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            {t("compressing_images")}
+                          </>
+                        ) : (
+                          t("choose_image")
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* 生成按钮 */}
+          {files.length > 0 && (
+            <div className="flex justify-center mb-8">
+              <Button
+                onClick={handleGenerate}
+                disabled={isLoading || isStreaming || isCompressing}
+                size="lg"
+                className={`btn-modern px-8 bg-gradient-primary hover:bg-gradient-primary/90 text-white font-medium text-lg shadow-lg hover:shadow-xl transition-all duration-300 glow-primary hover-lift`}
               >
                 {isCompressing ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     {t("compressing_images")}
                   </>
+                ) : isLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                    {t("generating")}
+                  </>
                 ) : (
-                  t("choose_image")
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    {t("generate")}
+                  </>
                 )}
               </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 生成按钮 - 移出Card外部 */}
-      {files.length > 0 && (
-        <div className="flex justify-center mb-8">
-          <Button
-            onClick={handleGenerate}
-            disabled={isLoading || isStreaming || isCompressing}
-            size="lg"
-            className="px-8 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-medium text-lg shadow-lg hover:shadow-xl transition-all duration-200"
-          >
-            {isCompressing ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                {t("compressing_images")}
-              </>
-            ) : isLoading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                {t("generating")}
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4 mr-2" />
-                {t("generate")}
-              </>
-            )}
-          </Button>
-        </div>
-      )}
-
-      {/* Loading State */}
-      {isLoading && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
-              {t("generating")}
-            </CardTitle>
-            <CardDescription>
-              {t("analyzing_tip")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {Array.from({ length: 8 }).map((_, index) => (
-              <Skeleton key={index} className="h-12 w-full" />
-            ))}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Results with Streaming Effect */}
-      {result && !isLoading && (
-        <Card>
-          <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              <CardTitle className="text-xl flex items-center gap-2">
-                <Heart className="w-5 h-5 text-primary" />
-                {t("result_title")}
-              </CardTitle>
-              <CardDescription className="mt-1">
-                {t("result_description")} • {t("based_on_photos", { count: files.length })} • {t("success_tip")}
-              </CardDescription>
             </div>
-            <div className="flex gap-2 flex-shrink-0">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleTryAgain}
-                disabled={isLoading || isStreaming}
-                className="flex-1 sm:flex-none"
-              >
-                <RotateCcw className="w-4 h-4 mr-2" />
-                {t("try_again")}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleClear}
-                disabled={isStreaming}
-                className="flex-1 sm:flex-none"
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                {t("clear")}
-              </Button>
+          )}
+
+          {/* Loading State */}
+          {isLoading && (
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-secondary rounded-3xl blur-3xl opacity-10"></div>
+              <div className="relative">
+                <Card className="card-glass">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
+                      {t("generating")}
+                    </CardTitle>
+                    <CardDescription>
+                      {t("analyzing_tip")}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {Array.from({ length: 8 }).map((_, index) => (
+                      <Skeleton key={index} className="h-12 w-full" />
+                    ))}
+                  </CardContent>
+                </Card>
+              </div>
             </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {/* Lucy的分析思考过程 */}
-            {result.analysis && (
-              <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center">
-                    <span className="text-white text-sm font-bold">L</span>
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {t("lucy_analysis_title")}
-                  </h3>
-                </div>
-                
-                <div className={`transition-opacity duration-700 ease-out ${
-                  isShowingAnalysis ? 'opacity-100' : 'opacity-0'
-                }`}>
-                  {isShowingAnalysis && (
-                    <div className="bg-gradient-to-r from-purple-50/50 to-pink-50/50 rounded-lg p-4 border border-purple-200/50">
-                      <div className="text-sm leading-relaxed text-gray-700 whitespace-pre-wrap">
-                        {analysisContent}
+          )}
+
+          {/* Results with Streaming Effect */}
+          {result && !isLoading && (
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-accent rounded-3xl blur-3xl opacity-10"></div>
+              <div className="relative">
+                <Card className="card-glass">
+                  <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="text-xl flex items-center gap-2">
+                        <Heart className="w-5 h-5 text-primary" />
+                        {t("result_title")}
+                      </CardTitle>
+                      <CardDescription className="mt-1">
+                        {result.topic && (
+                          <span className="inline-block bg-gradient-primary text-white px-3 py-1 rounded-full text-sm font-medium mr-2 mb-2">
+                            {result.topic}
+                          </span>
+                        )}
+                        {t("result_description")} • {t("based_on_photos", { count: files.length })} • {t("success_tip")}
+                      </CardDescription>
+                    </div>
+                    <div className="flex gap-2 flex-shrink-0">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleTryAgain}
+                        disabled={isLoading || isStreaming}
+                        className="flex-1 sm:flex-none hover-lift"
+                      >
+                        <RotateCcw className="w-4 h-4 mr-2" />
+                        {t("try_again")}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleClear}
+                        disabled={isStreaming}
+                        className="flex-1 sm:flex-none hover-lift"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        {t("clear")}
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {/* Lucy的分析思考过程 */}
+                    {result.analysis && (
+                      <div className="mb-6">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-10 h-10 rounded-full bg-gradient-secondary flex items-center justify-center glow-secondary">
+                            <span className="text-white text-sm font-bold">L</span>
+                          </div>
+                          <h3 className="text-lg font-semibold text-foreground">
+                            {t("lucy_analysis_title")}
+                          </h3>
+                        </div>
+                        
+                        <div className={`transition-opacity duration-700 ease-out ${
+                          isShowingAnalysis ? 'opacity-100' : 'opacity-0'
+                        }`}>
+                          {isShowingAnalysis && (
+                            <div className="bg-gradient-to-r from-secondary/10 to-primary/10 rounded-xl p-6 border border-secondary/20 elevation-1">
+                              <div className="text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">
+                                {analysisContent}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* 分隔线 */}
+                        {analysisComplete && (
+                          <div className="mt-6 mb-4 flex items-center">
+                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+                            <div className="px-4 text-sm font-medium text-primary">
+                              {t("recommended_starters")}
+                            </div>
+                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  )}
-                </div>
-                
-                {/* 分隔线 */}
-                {analysisComplete && (
-                  <div className="mt-6 mb-4 flex items-center">
-                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-purple-300 to-transparent"></div>
-                    <div className="px-4 text-sm font-medium text-purple-600">
-                      {t("recommended_starters")}
-                    </div>
-                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-purple-300 to-transparent"></div>
-                  </div>
-                )}
-              </div>
-            )}
-            
-            {/* 显示已流式输出的开场白 */}
-            {result.starters.map((starter, index) => (
-              <div
-                key={`starter-wrapper-${index}`}
-                className={`transition-opacity duration-700 ease-out ${
-                  visibleStarters.includes(index)
-                    ? 'opacity-100'
-                    : 'opacity-0'
-                }`}
-              >
-                {visibleStarters.includes(index) && (
-                  <div className="flex items-start gap-3 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors duration-300 group shadow-sm hover:shadow-md">
-                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-sm font-medium text-white">
-                      {index + 1}
-                    </div>
-                    <div className="flex-1 text-sm leading-relaxed">
-                      <TypewriterText 
-                        key={`starter-${index}-${result.topic}-${locale}-${starter.substring(0, 30)}`}
-                        text={starter} 
-                        speed={30}
-                      />
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleCopy(starter)}
-                      className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300"
-                    >
-                      <Copy className="w-4 h-4" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-            ))}
-            
-            {/* 正在流式输出时显示的加载指示器 */}
-            {isStreaming && visibleStarters.length < result.starters.length && (
-              <div 
-                key="loading-indicator" 
-                className="flex items-start gap-3 p-4 rounded-lg border bg-card/50 opacity-60 animate-pulse"
-              >
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-sm font-medium text-white">
-                  {visibleStarters.length + 1}
-                </div>
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 bg-muted rounded flex-1 animate-pulse"></div>
-                    <div className="h-2 bg-muted rounded w-20 animate-pulse"></div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 bg-muted rounded w-3/4 animate-pulse"></div>
-                  </div>
-                </div>
-              </div>
-            )}
+                    )}
+                    
+                    {/* 显示已流式输出的开场白 */}
+                    {result.starters.map((starter, index) => (
+                      <div
+                        key={`starter-wrapper-${index}`}
+                        className={`transition-opacity duration-700 ease-out ${
+                          visibleStarters.includes(index)
+                            ? 'opacity-100'
+                            : 'opacity-0'
+                        }`}
+                      >
+                        {visibleStarters.includes(index) && (
+                          <div className="flex items-start gap-3 p-4 rounded-xl border bg-card/50 hover:bg-accent/20 transition-all duration-300 group elevation-1 hover:elevation-2 hover-lift">
+                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center text-sm font-medium text-white glow-primary">
+                              {index + 1}
+                            </div>
+                            <div className="flex-1 text-sm leading-relaxed text-foreground">
+                              <TypewriterText 
+                                key={`starter-${index}-${result.topic}-${locale}-${starter.substring(0, 30)}`}
+                                text={starter} 
+                                speed={30}
+                              />
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleCopy(starter)}
+                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 hover-lift"
+                            >
+                              <Copy className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    
+                    {/* 正在流式输出时显示的加载指示器 */}
+                    {isStreaming && visibleStarters.length < result.starters.length && (
+                      <div 
+                        key="loading-indicator" 
+                        className="flex items-start gap-3 p-4 rounded-xl border bg-card/30 opacity-60 animate-pulse"
+                      >
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center text-sm font-medium text-white">
+                          {visibleStarters.length + 1}
+                        </div>
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-center gap-2">
+                            <div className="h-2 bg-muted rounded flex-1 animate-pulse"></div>
+                            <div className="h-2 bg-muted rounded w-20 animate-pulse"></div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="h-2 bg-muted rounded w-3/4 animate-pulse"></div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
-            {/* 成功提示 */}
-            {!isStreaming && result && visibleStarters.length === result.starters.length && (
-              <div className="mt-6 p-4 rounded-lg bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20">
-                <div className="flex items-center space-x-2">
-                  <Heart className="w-4 h-4 text-green-600" />
-                  <span className="text-sm font-medium text-green-700">
-                    {t("completion_message")}
-                  </span>
-                </div>
+                    {/* 成功提示 */}
+                    {!isStreaming && result && visibleStarters.length === result.starters.length && (
+                      <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-accent-green/10 to-accent-green/5 border border-accent-green/20 elevation-1">
+                        <div className="flex items-center space-x-2">
+                          <Heart className="w-4 h-4 text-accent-green" />
+                          <span className="text-sm font-medium text-accent-green">
+                            {t("completion_message")}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+            </div>
+          )}
+        </div>
+      </div>
+      
+      {/* 底部装饰 */}
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
     </div>
   );
 }
