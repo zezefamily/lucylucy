@@ -77,6 +77,9 @@ export default function ConversationStarterPage() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   
+  // 新增：跟踪每个开场白的完成状态
+  const [completedStarters, setCompletedStarters] = useState<Set<number>>(new Set());
+  
   // 图片压缩相关状态
   const [isCompressing, setIsCompressing] = useState(false);
   const [compressProgress, setCompressProgress] = useState(0);
@@ -198,6 +201,7 @@ export default function ConversationStarterPage() {
     processedResultRef.current = result;
     setIsStreaming(true);
     setVisibleStarters([]);
+    setCompletedStarters(new Set()); // 清空完成状态
     setIsShowingAnalysis(false);
     setAnalysisComplete(false);
     setAnalysisTypingComplete(false);
@@ -311,6 +315,7 @@ export default function ConversationStarterPage() {
       setAnalysisComplete(false);
       setAnalysisTypingComplete(false);
       setVisibleStarters([]);
+      setCompletedStarters(new Set()); // 重置完成状态
       setIsStreaming(false);
       setShowScrollButton(false);
       setIsAnalyzing(false);
@@ -602,6 +607,7 @@ export default function ConversationStarterPage() {
     clearStreamingTimeouts();
     setResult(null);
     setVisibleStarters([]);
+    setCompletedStarters(new Set()); // 重置完成状态
     setIsShowingAnalysis(false);
     setAnalysisComplete(false);
     setAnalysisTypingComplete(false);
@@ -1109,7 +1115,7 @@ export default function ConversationStarterPage() {
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-secondary rounded-3xl blur-3xl opacity-10"></div>
                   <div className="relative">
-                    <Card className="border-1 border-primary/20 bg-gradient-to-br from-primary/5 via-white to-secondary/5 shadow-lg card-glass">
+                    <Card className="pt-0 border-1 border-primary/20 bg-gradient-to-br from-primary/5 via-white to-secondary/5 shadow-lg card-glass">
                       <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-primary/20 flex items-center h-16 rounded-t-2xl">
                         <CardTitle className="pt-6 flex items-center justify-between text-xl w-full min-h-[2.5rem]">
                           <div className="flex items-center">
@@ -1286,10 +1292,11 @@ export default function ConversationStarterPage() {
                         {result.starters.map((starter, index) => {
                           // 为每个starter创建稳定的key，避免重复刷新
                           const isVisible = visibleStarters.includes(index);
+                          const isCompleted = completedStarters.has(index);
                           
                           return (
                             <div
-                              key={`starter-${index}-${result.starters.length}`}
+                              key={`starter-${index}-${result.topic || 'unknown'}`}
                               className={`transition-opacity duration-700 ease-out ${
                                 isVisible ? 'opacity-100' : 'opacity-0'
                               }`}
@@ -1300,27 +1307,25 @@ export default function ConversationStarterPage() {
                                     {index + 1}
                                   </div>
                                   <div className="flex-1 text-sm leading-relaxed text-foreground">
-                                    {/* 临时测试：直接显示文本 */}
-                                    <div className="mb-2 p-2 bg-yellow-100 text-xs">
-                                      调试信息: {starter ? `文本长度: ${starter.length}` : '无文本'}
-                                    </div>
-                                    
-                                    {/* 显示前50个字符 */}
-                                    <div className="mb-2 text-xs text-gray-600">
-                                      预览: {starter?.substring(0, 50)}...
-                                    </div>
-                                    
-                                    <TypewriterText 
-                                      key={`starter-${index}`}
-                                      text={starter || '开场白内容加载中...'} 
-                                      speed={30}
-                                      onComplete={() => {
-                                        console.log('TypewriterText completed for index:', index);
-                                      }}
-                                      onTextChange={(currentText) => {
-                                        console.log('TypewriterText updating:', currentText.substring(0, 20));
-                                      }}
-                                    />
+                                    {isCompleted ? (
+                                      // 已完成的开场白直接显示完整文本
+                                      <span>{starter}</span>
+                                    ) : (
+                                      // 未完成的开场白使用打字机效果
+                                      <TypewriterText 
+                                        key={`starter-typing-${index}-${result.topic || 'unknown'}`}
+                                        text={starter || '开场白内容加载中...'} 
+                                        speed={30}
+                                        onComplete={() => {
+                                          console.log('TypewriterText completed for index:', index);
+                                          // 标记该开场白为已完成
+                                          setCompletedStarters(prev => new Set(prev).add(index));
+                                        }}
+                                        onTextChange={(currentText) => {
+                                          // 可选：跟踪打字进度
+                                        }}
+                                      />
+                                    )}
                                   </div>
                                   <Button
                                     variant="ghost"
