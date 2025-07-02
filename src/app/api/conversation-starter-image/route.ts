@@ -236,7 +236,7 @@ Please return the result in the following JSON format, only return JSON content 
         success: true,
         analysis,
         starters,
-        topic: `基于${files.length}张图片的分析`, // 用于显示的主题描述
+        topic: locale === 'zh' ? `基于${files.length}张图片的分析` : `Analysis based on ${files.length} photos`, // 用于显示的主题描述
         imageCount: files.length
       });
       
