@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Brain, Loader2 } from "lucide-react";
+import { Brain, Loader2, Heart } from "lucide-react";
 
 interface AnalysisThinkingProcessStreamProps {
   files: File[];
@@ -301,6 +301,12 @@ export default function AnalysisThinkingProcessStream({
       <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-primary/20 flex items-center h-16 rounded-t-2xl">
         <CardTitle className="pt-6 flex items-center justify-between text-xl w-full min-h-[2.5rem]">
           <div className="flex items-center">
+            {/* 爱心图标 */}
+            <span className={`mr-2 text-primary transition-all duration-1000 ${
+              (isStreaming || isBuffering) ? 'animate-pulse' : ''
+            }`}>
+              <Heart className="w-5 h-5" />
+            </span>
             <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               {t("ai_thinking_process")}
             </span>
