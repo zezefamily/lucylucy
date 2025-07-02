@@ -160,13 +160,16 @@
     "toast_image_removed": "Photo removed",
     "toast_all_cleared": "All photos cleared",
     "toast_analysis_complete": "Lucy analysis complete!",
+    "analysis_complete": "Analysis complete",
     "toast_copy_failed": "Failed to copy",
     "based_on_photos": "Based on {count} photos",
     "completion_message": "Conversation starters generated! Choose the most suitable one to start chatting ❤️",
-    "lucy_analysis_title": "Lucy's Analysis Process",
+    "lucy_analysis_title": "Lucy",
     "recommended_starters": "Recommended Starters",
     "upload_format_tip": "Upload photos to generate personalized conversation starters",
-    "upload_icon_alt": "Upload Icon"
+    "upload_icon_alt": "Upload Icon",
+    "thinking_in_progress": "Thinking progress",
+    "thinking_complete": "Thinking complete"
   },
   "profile_analyzer": {
     "page_title": "Dating Photo Analyzer - LucyLucy",

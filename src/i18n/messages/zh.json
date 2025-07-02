@@ -163,10 +163,13 @@
     "toast_copy_failed": "复制失败",
     "based_on_photos": "基于 {count} 张图片",
     "completion_message": "开场白生成完成！选择最适合的来开始对话吧 ❤️",
-    "lucy_analysis_title": "Lucy 的分析思考过程",
+    "lucy_analysis_title": "Lucy",
     "recommended_starters": "推荐开场白",
     "upload_format_tip": "上传照片，生成个性化开场白",
-    "upload_icon_alt": "上传图标"
+    "upload_icon_alt": "上传图标",
+    "analysis_complete": "分析完成",
+    "thinking_in_progress": "正在思考...",
+    "thinking_complete": "思考完成"
   },
   "profile_analyzer": {
     "page_title": "交友照片分析器 - LucyLucy",

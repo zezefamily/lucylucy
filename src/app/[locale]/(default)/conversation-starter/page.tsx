@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,11 +15,13 @@ import { ConversationStarter } from "@/types/conversation-starter";
 const TypewriterText = ({ 
   text, 
   speed = 30, 
-  onComplete 
+  onComplete,
+  onTextChange
 }: { 
   text: string; 
   speed?: number; 
   onComplete?: () => void;
+  onTextChange?: (currentText: string) => void;
 }) => {
   const [displayedText, setDisplayedText] = useState("");
   const [isTyping, setIsTyping] = useState(true);
@@ -32,7 +34,9 @@ const TypewriterText = ({
 
     const type = () => {
       if (index < text.length) {
-        setDisplayedText(text.slice(0, index + 1));
+        const newText = text.slice(0, index + 1);
+        setDisplayedText(newText);
+        onTextChange?.(newText); // 通知父组件文本更新
         index++;
         timeoutRef.current = setTimeout(type, speed);
       } else {
@@ -48,7 +52,7 @@ const TypewriterText = ({
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [text, speed, onComplete]);
+  }, [text, speed, onComplete, onTextChange]);
 
   return (
     <span className="inline-block">
@@ -87,6 +91,12 @@ export default function ConversationStarterPage() {
   const [isShowingAnalysis, setIsShowingAnalysis] = useState(false);
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [analysisTypingComplete, setAnalysisTypingComplete] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false); // 新增：正在分析状态
+  
+  // 新增：自动滚动相关
+  const analysisContentRef = useRef<HTMLDivElement>(null);
+  const isAutoScrollRef = useRef<boolean>(true);
+  const [showScrollButton, setShowScrollButton] = useState(false);
   
   const MAX_FILES = 9;
   
@@ -95,6 +105,25 @@ export default function ConversationStarterPage() {
   const streamingTimeoutsRef = useRef<NodeJS.Timeout[]>([]);
   const prevLocaleRef = useRef<string>(locale);
   const completedAnalysisRef = useRef<string>('');
+
+  // 自动滚动到底部 - 使用 useCallback 确保函数稳定
+  const scrollToBottom = useCallback(() => {
+    if (analysisContentRef.current && isAutoScrollRef.current) {
+      analysisContentRef.current.scrollTop = analysisContentRef.current.scrollHeight;
+    }
+  }, []);
+
+  // 检查用户是否在底部附近
+  const handleAnalysisScroll = useCallback(() => {
+    if (analysisContentRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = analysisContentRef.current;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 50;
+      const needsScroll = scrollHeight > clientHeight;
+      
+      isAutoScrollRef.current = isNearBottom;
+      setShowScrollButton(needsScroll && !isNearBottom && isShowingAnalysis && !analysisTypingComplete);
+    }
+  }, [isShowingAnalysis, analysisTypingComplete]);
 
   // 使用 useMemo 来稳定 analysis 内容的渲染
   const analysisContent = useMemo(() => {
@@ -114,13 +143,32 @@ export default function ConversationStarterPage() {
         onComplete={() => {
           setAnalysisComplete(true); 
           setAnalysisTypingComplete(true);
+          setIsAnalyzing(false); // Lucy 分析完成，重置分析状态
           if (result.analysis) {
             completedAnalysisRef.current = result.analysis;
           }
         }}
+        onTextChange={scrollToBottom}
       />
     );
-  }, [result?.analysis, result?.topic, locale, analysisTypingComplete]);
+  }, [result?.analysis, result?.topic, locale, analysisTypingComplete, scrollToBottom]);
+
+  // 当分析内容更新时自动滚动
+  useEffect(() => {
+    if (isShowingAnalysis && !analysisTypingComplete) {
+      scrollToBottom();
+      
+      // 延迟检查滚动状态，确保DOM已更新
+      const timer = setTimeout(() => {
+        handleAnalysisScroll();
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    } else {
+      // 分析完成时隐藏滚动按钮
+      setShowScrollButton(false);
+    }
+  }, [analysisContent, isShowingAnalysis, analysisTypingComplete, scrollToBottom, handleAnalysisScroll]);
 
   // 清理定时器和预览URL
   useEffect(() => {
@@ -172,47 +220,73 @@ export default function ConversationStarterPage() {
       const startersStartTimeout = setTimeout(() => {
         setAnalysisComplete(true);
         
-        // 逐行显示开场白
-        result.starters.forEach((starter, index) => {
+        // 逐行显示开场白 - 改为递归方式确保按顺序显示
+        const showNextStarter = (index: number) => {
+          if (index >= result.starters.length) {
+            // 所有开场白都显示完成
+            const finalTimeout = setTimeout(() => {
+              setIsStreaming(false);
+            }, 500);
+            streamingTimeoutsRef.current.push(finalTimeout);
+            return;
+          }
+          
+          // 显示当前开场白
           const timeout = setTimeout(() => {
             setVisibleStarters(prev => [...prev, index]);
             
-            // 如果是最后一行，等待打字完成后结束流式效果
-            if (index === result.starters.length - 1) {
-              const textLength = starter.length;
-              const typingDuration = textLength * 30; // 30ms per character
-              
-              const endTimeout = setTimeout(() => {
-                setIsStreaming(false);
-              }, typingDuration + 500);
-              streamingTimeoutsRef.current.push(endTimeout);
-            }
-          }, index * 1200); // 每行延迟1200ms
+            // 等待当前开场白打字完成后再显示下一条
+            const starter = result.starters[index];
+            const typingDuration = starter.length * 30; // 30ms per character
+            
+            const nextTimeout = setTimeout(() => {
+              showNextStarter(index + 1);
+            }, typingDuration + 300); // 每条完成后等待300ms再显示下一条
+            
+            streamingTimeoutsRef.current.push(nextTimeout);
+          }, index === 0 ? 500 : 0); // 第一条延迟500ms，后续条目立即开始
           
           streamingTimeoutsRef.current.push(timeout);
-        });
+        };
+        
+        showNextStarter(0);
       }, analysisTypingDuration + 1000); // analysis完成后延迟1秒
       
       streamingTimeoutsRef.current.push(startersStartTimeout);
     } else {
-      // 没有analysis，直接显示starters
-      result.starters.forEach((starter, index) => {
+      // 没有analysis，立即重置分析状态并直接显示starters
+      setIsAnalyzing(false);
+      
+      // 使用相同的递归方式显示开场白
+      const showNextStarter = (index: number) => {
+        if (index >= result.starters.length) {
+          // 所有开场白都显示完成
+          const finalTimeout = setTimeout(() => {
+            setIsStreaming(false);
+          }, 500);
+          streamingTimeoutsRef.current.push(finalTimeout);
+          return;
+        }
+        
+        // 显示当前开场白
         const timeout = setTimeout(() => {
           setVisibleStarters(prev => [...prev, index]);
           
-          if (index === result.starters.length - 1) {
-            const textLength = starter.length;
-            const typingDuration = textLength * 30;
-            
-            const endTimeout = setTimeout(() => {
-              setIsStreaming(false);
-            }, typingDuration + 500);
-            streamingTimeoutsRef.current.push(endTimeout);
-          }
-        }, index * 1200);
+          // 等待当前开场白打字完成后再显示下一条
+          const starter = result.starters[index];
+          const typingDuration = starter.length * 30; // 30ms per character
+          
+          const nextTimeout = setTimeout(() => {
+            showNextStarter(index + 1);
+          }, typingDuration + 300); // 每条完成后等待300ms再显示下一条
+          
+          streamingTimeoutsRef.current.push(nextTimeout);
+        }, index === 0 ? 500 : 0); // 第一条延迟500ms，后续条目立即开始
         
         streamingTimeoutsRef.current.push(timeout);
-      });
+      };
+      
+      showNextStarter(0);
     }
 
     // 清理函数
@@ -238,9 +312,13 @@ export default function ConversationStarterPage() {
       setAnalysisTypingComplete(false);
       setVisibleStarters([]);
       setIsStreaming(false);
+      setShowScrollButton(false);
+      setIsAnalyzing(false);
       clearStreamingTimeouts();
       // 清理已完成的analysis记录
       completedAnalysisRef.current = '';
+      // 重置滚动状态
+      isAutoScrollRef.current = true;
       // 不重置processedResultRef，让流式输出效果重新触发
       processedResultRef.current = null;
     }
@@ -305,6 +383,7 @@ export default function ConversationStarterPage() {
         setIsShowingAnalysis(false);
         setAnalysisComplete(false);
         setAnalysisTypingComplete(false);
+        setIsAnalyzing(false);
         completedAnalysisRef.current = '';
         processedResultRef.current = null;
         
@@ -348,12 +427,16 @@ export default function ConversationStarterPage() {
     setIsShowingAnalysis(false);
     setAnalysisComplete(false);
     setAnalysisTypingComplete(false);
+    setShowScrollButton(false);
+    setIsAnalyzing(false);
     
     // 清理定时器
     clearStreamingTimeouts();
     setIsStreaming(false);
     completedAnalysisRef.current = '';
     processedResultRef.current = null;
+    // 重置滚动状态
+    isAutoScrollRef.current = true;
     
     // 重置压缩统计
     setCompressionStats(null);
@@ -395,6 +478,9 @@ export default function ConversationStarterPage() {
       return;
     }
 
+    // 立即设置分析状态，阻止其他卡片显示
+    setIsAnalyzing(true);
+    
     // 清理之前的状态和定时器
     clearStreamingTimeouts();
     setIsLoading(true);
@@ -404,8 +490,11 @@ export default function ConversationStarterPage() {
     setAnalysisComplete(false);
     setAnalysisTypingComplete(false);
     setIsStreaming(false);
+    setShowScrollButton(false);
     completedAnalysisRef.current = '';
     processedResultRef.current = null;
+    // 重置滚动状态
+    isAutoScrollRef.current = true;
     
     try {
       // 创建FormData对象，支持多文件
@@ -431,12 +520,21 @@ export default function ConversationStarterPage() {
         };
         setResult(resultData);
         toast.success(t("toast_analysis_complete"));
+        
+        // 如果没有分析内容，立即重置分析状态
+        if (!data.data.analysis) {
+          setIsAnalyzing(false);
+        }
       } else {
         toast.error(data.message || t("no_results"));
+        // 请求失败时重置分析状态
+        setIsAnalyzing(false);
       }
     } catch (error) {
       console.error("Error:", error);
       toast.error(t("error"));
+      // 请求出错时重置分析状态
+      setIsAnalyzing(false);
     } finally {
       setIsLoading(false);
     }
@@ -508,8 +606,12 @@ export default function ConversationStarterPage() {
     setAnalysisComplete(false);
     setAnalysisTypingComplete(false);
     setIsStreaming(false);
+    setShowScrollButton(false);
+    setIsAnalyzing(false);
     completedAnalysisRef.current = '';
     processedResultRef.current = null;
+    // 重置滚动状态
+    isAutoScrollRef.current = true;
   };
 
   const handleTryAgain = () => {
@@ -999,103 +1101,179 @@ export default function ConversationStarterPage() {
             </div>
           )}
 
-          {/* Loading State */}
-          {isLoading && (
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-secondary rounded-3xl blur-3xl opacity-10"></div>
-              <div className="relative">
-                <Card className="card-glass">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
-                      {t("generating")}
-                    </CardTitle>
-                    <CardDescription>
-                      {t("analyzing_tip")}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {Array.from({ length: 8 }).map((_, index) => (
-                      <Skeleton key={index} className="h-12 w-full" />
-                    ))}
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          )}
-
           {/* Results with Streaming Effect */}
-          {result && !isLoading && (
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-accent rounded-3xl blur-3xl opacity-10"></div>
-              <div className="relative">
-                <Card className="card-glass">
-                  <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-xl flex items-center gap-2">
-                        <Heart className="w-5 h-5 text-primary" />
-                        {t("result_title")}
-                      </CardTitle>
-                      <CardDescription className="mt-1">
-                        {result.topic && (
-                          <span className="inline-block bg-gradient-primary text-white px-3 py-1 rounded-full text-sm font-medium mr-2 mb-2">
-                            {result.topic}
-                          </span>
-                        )}
-                        {t("result_description")} • {t("based_on_photos", { count: files.length })} • {t("success_tip")}
-                      </CardDescription>
-                    </div>
-                    <div className="flex gap-2 flex-shrink-0">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleTryAgain}
-                        disabled={isLoading || isStreaming}
-                        className="flex-1 sm:flex-none hover-lift"
-                      >
-                        <RotateCcw className="w-4 h-4 mr-2" />
-                        {t("try_again")}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleClear}
-                        disabled={isStreaming}
-                        className="flex-1 sm:flex-none hover-lift"
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        {t("clear")}
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {/* Lucy的分析思考过程 */}
-                    {result.analysis && (
-                      <div className="mb-6">
-                        <div className="flex items-center gap-3 mb-4">
-                          <div className="w-10 h-10 rounded-full bg-gradient-secondary flex items-center justify-center glow-secondary">
-                            <span className="text-white text-sm font-bold">L</span>
+          {(result || isLoading) && (
+            <div className="space-y-6">
+              {/* Lucy的分析思考过程 - 独立卡片模块 */}
+              {(isLoading || isAnalyzing || (result && result.analysis)) && (
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-secondary rounded-3xl blur-3xl opacity-10"></div>
+                  <div className="relative">
+                    <Card className="border-1 border-primary/20 bg-gradient-to-br from-primary/5 via-white to-secondary/5 shadow-lg card-glass">
+                      <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-primary/20 flex items-center h-16 rounded-t-2xl">
+                        <CardTitle className="pt-6 flex items-center justify-between text-xl w-full min-h-[2.5rem]">
+                          <div className="flex items-center">
+                            {/* 爱心图标 */}
+                            <span className={`mr-2 text-primary transition-all duration-1000 ${
+                              (isLoading || isAnalyzing || (isShowingAnalysis && !analysisTypingComplete)) ? 'animate-pulse' : ''
+                            }`}>
+                              <Heart className="w-5 h-5" />
+                            </span>
+                            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                              {t("lucy_analysis_title")}
+                            </span>
                           </div>
-                          <h3 className="text-lg font-semibold text-foreground">
-                            {t("lucy_analysis_title")}
-                          </h3>
-                        </div>
-                        
-                        <div className={`transition-opacity duration-700 ease-out ${
-                          isShowingAnalysis ? 'opacity-100' : 'opacity-0'
-                        }`}>
-                          {isShowingAnalysis && (
-                            <div className="bg-gradient-to-r from-secondary/10 to-primary/10 rounded-xl p-6 border border-secondary/20 elevation-1">
-                              <div className="text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">
-                                {analysisContent}
-                              </div>
+                          
+                          {/* 状态指示器 */}
+                          {(isLoading || isAnalyzing || (isShowingAnalysis && !analysisTypingComplete)) && (
+                            <div className="flex items-center space-x-2 text-sm text-primary">
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <span>
+                                {(isLoading || isAnalyzing) ? t("generating") : t("thinking_in_progress")}
+                              </span>
                             </div>
                           )}
+                          
+                          {!isLoading && !isAnalyzing && analysisTypingComplete && (
+                            <div className="flex items-center space-x-2 text-sm text-green-600">
+                              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                              <span>{t("thinking_complete")}</span>
+                            </div>
+                          )}
+                        </CardTitle>
+                      </CardHeader>
+                      
+                      <CardContent className="p-0">
+                        {(isLoading || isAnalyzing) && !result ? (
+                          // 加载或分析状态显示
+                          <div className="p-6">
+                            <div className="space-y-3">
+                              <div className="flex items-center space-x-2">
+                                <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+                                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                                <span className="text-sm text-primary ml-2">{t("analyzing_tip")}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ) : result?.analysis ? (
+                          // 有分析内容时显示
+                          <div className={`transition-opacity duration-700 ease-out ${
+                            isShowingAnalysis ? 'opacity-100' : 'opacity-0'
+                          }`}>
+                            {isShowingAnalysis && (
+                              <div className="relative">
+                                {/* 动态高度的内容容器 */}
+                                <div 
+                                  ref={analysisContentRef}
+                                  onScroll={handleAnalysisScroll}
+                                  className="max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-primary/60 scrollbar-track-gray-100 p-6"
+                                  style={{
+                                    scrollbarWidth: 'thin',
+                                    scrollbarColor: 'hsl(var(--primary)) #f3f4f6'
+                                  }}
+                                >
+                                  {/* 渐变背景装饰 */}
+                                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10 pointer-events-none"></div>
+                                  
+                                  <div className="relative z-10">
+                                    <div className="text-sm leading-relaxed text-primary dark:text-primary whitespace-pre-wrap">
+                                      {analysisContent}
+                                      
+                                      {/* 打字机指示器 */}
+                                      {isShowingAnalysis && !analysisTypingComplete && (
+                                        <div className="flex items-center space-x-2 mt-4">
+                                          <div className="flex space-x-1">
+                                            <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+                                            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                                            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                {/* 上下边缘模糊过渡遮罩 */}
+                                <div className="absolute top-0 left-0 right-0 h-4 bg-gradient-to-b from-white via-white/60 to-transparent pointer-events-none z-20"></div>
+                                <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-white via-white/60 to-transparent pointer-events-none z-20"></div>
+                                
+                                {/* 滚动提示 - 当用户不在底部且正在流式输出时显示 */}
+                                {showScrollButton && (
+                                  <div className="absolute bottom-2 right-2">
+                                    <button
+                                      onClick={scrollToBottom}
+                                      className="px-3 py-1 bg-primary text-white text-xs rounded-full shadow-lg hover:bg-primary/80 transition-colors"
+                                    >
+                                      {locale === 'zh' ? '↓ 查看最新' : '↓ View Latest'}
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ) : result && !result.analysis ? (
+                          // 没有分析内容时显示占位符
+                          <div className="p-6">
+                            <div className="text-center text-muted-foreground py-4">
+                              <span className="text-sm">{t("no_analysis_available") || "暂无分析内容"}</span>
+                            </div>
+                          </div>
+                        ) : null}
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              )}
+
+              {/* 开场白结果卡片 */}
+              {!isLoading && !isAnalyzing && result && (!result.analysis || analysisTypingComplete) && (
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-accent rounded-3xl blur-3xl opacity-10"></div>
+                  <div className="relative">
+                    <Card className="card-glass">
+                      <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-xl flex items-center gap-2">
+                            <Heart className="w-5 h-5 text-primary" />
+                            {t("result_title")}
+                          </CardTitle>
+                          <CardDescription className="mt-1">
+                            {result.topic && (
+                              <span className="inline-block bg-gradient-primary text-white px-3 py-1 rounded-full text-sm font-medium mr-2 mb-2">
+                                {result.topic}
+                              </span>
+                            )}
+                            {t("result_description")} • {t("based_on_photos", { count: files.length })} • {t("success_tip")}
+                          </CardDescription>
                         </div>
-                        
+                        <div className="flex gap-2 flex-shrink-0">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleTryAgain}
+                            disabled={isLoading || isStreaming}
+                            className="flex-1 sm:flex-none hover-lift"
+                          >
+                            <RotateCcw className="w-4 h-4 mr-2" />
+                            {t("try_again")}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleClear}
+                            disabled={isStreaming}
+                            className="flex-1 sm:flex-none hover-lift"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            {t("clear")}
+                          </Button>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
                         {/* 分隔线 */}
-                        {analysisComplete && (
-                          <div className="mt-6 mb-4 flex items-center">
+                        {result.analysis && analysisTypingComplete && (
+                          <div className="mb-4 flex items-center">
                             <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
                             <div className="px-4 text-sm font-medium text-primary">
                               {t("recommended_starters")}
@@ -1103,79 +1281,98 @@ export default function ConversationStarterPage() {
                             <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
                           </div>
                         )}
-                      </div>
-                    )}
-                    
-                    {/* 显示已流式输出的开场白 */}
-                    {result.starters.map((starter, index) => (
-                      <div
-                        key={`starter-wrapper-${index}`}
-                        className={`transition-opacity duration-700 ease-out ${
-                          visibleStarters.includes(index)
-                            ? 'opacity-100'
-                            : 'opacity-0'
-                        }`}
-                      >
-                        {visibleStarters.includes(index) && (
-                          <div className="flex items-start gap-3 p-4 rounded-xl border bg-card/50 hover:bg-accent/20 transition-all duration-300 group elevation-1 hover:elevation-2 hover-lift">
-                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center text-sm font-medium text-white glow-primary">
-                              {index + 1}
-                            </div>
-                            <div className="flex-1 text-sm leading-relaxed text-foreground">
-                              <TypewriterText 
-                                key={`starter-${index}-${result.topic}-${locale}-${starter.substring(0, 30)}`}
-                                text={starter} 
-                                speed={30}
-                              />
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleCopy(starter)}
-                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 hover-lift"
+                        
+                        {/* 显示已流式输出的开场白 */}
+                        {result.starters.map((starter, index) => {
+                          // 为每个starter创建稳定的key，避免重复刷新
+                          const isVisible = visibleStarters.includes(index);
+                          
+                          return (
+                            <div
+                              key={`starter-${index}-${result.starters.length}`}
+                              className={`transition-opacity duration-700 ease-out ${
+                                isVisible ? 'opacity-100' : 'opacity-0'
+                              }`}
                             >
-                              <Copy className="w-4 h-4" />
-                            </Button>
+                              {isVisible && (
+                                <div className="flex items-start gap-3 p-4 rounded-xl border bg-card/50 hover:bg-accent/20 transition-all duration-300 group elevation-1 hover:elevation-2 hover-lift">
+                                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center text-sm font-medium text-white glow-primary">
+                                    {index + 1}
+                                  </div>
+                                  <div className="flex-1 text-sm leading-relaxed text-foreground">
+                                    {/* 临时测试：直接显示文本 */}
+                                    <div className="mb-2 p-2 bg-yellow-100 text-xs">
+                                      调试信息: {starter ? `文本长度: ${starter.length}` : '无文本'}
+                                    </div>
+                                    
+                                    {/* 显示前50个字符 */}
+                                    <div className="mb-2 text-xs text-gray-600">
+                                      预览: {starter?.substring(0, 50)}...
+                                    </div>
+                                    
+                                    <TypewriterText 
+                                      key={`starter-${index}`}
+                                      text={starter || '开场白内容加载中...'} 
+                                      speed={30}
+                                      onComplete={() => {
+                                        console.log('TypewriterText completed for index:', index);
+                                      }}
+                                      onTextChange={(currentText) => {
+                                        console.log('TypewriterText updating:', currentText.substring(0, 20));
+                                      }}
+                                    />
+                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleCopy(starter)}
+                                    className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 hover-lift"
+                                  >
+                                    <Copy className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                        
+                        {/* 正在流式输出时显示的加载指示器 */}
+                        {isStreaming && visibleStarters.length < result.starters.length && (
+                          <div 
+                            key="loading-indicator" 
+                            className="flex items-start gap-3 p-4 rounded-xl border bg-card/30 opacity-60 animate-pulse"
+                          >
+                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center text-sm font-medium text-white">
+                              {visibleStarters.length + 1}
+                            </div>
+                            <div className="flex-1 space-y-2">
+                              <div className="flex items-center gap-2">
+                                <div className="h-2 bg-muted rounded flex-1 animate-pulse"></div>
+                                <div className="h-2 bg-muted rounded w-20 animate-pulse"></div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="h-2 bg-muted rounded w-3/4 animate-pulse"></div>
+                              </div>
+                            </div>
                           </div>
                         )}
-                      </div>
-                    ))}
-                    
-                    {/* 正在流式输出时显示的加载指示器 */}
-                    {isStreaming && visibleStarters.length < result.starters.length && (
-                      <div 
-                        key="loading-indicator" 
-                        className="flex items-start gap-3 p-4 rounded-xl border bg-card/30 opacity-60 animate-pulse"
-                      >
-                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center text-sm font-medium text-white">
-                          {visibleStarters.length + 1}
-                        </div>
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-center gap-2">
-                            <div className="h-2 bg-muted rounded flex-1 animate-pulse"></div>
-                            <div className="h-2 bg-muted rounded w-20 animate-pulse"></div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="h-2 bg-muted rounded w-3/4 animate-pulse"></div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
 
-                    {/* 成功提示 */}
-                    {!isStreaming && result && visibleStarters.length === result.starters.length && (
-                      <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-accent-green/10 to-accent-green/5 border border-accent-green/20 elevation-1">
-                        <div className="flex items-center space-x-2">
-                          <Heart className="w-4 h-4 text-accent-green" />
-                          <span className="text-sm font-medium text-accent-green">
-                            {t("completion_message")}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
+                        {/* 成功提示 */}
+                        {!isStreaming && result && visibleStarters.length === result.starters.length && (
+                          <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 elevation-1">
+                            <div className="flex items-center space-x-2">
+                              <Heart className="w-4 h-4 text-primary" />
+                              <span className="text-sm font-medium text-primary">
+                                {t("completion_message")} 
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
