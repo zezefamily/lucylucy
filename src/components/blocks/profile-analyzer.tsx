@@ -1093,9 +1093,9 @@ export default function ProfileAnalyzer() {
                     style={{ width: `${result.overallScore * 10}%` }}
                   ></div>
                 </div>
-                <div className="text-sm text-muted-foreground mt-2 text-center font-medium">
+                {/* <div className="text-sm text-muted-foreground mt-2 text-center font-medium">
                   {t("match_rate", { rate: result.overallScore * 10 })}
-                </div>
+                </div> */}
               </div>
             </CardContent>
           </Card>
