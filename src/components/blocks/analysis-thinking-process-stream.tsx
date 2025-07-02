@@ -297,7 +297,7 @@ export default function AnalysisThinkingProcessStream({
   if (!isVisible) return null;
 
   return (
-    <Card className="pt-0 pb-6 border-1 border-primary/20 bg-gradient-to-br from-primary/5 via-white to-secondary/5 shadow-lg">
+    <Card className="pt-0 pb-3 gap-3 border-1 border-primary/20 bg-gradient-to-br from-primary/5 via-white to-secondary/5 shadow-lg">
       <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-primary/20 flex items-center h-16 rounded-t-2xl">
         <CardTitle className="pt-6 flex items-center justify-between text-xl w-full min-h-[2.5rem]">
           <div className="flex items-center">
@@ -397,9 +397,20 @@ export default function AnalysisThinkingProcessStream({
               </div>
             </div>
             
+            {/* 上下边缘模糊过渡遮罩 - 只在有内容时显示 */}
+            {(streamText || isStreaming || isBuffering) && (
+              <>
+                {/* 顶部渐变遮罩 */}
+                <div className="absolute top-0 left-0 right-0 h-4 bg-gradient-to-b from-white via-white/60 to-transparent pointer-events-none z-20"></div>
+                
+                {/* 底部渐变遮罩 */}
+                <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-white via-white/60 to-transparent pointer-events-none z-20"></div>
+              </>
+            )}
+            
             {/* 底部渐变遮罩 - 只在有内容且可滚动时显示 */}
             {(streamText || isStreaming || isBuffering) && canScroll && (
-              <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none"></div>
+              <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-30"></div>
             )}
             
             {/* 滚动提示 - 只在有内容且可滚动时显示 */}
