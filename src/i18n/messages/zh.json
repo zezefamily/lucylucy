@@ -249,5 +249,21 @@
   "tabbar": {
     "photo_analyzer": "照片分析",
     "conversation_starter": "开场白"
+  },
+  "about": {
+    "page_title": "关于我们 - LucyLucy",
+    "page_description": "了解 Lucy AI 和 BLUE BOX AI LIMITED，我们致力于用AI技术连接真实的人与人，让社交更自然有温度。",
+    "title": "关于我们",
+    "subtitle": "用AI技术连接真实的人与人，让社交更自然有温度",
+    "mission_title": "我们的使命",
+    "mission_content": "Lucy AI 由 BLUE BOX AI LIMITED 开发，源于我们对人与人连接的长久关注和信念。我们的使命，是用人工智能帮助每个人展现更真实、更有吸引力的自己，让社交不再艰难，让连接更自然高效有温度。",
+    "values_title": "我们的价值观",
+    "values_content": "我们珍视真诚、尊重和同理心。每一行代码，每一项功能，都希望为你带来轻松自信的社交体验，陪伴你遇见更好的自己，遇见对的人。",
+    "commitment_title": "我们的承诺",
+    "commitment_content": "无论你在寻找爱情、朋友、伙伴，还是懂你的人，Lucy AI都希望成为你值得信赖的伙伴。",
+    "team_section_title": "关于我们的团队",
+    "company_title": "BLUE BOX AI LIMITED",
+    "company_description": "BLUE BOX AI LIMITED 是一家专注于开发对人类有益的 AI 产品的科技公司。",
+    "company_philosophy": "我们始终相信，技术不应取代情感，而应成为人与人彼此靠近的桥梁。"
   }
 }

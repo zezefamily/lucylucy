@@ -21,6 +21,11 @@
           "title": "开场白",
           "url": "/conversation-starter",
           "icon": "RiChatSmile3Line"
+        },
+        {
+          "title": "关于我们",
+          "url": "/about",
+          "icon": "RiInformationLine"
         }
       ]
     },

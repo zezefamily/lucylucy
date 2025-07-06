@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
     
     // 使用OpenAI进行流式图像分析
     const result = await streamText({
-      model: getOpenAI()('gpt-4o'),
+      model: getOpenAI()('gpt-4o-mini'),
       messages: [
         {
           role: 'system',

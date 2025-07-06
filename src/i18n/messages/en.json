@@ -248,6 +248,22 @@
   },
   "tabbar": {
     "photo_analyzer": "Photo Analyzer",
-    "conversation_starter": "Chat Starter"
+    "conversation_starter": "Conversation Starter"
+  },
+  "about": {
+    "page_title": "About Us - LucyLucy",
+    "page_description": "Learn about Lucy AI and BLUE BOX AI LIMITED, we are committed to connecting real people with AI technology, making social interactions more natural and warm.",
+    "title": "About Us",
+    "subtitle": "Connecting real people with AI technology, making social interactions more natural and warm",
+    "mission_title": "Our Mission",
+    "mission_content": "Lucy AI is developed by BLUE BOX AI LIMITED, stemming from our long-standing attention and belief in human connections. Our mission is to help everyone present their most authentic and attractive selves through artificial intelligence, making social interactions no longer difficult and connections more natural, efficient and warm.",
+    "values_title": "Our Values",
+    "values_content": "We value sincerity, respect and empathy. Every line of code, every feature, hopes to bring you a relaxed and confident social experience, accompanying you to meet a better version of yourself and meet the right people.",
+    "commitment_title": "Our Commitment",
+    "commitment_content": "Whether you're looking for love, friendship, partnership, or someone who understands you, Lucy AI hopes to be your trusted companion.",
+    "team_section_title": "About Our Team",
+    "company_title": "BLUE BOX AI LIMITED",
+    "company_description": "BLUE BOX AI LIMITED is a technology company focused on developing AI products that benefit humanity.",
+    "company_philosophy": "We firmly believe that technology should not replace emotions, but should become a bridge for people to get closer to each other."
   }
 }
