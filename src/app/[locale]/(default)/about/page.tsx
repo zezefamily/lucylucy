@@ -59,45 +59,45 @@ export default async function About({ params }: Props) {
             <div className="relative">
               <div className="card-glass rounded-2xl p-8 md:p-12 space-y-10">
                 {/* 使命部分 */}
-                <div className="hover-lift">
-                  <h2 className="text-2xl font-semibold mb-6 flex items-center text-gradient-primary">
+                <div className="">
+                  {/* <h2 className="text-2xl font-semibold mb-6 flex items-center text-gradient-primary">
                     <span className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center mr-3 glow-primary">
                       <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                       </svg>
                     </span>
                     {t("mission_title")}
-                  </h2>
+                  </h2> */}
                   <p className="text-foreground/80 text-lg leading-relaxed">
                     {t("mission_content")}
                   </p>
                 </div>
 
                 {/* 价值观部分 */}
-                <div className="hover-lift">
-                  <h2 className="text-2xl font-semibold mb-6 flex items-center text-gradient-primary">
+                <div className="">
+                  {/* <h2 className="text-2xl font-semibold mb-6 flex items-center text-gradient-primary">
                     <span className="w-8 h-8 bg-gradient-secondary rounded-full flex items-center justify-center mr-3 glow-secondary">
                       <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"/>
                       </svg>
                     </span>
                     {t("values_title")}
-                  </h2>
+                  </h2> */}
                   <p className="text-foreground/80 text-lg leading-relaxed">
                     {t("values_content")}
                   </p>
                 </div>
 
                 {/* 承诺部分 */}
-                <div className="hover-lift">
-                  <h2 className="text-2xl font-semibold mb-6 flex items-center text-gradient-primary">
+                <div className="">
+                  {/* <h2 className="text-2xl font-semibold mb-6 flex items-center text-gradient-primary">
                     <span className="w-8 h-8 bg-gradient-accent rounded-full flex items-center justify-center mr-3 glow-accent">
                       <svg className="w-4 h-4 text-accent-green-foreground" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
                       </svg>
                     </span>
                     {t("commitment_title")}
-                  </h2>
+                  </h2> */}
                   <p className="text-foreground/80 text-lg leading-relaxed">
                     {t("commitment_content")}
                   </p>
@@ -113,7 +113,7 @@ export default async function About({ params }: Props) {
                 </div>
 
                 {/* 公司介绍 */}
-                <div className="card-glass rounded-xl p-6 hover-lift">
+                <div className=" rounded-xl p-6 ">
                   <h2 className="text-2xl font-semibold mb-4 flex items-center text-gradient-primary">
                     <span className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center mr-3 glow-primary">
                       <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
