@@ -183,7 +183,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const modelName = "gpt-4o";
+    const modelName = "gpt-4o-mini";  // gpt-4o-mini
 
     // 构建消息内容
     const userContent: any[] = [

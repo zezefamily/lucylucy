@@ -21,6 +21,11 @@
           "title": "Conversation Starter",
           "url": "/conversation-starter",
           "icon": "RiChatSmile3Line"
+        },
+        {
+          "title": "About",
+          "url": "/about",
+          "icon": "RiInformationLine"
         }
       ]
     },

@@ -160,13 +160,16 @@
     "toast_image_removed": "Photo removed",
     "toast_all_cleared": "All photos cleared",
     "toast_analysis_complete": "Lucy analysis complete!",
+    "analysis_complete": "Analysis complete",
     "toast_copy_failed": "Failed to copy",
     "based_on_photos": "Based on {count} photos",
     "completion_message": "Conversation starters generated! Choose the most suitable one to start chatting ❤️",
-    "lucy_analysis_title": "Lucy's Analysis Process",
+    "lucy_analysis_title": "Lucy",
     "recommended_starters": "Recommended Starters",
     "upload_format_tip": "Upload photos to generate personalized conversation starters",
-    "upload_icon_alt": "Upload Icon"
+    "upload_icon_alt": "Upload Icon",
+    "thinking_in_progress": "Thinking progress",
+    "thinking_complete": "Thinking complete"
   },
   "profile_analyzer": {
     "page_title": "Dating Photo Analyzer - LucyLucy",
@@ -245,6 +248,22 @@
   },
   "tabbar": {
     "photo_analyzer": "Photo Analyzer",
-    "conversation_starter": "Chat Starter"
+    "conversation_starter": "Conversation Starter"
+  },
+  "about": {
+    "page_title": "About Us - LucyLucy",
+    "page_description": "Learn about Lucy AI and BLUE BOX AI LIMITED, we are committed to connecting real people with AI technology, making social interactions more natural and warm.",
+    "title": "About Us",
+    "subtitle": "Connecting real people with AI technology, making social interactions more natural and warm",
+    "mission_title": "Our Mission",
+    "mission_content": "Lucy AI is developed by BLUE BOX AILIMITED, her birth, is based on our long-term concern and belief for the connection between people.",
+    "values_title": "Our Values",
+    "values_content": "Lucy AI's mission is to help everyone show themselves more authentically and attractively through AI, bringing a relaxed and confident social experience, and accompanying users to find the right person. Whether you're looking for love, friendship, partnership, or someone who understands you, Lucy AI hopes to be your trusted companion.",
+    "commitment_title": "Our Commitment",
+    "commitment_content": "BLUE BOX AI LIMITED is a technology company focused on developing AI products that benefit humanity. We value sincerity, respect, creativity, and empathy. We firmly believe that technology should not replace human emotions but should become a bridge for people to get closer to each other.",
+    "team_section_title": "About Our Team",
+    "company_title": "BLUE BOX AI LIMITED",
+    "company_description": "BLUE BOX AI LIMITED is a technology company focused on developing AI products that benefit humanity.",
+    "company_philosophy": "We firmly believe that technology should not replace emotions, but should become a bridge for people to get closer to each other."
   }
 }
