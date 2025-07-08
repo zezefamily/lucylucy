@@ -421,80 +421,32 @@
         "alt": "Lucy AI"
       }
     },
-    "links": [
-      {
-        "title": "产品",
-        "items": [
-          {
-            "title": "功能特色",
-            "url": "/#feature"
-          },
-          {
-            "title": "价格方案",
-            "url": "/pricing"
-          },
-          {
-            "title": "使用方法",
-            "url": "/#usage"
-          }
-        ]
-      },
-      {
-        "title": "支持",
-        "items": [
-          {
-            "title": "帮助中心",
-            "url": "/help"
-          },
-          {
-            "title": "联系我们",
-            "url": "/contact"
-          },
-          {
-            "title": "隐私政策",
-            "url": "/privacy"
-          },
-          {
-            "title": "服务条款",
-            "url": "/terms"
-          }
-        ]
-      },
-      {
-        "title": "社区",
-        "items": [
-          {
-            "title": "成功案例",
-            "url": "/#showcase"
-          },
-          {
-            "title": "博客",
-            "url": "/blog"
-          },
-          {
-            "title": "交友秘籍",
-            "url": "/tips"
-          }
-        ]
-      }
-    ],
-    "social": [
-      {
-        "title": "微博",
-        "url": "https://weibo.com/lucylucyai",
-        "icon": "RiWeiboFill"
-      },
-      {
-        "title": "小红书",
-        "url": "https://xiaohongshu.com/lucylucyai",
-        "icon": "RiHeartLine"
-      },
-      {
-        "title": "抖音",
-        "url": "https://douyin.com/lucylucyai",
-        "icon": "RiTiktokFill"
-      }
-    ],
+    "nav": {
+      "items": [
+        {
+          "title": "支持",
+          "children": [
+            {
+              "title": "联系我们",
+              "url": "/contact"
+            },
+            {
+              "title": "隐私政策",
+              "url": "/zh/privacy"
+            },
+            {
+              "title": "服务条款",
+              "url": "/zh/terms"
+            }
+          ]
+        }
+      ]
+    },
+    "social": {
+      "items": [
+        
+      ]
+    },
     "copyright": "© 2025 LucyAI. 保留所有权利。"
   }
 }

@@ -1,13 +1,26 @@
+"use client";
+
 import { Footer as FooterType } from "@/types/blocks/footer";
 import Icon from "@/components/icon";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export default function Footer({ footer }: { footer: FooterType }) {
+  const [showContactCard, setShowContactCard] = useState(false);
+  const t = useTranslations("contact_modal");
+
   if (footer.disabled) {
     return null;
   }
 
+  const handleContactClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setShowContactCard(true);
+  };
+
   return (
-    <section id={footer.name} className="py-16">
+    <section id={footer.name} className="py-16 relative">
       <div className="max-w-7xl mx-auto px-8">
         <footer>
           <div className="flex flex-col items-center justify-between gap-10 text-center lg:flex-row lg:text-left">
@@ -49,14 +62,18 @@ export default function Footer({ footer }: { footer: FooterType }) {
                 </ul>
               )}
             </div>
-            <div className="grid grid-cols-3 gap-6 lg:gap-20">
+            <div className="flex flex-wrap gap-4 justify-center md:grid md:grid-cols-3 lg:grid-cols-3 lg:gap-20">
               {footer.nav?.items?.map((item, i) => (
-                <div key={i}>
+                <div key={i} className="flex-shrink-0 md:flex-shrink">
                   <p className="mb-6 font-bold">{item.title}</p>
-                  <ul className="space-y-4 text-sm text-muted-foreground">
+                  <ul className="flex flex-wrap gap-4 md:space-y-4 md:flex-col md:gap-0 text-sm text-muted-foreground">
                     {item.children?.map((iitem, ii) => (
                       <li key={ii} className="font-medium hover:text-primary">
-                        <a href={iitem.url} target={iitem.target}>
+                        <a 
+                          href={iitem.url} 
+                          target={iitem.target}
+                          onClick={iitem.title === "联系我们" || iitem.title === "Contact Us" ? handleContactClick : undefined}
+                        >
                           {iitem.title}
                         </a>
                       </li>
@@ -96,6 +113,36 @@ export default function Footer({ footer }: { footer: FooterType }) {
           </div>
         </footer>
       </div>
+
+      {/* 联系我们卡片 */}
+      {showContactCard && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowContactCard(false)}>
+          <Card className="w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>{t("title")}</CardTitle>
+                <button
+                  onClick={() => setShowContactCard(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                  aria-label={t("close")}
+                >
+                  <Icon name="RiCloseLine" className="size-5" />
+                </button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                {t("description")}
+              </CardDescription>
+              <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                <p className="text-sm font-medium text-gray-900">
+                  {t("official_email")}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </section>
   );
 }

@@ -251,19 +251,25 @@
     "conversation_starter": "Conversation Starter"
   },
   "about": {
-    "page_title": "About Us - LucyLucy",
-    "page_description": "Learn about Lucy AI and BLUE BOX AI LIMITED, we are committed to connecting real people with AI technology, making social interactions more natural and warm.",
+    "page_title": "About Us - LucyAI",
+    "page_description": "Come together to find the right person",
     "title": "About Us",
-    "subtitle": "Connecting real people with AI technology, making social interactions more natural and warm",
+    "subtitle": "Come together to find the right person",
     "mission_title": "Our Mission",
-    "mission_content": "Lucy AI is developed by BLUE BOX AILIMITED, her birth, is based on our long-term concern and belief for the connection between people.",
+    "mission_content": "Lucy AI is developed by BLUE BOX AI LIMITED, she was born from our long-standing attention and belief in human-to-human connection.",
     "values_title": "Our Values",
-    "values_content": "Lucy AI's mission is to help everyone show themselves more authentically and attractively through AI, bringing a relaxed and confident social experience, and accompanying users to find the right person. Whether you're looking for love, friendship, partnership, or someone who understands you, Lucy AI hopes to be your trusted companion.",
+    "values_content": "Lucy AI's mission is to use artificial intelligence to help everyone show a more authentic and attractive self, bring a relaxed and confident social experience, and accompany users to find that right person. Whether you're looking for love, friends, or partners, Lucy AI wants to be your trustworthy companion.",
     "commitment_title": "Our Commitment",
-    "commitment_content": "BLUE BOX AI LIMITED is a technology company focused on developing AI products that benefit humanity. We value sincerity, respect, creativity, and empathy. We firmly believe that technology should not replace human emotions but should become a bridge for people to get closer to each other.",
+    "commitment_content": "BLUE BOX AI LIMITED is a technology company focused on developing AI products that are beneficial to humans. We value sincerity, respect, creativity and empathy. We always believe that technology should be good, and technology should not replace human emotions, but should become a bridge for people to get closer to each other.",
     "team_section_title": "About Our Team",
     "company_title": "BLUE BOX AI LIMITED",
-    "company_description": "BLUE BOX AI LIMITED is a technology company focused on developing AI products that benefit humanity.",
-    "company_philosophy": "We firmly believe that technology should not replace emotions, but should become a bridge for people to get closer to each other."
+    "company_description": "BLUE BOX AI LIMITED is a technology company focused on developing AI products that are beneficial to humans.",
+    "company_philosophy": "We always believe that technology should not replace emotions, but should become a bridge for people to get closer to each other."
+  },
+  "contact_modal": {
+    "title": "Contact Us",
+    "description": "Have any questions or suggestions? Please contact us:",
+    "official_email": "Official Email: support@lucyai.io",
+    "close": "Close"
   }
 }

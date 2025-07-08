@@ -421,80 +421,32 @@
         "alt": "Lucy AI"
       }
     },
-    "links": [
-      {
-        "title": "Product",
-        "items": [
-          {
-            "title": "Features",
-            "url": "/#feature"
-          },
-          {
-            "title": "Pricing",
-            "url": "/pricing"
-          },
-          {
-            "title": "How it Works",
-            "url": "/#usage"
-          }
-        ]
-      },
-      {
-        "title": "Support",
-        "items": [
-          {
-            "title": "Help Center",
-            "url": "/help"
-          },
-          {
-            "title": "Contact Us",
-            "url": "/contact"
-          },
-          {
-            "title": "Privacy Policy",
-            "url": "/privacy"
-          },
-          {
-            "title": "Terms of Service",
-            "url": "/terms"
-          }
-        ]
-      },
-      {
-        "title": "Community",
-        "items": [
-          {
-            "title": "Success Stories",
-            "url": "/#showcase"
-          },
-          {
-            "title": "Blog",
-            "url": "/blog"
-          },
-          {
-            "title": "Dating Tips",
-            "url": "/tips"
-          }
-        ]
-      }
-    ],
-    "social": [
-      {
-        "title": "Twitter",
-        "url": "https://twitter.com/lucylucyai",
-        "icon": "RiTwitterXFill"
-      },
-      {
-        "title": "Instagram",
-        "url": "https://instagram.com/lucylucyai",
-        "icon": "RiInstagramFill"
-      },
-      {
-        "title": "TikTok",
-        "url": "https://tiktok.com/@lucylucyai",
-        "icon": "RiTiktokFill"
-      }
-    ],
+    "nav": {
+      "items": [
+        {
+          "title": "Support",
+          "children": [
+            {
+              "title": "Contact Us",
+              "url": "/contact"
+            },
+            {
+              "title": "Privacy Policy",
+              "url": "/privacy"
+            },
+            {
+              "title": "Terms of Service",
+              "url": "/terms"
+            }
+          ]
+        }
+      ]
+    },
+    "social": {
+      "items": [
+        
+      ]
+    },
     "copyright": "© 2025 LucyAI. All rights reserved."
   }
 }

@@ -104,16 +104,16 @@ export default async function About({ params }: Props) {
                 </div>
 
                 {/* 分割线 */}
-                <div className="flex items-center">
+                {/* <div className="flex items-center">
                   <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
                   <div className="px-4 text-sm font-medium text-primary">
                     {t("team_section_title")}
                   </div>
                   <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
-                </div>
+                </div> */}
 
                 {/* 公司介绍 */}
-                <div className=" rounded-xl p-6 ">
+                {/* <div className=" rounded-xl p-6 ">
                   <h2 className="text-2xl font-semibold mb-4 flex items-center text-gradient-primary">
                     <span className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center mr-3 glow-primary">
                       <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -128,7 +128,7 @@ export default async function About({ params }: Props) {
                   <p className="text-foreground/80 text-lg leading-relaxed">
                     {t("company_philosophy")}
                   </p>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
