@@ -200,11 +200,11 @@ export default async function Terms({ params }: TermsPageProps) {
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">{section.title}</h2>
             
             {'items' in section ? (
-              <ul className="space-y-3 text-gray-700">
+              <ul className="space-y-6 text-gray-700">
                 {section.items.map((item, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="font-medium mr-2 min-w-fit">{item.label}</span>
-                    <span>{item.content}</span>
+                  <li key={index} className="mb-4">
+                    <h3 className="font-medium text-lg text-gray-900 mb-2">{item.label}</h3>
+                    <p className="text-gray-700">{item.content}</p>
                   </li>
                 ))}
               </ul>

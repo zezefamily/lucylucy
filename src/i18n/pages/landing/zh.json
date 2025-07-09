@@ -444,7 +444,16 @@
     },
     "social": {
       "items": [
-        
+        {
+          "title": "Discord",
+          "url": "https://discord.gg/gKYNPu3A",
+          "icon": "RiDiscordLine"
+        },
+        {
+          "title": "X",
+          "url": "https://x.com/bluebox_ai",
+          "icon": "RiTwitterXLine"
+        }        
       ]
     },
     "copyright": "© 2025 LucyAI. 保留所有权利。"
