@@ -3,7 +3,7 @@
     "name": "pricing",
     "label": "定价",
     "title": "定价",
-    "description": "获取 ShipAny 的所有功能，快速启动您的 AI SaaS 创业项目。",
+    "description": "获取 Lucy AI 的所有功能，快速启动您的 AI SaaS 创业项目。",
     "groups": [],
     "items": [
       {
@@ -11,13 +11,7 @@
         "description": "开始您的第一个 SaaS 创业项目。",
         "features_title": "包含",
         "features": [
-          "100 积分，有效期 1 个月",
-          "NextJS 模板",
-          "SEO 友好结构",
-          "Stripe 支付",
-          "Supabase 数据存储",
-          "Google OAuth 和一键登录",
-          "国际化支持"
+          "100 积分，有效期 1 个月"
         ],
         "interval": "one-time",
         "amount": 9900,
@@ -29,12 +23,12 @@
         "is_featured": false,
         "tip": "一次付费，无限项目！",
         "button": {
-          "title": "获取 ShipAny",
+          "title": "获取 Lucy AI",
           "url": "/#pricing",
           "icon": "RiFlashlightFill"
         },
         "product_id": "starter",
-        "product_name": "ShipAny 模板入门版",
+        "product_name": "Lucy AI 模板入门版",
         "credits": 100,
         "valid_months": 1
       },
@@ -44,14 +38,7 @@
         "label": "热门",
         "features_title": "包含入门版所有功能，另加",
         "features": [
-          "200 积分，有效期 3 个月",
-          "Vercel 或 Cloudflare 部署",
-          "隐私和条款生成",
-          "Google Analytics 集成",
-          "Google Search Console 集成",
-          "Discord 社区",
-          "首次发布技术支持",
-          "终身更新"
+          "200 积分，有效期 3 个月"
         ],
         "interval": "one-time",
         "amount": 19900,
@@ -63,12 +50,12 @@
         "is_featured": true,
         "tip": "一次付费，无限项目！",
         "button": {
-          "title": "获取 ShipAny",
+          "title": "获取 Lucy AI",
           "url": "/#pricing",
           "icon": "RiFlashlightFill"
         },
         "product_id": "standard",
-        "product_name": "ShipAny 模板标准版",
+        "product_name": "Lucy AI 模板标准版",
         "credits": 200,
         "valid_months": 3
       },
@@ -77,13 +64,7 @@
         "description": "构建任何 AI SaaS 创业项目。",
         "features_title": "包含标准版所有功能，另加",
         "features": [
-          "300 积分，有效期 1 年",
-          "AI 业务功能",
-          "用户中心",
-          "积分系统",
-          "SaaS API 销售",
-          "管理系统",
-          "优先技术支持"
+          "300 积分，有效期 1 年"
         ],
         "interval": "one-time",
         "amount": 29900,
@@ -95,12 +76,12 @@
         "is_featured": false,
         "tip": "一次付费，无限项目！",
         "button": {
-          "title": "获取 ShipAny",
+          "title": "获取 ",
           "url": "/#pricing",
           "icon": "RiFlashlightFill"
         },
         "product_id": "premium",
-        "product_name": "ShipAny 模板高级版",
+        "product_name": " 模板高级版",
         "credits": 300,
         "valid_months": 12
       }

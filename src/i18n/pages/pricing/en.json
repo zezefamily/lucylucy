@@ -3,7 +3,7 @@
     "name": "pricing",
     "label": "Pricing",
     "title": "Pricing",
-    "description": "Get all features of ShipAny, Ship your AI SaaS startups fast.",
+    "description": "Get all features of Lucy AI, Ship your AI SaaS startups fast.",
     "groups": [],
     "items": [
       {
@@ -11,13 +11,7 @@
         "description": "Get started with your first SaaS startup.",
         "features_title": "Includes",
         "features": [
-          "100 credits, valid for 1 month",
-          "NextJS boilerplate",
-          "SEO-friendly structure",
-          "Payment with Stripe",
-          "Data storage with Supabase",
-          "Google Oauth & One-Tap Login",
-          "i18n support"
+          "100 credits, valid for 1 month"
         ],
         "interval": "one-time",
         "amount": 9900,
@@ -29,12 +23,12 @@
         "is_featured": false,
         "tip": "Pay once. Build unlimited projects!",
         "button": {
-          "title": "Get ShipAny",
+          "title": "Title1",
           "url": "/#pricing",
           "icon": "RiFlashlightFill"
         },
         "product_id": "starter",
-        "product_name": "ShipAny Boilerplate Starter",
+        "product_name": "Lucy AI Boilerplate Starter",
         "credits": 100,
         "valid_months": 1
       },
@@ -44,14 +38,7 @@
         "label": "Popular",
         "features_title": "Everything in Starter, plus",
         "features": [
-          "200 credits, valid for 3 month",
-          "Deploy with Vercel or Cloudflare",
-          "Generation of Privacy & Terms",
-          "Google Analytics Integration",
-          "Google Search Console Integration",
-          "Discord community",
-          "Technical support for your first ship",
-          "Lifetime updates"
+          "200 credits, valid for 3 month"
         ],
         "interval": "one-time",
         "amount": 19900,
@@ -63,12 +50,12 @@
         "is_featured": true,
         "tip": "Pay once. Build unlimited projects!",
         "button": {
-          "title": "Get ShipAny",
+          "title": "Title2",
           "url": "/#pricing",
           "icon": "RiFlashlightFill"
         },
         "product_id": "standard",
-        "product_name": "ShipAny Boilerplate Standard",
+        "product_name": "Lucy AI Boilerplate Standard",
         "credits": 200,
         "valid_months": 3
       },
@@ -77,13 +64,7 @@
         "description": "Ship Any AI SaaS Startups.",
         "features_title": "Everything in Standard, plus",
         "features": [
-          "300 credits, valid for 1 year",
-          "Business Functions with AI",
-          "User Center",
-          "Credits System",
-          "API Sales for your SaaS",
-          "Admin System",
-          "Priority Technical Support"
+          "300 credits, valid for 1 year"
         ],
         "interval": "one-time",
         "amount": 29900,
@@ -95,12 +76,12 @@
         "is_featured": false,
         "tip": "Pay once. Build unlimited projects!",
         "button": {
-          "title": "Get ShipAny",
+          "title": "Title3",
           "url": "/#pricing",
           "icon": "RiFlashlightFill"
         },
         "product_id": "premium",
-        "product_name": "ShipAny Boilerplate Premium",
+        "product_name": "Lucy AI Boilerplate Premium",
         "credits": 300,
         "valid_months": 12
       }
