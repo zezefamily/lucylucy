@@ -19,7 +19,7 @@ export enum CreditsTransType {
 
 export enum CreditsAmount {
   NewUserGet = 10,
-  PingCost = 1,
+  PingCost = 10,
 }
 
 export async function getUserCredits(user_uuid: string): Promise<UserCredits> {

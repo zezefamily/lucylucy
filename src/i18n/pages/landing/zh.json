@@ -29,16 +29,8 @@
         }
       ]
     },
-    "buttons": [
-      {
-        "title": "免费开始",
-        "url": "/",
-        "target": "_self",
-        "variant": "default",
-        "icon": "RiHeartLine"
-      }
-    ],
-    "show_sign": false,
+    "buttons": [],
+    "show_sign": true,
     "show_theme": false,
     "show_locale": true
   },

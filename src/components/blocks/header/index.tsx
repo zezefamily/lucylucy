@@ -186,7 +186,7 @@ export default function Header({ header }: { header: HeaderType }) {
                 </span>
               )}
             </Link>
-            <Sheet>
+            {/* <Sheet>
               <SheetTrigger asChild>
                 <Button variant="default" size="icon">
                   <Menu className="size-4" />
@@ -310,7 +310,8 @@ export default function Header({ header }: { header: HeaderType }) {
                   </div>
                 </div>
               </SheetContent>
-            </Sheet>
+            </Sheet> */}
+            {header.show_sign && <SignToggle />}
           </div>
         </div>
       </div>

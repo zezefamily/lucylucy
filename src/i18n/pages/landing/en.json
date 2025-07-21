@@ -30,15 +30,9 @@
       ]
     },
     "buttons": [
-      {
-        "title": "Get Started Free",
-        "url": "/",
-        "target": "_self",
-        "variant": "default",
-        "icon": "RiHeartLine"
-      }
+      
     ],
-    "show_sign": false,
+    "show_sign": true,
     "show_theme": false,
     "show_locale": true
   },
