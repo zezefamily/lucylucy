@@ -55,7 +55,7 @@ export async function handleOrderSession(session: Stripe.Checkout.Session) {
     }
 
     console.log(
-      "handle order session successed: ",
+      "handle order session successed:  ",
       order_no,
       paid_at,
       paid_email,
