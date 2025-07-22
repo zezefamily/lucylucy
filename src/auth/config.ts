@@ -49,6 +49,25 @@ if (
           return null;
         }
 
+        // 验证 audience (aud) 字段确保token是为当前应用生成的
+        if (payload.aud !== googleClientId) {
+          console.log("invalid audience in token", payload.aud);
+          return null;
+        }
+
+        // 验证token是否已过期
+        const now = Math.floor(Date.now() / 1000);
+        if (payload.exp && payload.exp < now) {
+          console.log("token expired");
+          return null;
+        }
+
+        // 验证issuer
+        if (payload.iss !== "accounts.google.com" && payload.iss !== "https://accounts.google.com") {
+          console.log("invalid issuer in token", payload.iss);
+          return null;
+        }
+
         const {
           email,
           sub,
@@ -130,15 +149,35 @@ export const authOptions: NextAuthConfig = {
   trustHost: true,
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
-      const isAllowedToSignIn = true;
-      if (isAllowedToSignIn) {
-        return true;
-      } else {
-        // Return false to display a default error message
+      // 基本验证：确保有用户邮箱
+      if (!user?.email) {
+        console.log("signIn failed: no user email");
         return false;
-        // Or you can return a URL to redirect to:
-        // return '/unauthorized'
       }
+
+      // 验证账户信息
+      if (!account?.provider) {
+        console.log("signIn failed: no account provider");
+        return false;
+      }
+
+      // 验证Google One Tap登录的特殊情况
+      if (account.provider === "google-one-tap") {
+        if (!credentials?.credential) {
+          console.log("signIn failed: no google one tap credential");
+          return false;
+        }
+      }
+
+      // 验证邮箱格式
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(user.email)) {
+        console.log("signIn failed: invalid email format", user.email);
+        return false;
+      }
+
+      console.log("signIn success:", user.email, account.provider);
+      return true;
     },
     async redirect({ url, baseUrl }) {
       // Allows relative callback URLs

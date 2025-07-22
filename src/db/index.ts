@@ -21,7 +21,8 @@ export function db() {
       prepare: false,
       max: 1, // Limit to 1 connection in Workers
       idle_timeout: 10, // Shorter timeout for Workers
-      connect_timeout: 5,
+      connect_timeout: 30, // Increased for better reliability
+      ssl: { rejectUnauthorized: false }, // Required for cloud databases
     });
 
     return drizzle(client);
@@ -33,11 +34,16 @@ export function db() {
   }
 
   // Node.js environment with connection pool configuration
+  // Optimized for Supabase and production environments
   const client = postgres(databaseUrl, {
     prepare: false,
-    max: 10, // Maximum connections in pool
-    idle_timeout: 30, // Idle connection timeout (seconds)
-    connect_timeout: 10, // Connection timeout (seconds)
+    max: 5, // Reduced for serverless/production stability
+    idle_timeout: 20, // Shorter idle timeout for serverless
+    connect_timeout: 60, // Increased for Supabase connection time
+    ssl: { rejectUnauthorized: false }, // Required for most cloud databases
+    connection: {
+      application_name: "lucylucy_app", // For connection tracking
+    }
   });
   dbInstance = drizzle({ client });
 
