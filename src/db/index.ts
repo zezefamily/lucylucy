@@ -1,14 +1,29 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
+import { getSupabaseDrizzle } from "./supabase";
 
 // Detect if running in Cloudflare Workers environment
 const isCloudflareWorker =
   typeof globalThis !== "undefined" && "Cloudflare" in globalThis;
 
+// Check if we should use Supabase client (recommended for better stability)
+const useSupabaseClient = 
+  process.env.SUPABASE_SERVICE_ROLE_KEY && 
+  process.env.NEXT_PUBLIC_SUPABASE_URL &&
+  process.env.USE_SUPABASE_CLIENT === "true";
+
 // Database instance for Node.js environment
 let dbInstance: ReturnType<typeof drizzle> | null = null;
 
 export function db() {
+  // Use Supabase client if configured (recommended for stability)
+  if (useSupabaseClient) {
+    console.log("Using Supabase client for database connection");
+    return getSupabaseDrizzle();
+  }
+
+  // Fallback to direct PostgreSQL connection
+  console.log("Using direct PostgreSQL connection");
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) {
     throw new Error("DATABASE_URL is not set");
@@ -34,18 +49,18 @@ export function db() {
   }
 
   // Node.js environment with connection pool configuration
-  // Optimized for Supabase and production environments
+  // Highly optimized for Supabase and serverless environments
   const client = postgres(databaseUrl, {
     prepare: false,
-    max: 5, // Reduced for serverless/production stability
-    idle_timeout: 20, // Shorter idle timeout for serverless
-    connect_timeout: 60, // Increased for Supabase connection time
-    ssl: { rejectUnauthorized: false }, // Required for most cloud databases
+    max: 3, // Further reduced for serverless stability
+    idle_timeout: 30, // Balanced timeout
+    connect_timeout: 30, // Reduced but sufficient
+    ssl: databaseUrl.includes('supabase.co') ? { rejectUnauthorized: false } : undefined,
     connection: {
-      application_name: "lucylucy_app", // For connection tracking
+      application_name: "lucylucy_app",
     }
   });
-  dbInstance = drizzle({ client });
+  dbInstance = drizzle(client);
 
   return dbInstance;
 }
