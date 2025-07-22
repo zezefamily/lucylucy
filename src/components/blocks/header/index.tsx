@@ -185,7 +185,7 @@ export default function Header({ header }: { header: HeaderType }) {
                   {header.brand?.title || ""}
                 </span>
               )}
-            </Link>
+            </Link> 
             {/* <Sheet>
               <SheetTrigger asChild>
                 <Button variant="default" size="icon">
