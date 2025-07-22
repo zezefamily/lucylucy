@@ -86,6 +86,13 @@ if (
     GoogleProvider({
       clientId: process.env.AUTH_GOOGLE_ID,
       clientSecret: process.env.AUTH_GOOGLE_SECRET,
+      authorization: {
+        params: {
+          prompt: "select_account",
+          access_type: "offline",
+          response_type: "code",
+        },
+      },
     })
   );
 }
@@ -120,6 +127,7 @@ export const authOptions: NextAuthConfig = {
   pages: {
     signIn: "/auth/signin",
   },
+  trustHost: true,
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
       const isAllowedToSignIn = true;
