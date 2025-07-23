@@ -4,7 +4,7 @@ import { respData, respErr } from "@/lib/resp";
 
 export async function GET() {
   try {
-    console.log("开始测试数据库连接...");
+    console.log("开始测试数据库连接... test");
     console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
     console.log("DATABASE_URL format:", process.env.DATABASE_URL?.includes('supabase.co') ? 'Supabase' : 'Other');
     console.log("SUPABASE_SERVICE_ROLE_KEY exists:", !!process.env.SUPABASE_SERVICE_ROLE_KEY);
