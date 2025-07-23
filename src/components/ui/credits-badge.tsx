@@ -10,12 +10,14 @@ interface CreditsBadgeProps {
   className?: string;
   showIcon?: boolean;
   size?: "sm" | "default" | "lg";
+  onClick?: () => void;
 }
 
 export function CreditsBadge({ 
   className, 
   showIcon = true, 
-  size = "default" 
+  size = "default",
+  onClick
 }: CreditsBadgeProps) {
   const { userCredits } = useAppContext();
   const t = useTranslations("user");
@@ -30,9 +32,10 @@ export function CreditsBadge({
   }
 
   return (
-    <Badge 
+    <Badge  
+      onClick={onClick}
       variant={userCredits.is_pro ? "default" : "secondary"} 
-      className={cn("gap-1 py-1.5", className)}
+      className={cn("gap-1 py-1.5", onClick && "cursor-pointer hover:opacity-80 transition-opacity", className)}
     >
       {showIcon && <Coins className="h-4 w-4" />}
       {userCredits.left_credits} {t("credits")}

@@ -44,17 +44,23 @@ export default function PricingModal({
         </DialogTrigger>
       ) : (
         <DialogTrigger asChild>
-          <Button 
+          {/* <Button 
             variant="outline" 
             className={triggerClassName}
           >
             {triggerText}
-          </Button>
+          </Button> */}
         </DialogTrigger>
       )}
       
       <DialogContent 
-        className="max-w-6xl w-[95vw] max-h-[95vh] p-6"
+        className="max-w-6xl w-[95vw] max-h-[95vh] p-6 data-[state=open]:!slide-in-from-left-0 data-[state=open]:!slide-in-from-top-0 data-[state=closed]:!slide-out-to-left-0 data-[state=closed]:!slide-out-to-top-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95"
+        style={{
+          '--slide-in-from-left': '0px',
+          '--slide-in-from-top': '0px',
+          '--slide-out-to-left': '0px', 
+          '--slide-out-to-top': '0px'
+        } as React.CSSProperties}
       >
         <PricingModalContent pricing={pricing} />
       </DialogContent>

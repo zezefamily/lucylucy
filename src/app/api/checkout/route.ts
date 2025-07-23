@@ -63,17 +63,21 @@ export async function POST(req: Request) {
       return respErr("invalid checkout params");
     }
 
-    if (!["year", "month", "one-time"].includes(interval)) {
+    if (!["week", "year", "month", "one-time"].includes(interval)) {
       return respErr("invalid interval");
     }
 
-    const is_subscription = interval === "month" || interval === "year";
+    const is_subscription = interval === "week" || interval === "month" || interval === "year";
 
     if (interval === "year" && valid_months !== 12) {
       return respErr("invalid valid_months");
     }
 
     if (interval === "month" && valid_months !== 1) {
+      return respErr("invalid valid_months");
+    }
+
+    if (interval === "week" && valid_months !== 0) {
       return respErr("invalid valid_months");
     }
 
@@ -101,7 +105,13 @@ export async function POST(req: Request) {
     let expired_at = "";
 
     const timePeriod = new Date(currentDate);
-    timePeriod.setMonth(currentDate.getMonth() + valid_months);
+    
+    // 根据订阅类型计算过期时间
+    if (interval === "week") {
+      timePeriod.setDate(currentDate.getDate() + 7); // 添加7天
+    } else {
+      timePeriod.setMonth(currentDate.getMonth() + valid_months);
+    }
 
     const timePeriodMillis = timePeriod.getTime();
     let delayTimeMillis = 0;

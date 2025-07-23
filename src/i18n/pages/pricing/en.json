@@ -1,89 +1,189 @@
 {
   "pricing": {
     "name": "pricing",
-    "label": "Pricing",
-    "title": "Pricing",
-    "description": "Get all features of Lucy AI, Ship your AI SaaS startups fast.",
-    "groups": [],
+    "label": "Lucy Membership Plans",
+    "title": "Lucy Membership Plans",
+    "description": "",
+    "groups": [
+      {
+        "name": "subscribe-weekly",
+        "title": "Subscribe Weekly"
+      },
+      {
+        "name": "subscribe-monthly",
+        "title": "Subscribe Monthly"
+      }
+    ],
     "items": [
       {
         "title": "Starter",
-        "description": "Get started with your first SaaS startup.",
-        "features_title": "Includes",
+        "description": "Anyone new to AI dating coaching",
+        "features_title": "Features",
         "features": [
-          "100 credits, valid for 1 month"
+          "Profile review & optimization (10 credits per use)",
+          "Icebreaker generation (10 credits per use)",
+          "Weekly Credits: 50"
         ],
-        "interval": "one-time",
-        "amount": 9900,
-        "cn_amount": 69900,
+        "group": "subscribe-weekly",
+        "interval": "week",
+        "amount": 490,
         "currency": "USD",
-        "price": "$99",
-        "original_price": "$199",
-        "unit": "USD",
+        "price": "$4.9",
+        "original_price": "$7.0",
+        "unit": "/week",
         "is_featured": false,
-        "tip": "Pay once. Build unlimited projects!",
+        "tip": "Flexible weekly plan",
         "button": {
-          "title": "Title1",
+          "title": "Buy Now",
           "url": "/#pricing",
           "icon": "RiFlashlightFill"
         },
-        "product_id": "starter",
-        "product_name": "Lucy AI Boilerplate Starter",
-        "credits": 100,
+        "product_id": "starter_weekly",
+        "product_name": "Lucy AI Starter Weekly",
+        "credits": 50,
+        "valid_months": 0
+      },
+      {
+        "title": "Starter",
+        "description": "Anyone new to AI dating coaching",
+        "features_title": "Features",
+        "features": [
+          "Profile review & optimization (10 credits per use)",
+          "Icebreaker generation (10 credits per use)",
+          "Monthly Credits: 200"
+        ],
+        "group": "subscribe-monthly",
+        "interval": "month",
+        "amount": 1370,
+        "currency": "USD",
+        "price": "$13.7",
+        "original_price": "$19.6",
+        "unit": "/month",
+        "is_featured": false,
+        "tip": "30% off monthly plan",
+        "button": {
+          "title": "Buy Now",
+          "url": "/#pricing",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "starter_monthly",
+        "product_name": "Lucy AI Starter Monthly",
+        "credits": 200,
         "valid_months": 1
       },
       {
-        "title": "Standard",
-        "description": "Ship Fast with your SaaS Startups.",
-        "label": "Popular",
-        "features_title": "Everything in Starter, plus",
+        "title": "Pro",
+        "description": "Building dating appeal with consistent support",
+        "features_title": "Features",
         "features": [
-          "200 credits, valid for 3 month"
+          "Profile review & optimization (10 credits per use)",
+          "Icebreaker generation (10 credits per use)",
+          "Interest level analysis (20 credits per use)",
+          "Weekly Credits: 120"
         ],
-        "interval": "one-time",
-        "amount": 19900,
-        "cn_amount": 139900,
+        "group": "subscribe-weekly",
+        "interval": "week",
+        "amount": 990,
         "currency": "USD",
-        "price": "$199",
-        "original_price": "$299",
-        "unit": "USD",
+        "price": "$9.9",
+        "original_price": "$14.1",
+        "unit": "/week",
         "is_featured": true,
-        "tip": "Pay once. Build unlimited projects!",
+        "tip": "Most Popular",
         "button": {
-          "title": "Title2",
+          "title": "Buy Now",
           "url": "/#pricing",
           "icon": "RiFlashlightFill"
         },
-        "product_id": "standard",
-        "product_name": "Lucy AI Boilerplate Standard",
-        "credits": 200,
-        "valid_months": 3
+        "product_id": "pro_weekly",
+        "product_name": "Lucy AI Pro Weekly",
+        "credits": 120,
+        "valid_months": 0
       },
       {
-        "title": "Premium",
-        "description": "Ship Any AI SaaS Startups.",
-        "features_title": "Everything in Standard, plus",
+        "title": "Pro",
+        "description": "Building dating appeal with consistent support",
+        "features_title": "Features",
         "features": [
-          "300 credits, valid for 1 year"
+          "Profile review & optimization (10 credits per use)",
+          "Icebreaker generation (10 credits per use)",
+          "Interest level analysis (20 credits per use)",
+          "Monthly Credits: 480"
         ],
-        "interval": "one-time",
-        "amount": 29900,
-        "cn_amount": 199900,
+        "group": "subscribe-monthly",
+        "interval": "month",
+        "amount": 2770,
         "currency": "USD",
-        "price": "$299",
-        "original_price": "$399",
-        "unit": "USD",
-        "is_featured": false,
-        "tip": "Pay once. Build unlimited projects!",
+        "price": "$27.7",
+        "original_price": "$39.6",
+        "unit": "/month",
+        "is_featured": true,
+        "tip": "30% off monthly plan",
         "button": {
-          "title": "Title3",
+          "title": "Buy Now",
           "url": "/#pricing",
           "icon": "RiFlashlightFill"
         },
-        "product_id": "premium",
-        "product_name": "Lucy AI Boilerplate Premium",
-        "credits": 300,
-        "valid_months": 12
+        "product_id": "pro_monthly",
+        "product_name": "Lucy AI Pro Monthly",
+        "credits": 480,
+        "valid_months": 1
+      },
+      {
+        "title": "Elite",
+        "description": "Fully customized and advanced dating coaching",
+        "features_title": "Features",
+        "features": [
+          "Unlimited access to all features",
+          "1-on-1 coaching session & personalized strategy (1 per month)",
+          "Early access to new features"
+        ],
+        "group": "subscribe-weekly",
+        "interval": "week",
+        "amount": 6990,
+        "currency": "USD",
+        "price": "$69.9",
+        "original_price": "$99.9",
+        "unit": "/week",
+        "is_featured": false,
+        "tip": "Premium service",
+        "button": {
+          "title": "Buy Now",
+          "url": "/#pricing",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "elite_weekly",
+        "product_name": "Lucy AI Elite Weekly",
+        "credits": 9999,
+        "valid_months": 0
+      },
+      {
+        "title": "Elite",
+        "description": "Fully customized and advanced dating coaching",
+        "features_title": "Features",
+        "features": [
+          "Unlimited access to all features",
+          "1-on-1 coaching session & personalized strategy (1 per month)",
+          "Early access to new features"
+        ],
+        "group": "subscribe-monthly",
+        "interval": "month",
+        "amount": 19570,
+        "currency": "USD",
+        "price": "$195.7",
+        "original_price": "$279.6",
+        "unit": "/month",
+        "is_featured": false,
+        "tip": "30% off monthly plan",
+        "button": {
+          "title": "Buy Now",
+          "url": "/#pricing",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "elite_monthly",
+        "product_name": "Lucy AI Elite Monthly",
+        "credits": 9999,
+        "valid_months": 1
       }
     ]
   }

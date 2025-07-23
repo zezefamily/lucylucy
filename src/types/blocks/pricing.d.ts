@@ -20,7 +20,7 @@ export interface PricingItem {
   button?: Button;
   tip?: string;
   is_featured?: boolean;
-  interval: "month" | "year" | "one-time";
+  interval: "week" | "month" | "year" | "one-time";
   product_id: string;
   product_name?: string;
   amount: number;
