@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { CreditsBadge } from "@/components/ui/credits-badge";
 
 import { Link } from "@/i18n/navigation";
 import { User } from "@/types/user";
@@ -40,12 +41,15 @@ export default function SignUser({ user }: { user: User }) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Avatar className="cursor-pointer">
-          <AvatarImage src={user.avatar_url} alt={user.nickname} />
-          <AvatarFallback>{user.nickname}</AvatarFallback>
-        </Avatar>
-      </DropdownMenuTrigger>
+      <div className="flex items-center gap-2">
+        <CreditsBadge showIcon={true} size="sm" />
+        <DropdownMenuTrigger asChild>
+          <Avatar className="cursor-pointer">
+            <AvatarImage src={user.avatar_url} alt={user.nickname} />
+            <AvatarFallback>{user.nickname}</AvatarFallback>
+          </Avatar>
+        </DropdownMenuTrigger>
+      </div>
       <DropdownMenuContent className="mx-4 bg-background">
         {dropdownItems.map((item, index) => (
           <React.Fragment key={index}>

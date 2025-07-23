@@ -11,7 +11,7 @@ import { cacheGet, cacheRemove } from "@/lib/cache";
 
 import { CacheKey } from "@/services/constant";
 import { ContextValue } from "@/types/context";
-import { User } from "@/types/user";
+import { User, UserCredits } from "@/types/user";
 import moment from "moment";
 import useOneTapLogin from "@/hooks/useOneTapLogin";
 import { useSession } from "next-auth/react";
@@ -36,6 +36,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 
   const [showSignModal, setShowSignModal] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
+  const [userCredits, setUserCredits] = useState<UserCredits | null>(null);
 
   const [showFeedback, setShowFeedback] = useState<boolean>(false);
 
@@ -60,6 +61,32 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     } catch (e) {
       console.log("fetch user info failed");
     }
+  };
+
+  const fetchUserCredits = async function () {
+    try {
+      const resp = await fetch("/api/get-user-credits", {
+        method: "POST",
+      });
+
+      if (!resp.ok) {
+        throw new Error("fetch user credits failed with status: " + resp.status);
+      }
+
+      const { code, message, data } = await resp.json();
+      if (code !== 0) {
+        throw new Error(message);
+      }
+
+      setUserCredits(data);
+    } catch (e) {
+      console.log("fetch user credits failed: ", e);
+      setUserCredits(null);
+    }
+  };
+
+  const refreshUserCredits = async function () {
+    await fetchUserCredits();
   };
 
   const updateInvite = async (user: User) => {
@@ -90,7 +117,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
       console.log("update invite", inviteCode, user.uuid);
       const req = {
         invite_code: inviteCode,
-        user_uuid: user.uuid,
+        user_uuid: process.env.NODE_ENV === 'development' ? '506a7a22-cd55-4bae-90b4-9fa5feb579be' : user.uuid,
       };
       const resp = await fetch("/api/update-invite", {
         method: "POST",
@@ -117,6 +144,11 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (session && session.user) {
       fetchUserInfo();
+      fetchUserCredits();
+    } else if (process.env.NODE_ENV === 'development') {
+      // 在开发环境中，即使没有 session 也获取用户信息
+      fetchUserInfo();
+      fetchUserCredits();
     }
   }, [session]);
 
@@ -129,6 +161,9 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
         setShowSignModal,
         user,
         setUser,
+        userCredits,
+        setUserCredits,
+        refreshUserCredits,
         showFeedback,
         setShowFeedback,
       }}

@@ -7,11 +7,12 @@
   "user": {
     "sign_in": "登录",
     "sign_out": "退出登录",
-    "credits": "额度",
+    "credits": "积分",
     "api_keys": "API 密钥",
     "my_orders": "我的订单",
     "user_center": "用户中心",
-    "admin_system": "管理后台"
+    "admin_system": "管理后台",
+    "loading": "加载中..."
   },
   "sign_modal": {
     "sign_in_title": "登录",

@@ -55,6 +55,11 @@ export async function saveUser(user: User) {
 }
 
 export async function getUserUuid() {
+  // 在开发环境中使用固定的 user_uuid
+  if (process.env.NODE_ENV === 'development') {
+    return '506a7a22-cd55-4bae-90b4-9fa5feb579be';
+  }
+
   let user_uuid = "";
 
   const token = await getBearerToken();

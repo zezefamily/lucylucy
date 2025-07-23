@@ -11,7 +11,8 @@
     "api_keys": "API Keys",
     "my_orders": "My Orders",
     "user_center": "User Center",
-    "admin_system": "Admin System"
+    "admin_system": "Admin System",
+    "loading": "Loading..."
   },
   "sign_modal": {
     "sign_in_title": "Sign In",
