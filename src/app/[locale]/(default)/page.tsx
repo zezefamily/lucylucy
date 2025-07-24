@@ -3,10 +3,55 @@ import { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
 import ProfileAnalyzer from "@/components/blocks/profile-analyzer";
+import { ModernFAQ } from "@/components/blocks/faq";
 
 type Props = {
   params: Promise<{ locale: string }>;
 };
+
+// FAQ 数据
+const faqData = [
+  {
+    question: "What is a Dating Coach and How Can LucyAI Help Me?",
+    answer: "A dating coach is a professional offering personalized strategies to navigate the dating world. This expert works to enhance communication and boost confidence, making them invaluable for attracting the right matches. If you need help with your dating profile or first messages, a dating coach provides step-by-step guidance. While AI tools can optimize profiles, a dating coach offers in-depth insights into your behaviors and strategies to improve your overall dating approach."
+  },
+  {
+    question: "How Can I Improve My Dating Profile with Lucy AI?",
+    answer: "LucyAI uses artificial intelligence to help you optimize your dating profile. Our system evaluates your photos and descriptions to provide suggestions that make your page more engaging. Unlike a dating coach who offers subjective feedback, Lucy AI provides data-driven tips. This optimization ensures your page makes a strong first impression, much like what a dating coach might guide you toward in the dating world."
+  },
+  {
+    question: "Do I Need a Dating Coach to Create a Strong Dating Profile?",
+    answer: "While a personal dating coach provides tailored advice, tools like Lucy AI can significantly improve your dating profile on your own. Our AI platform helps optimize your bio and photos with professional suggestions, enhancing your chances of making a great impression. Lucy AI offers similar insights and optimizations that you would receive from a dating coach, but without the cost or commitment."
+  },
+  {
+    question: "What Should I Include in My Dating Profile?",
+    answer: "To build a strong dating profile, it's essential to showcase your personality, interests, and values authentically. A dating coach might ask you to list your hobbies, career, and what you're looking for. Lucy AI helps select the right images and write captivating descriptions. With Lucy AI, you can create a dating profile that reflects your true self, much like a dating coach would advise you to do."
+  },
+  {
+    question: "How Does Lucy AI's Dating Profile Optimization Work?",
+    answer: "Lucy AI provides an in-depth optimization tool that analyzes your entire dating profile. We give you personalized feedback on photos and descriptions, much like a dating coach would. Our AI ensures your account is optimized for the best results, increasing your chances of getting matches. By using advanced algorithms, a task a dating coach can't perform in real time, we suggest tweaks that boost appeal for your dating profile."
+  },
+  {
+    question: "Can a Dating Coach Help Me After I Create My Dating Profile?",
+    answer: "Yes, a dating coach is a great support even after your initial setup. Once your dating profile is optimized, a dating coach can help refine communication strategies, like following up with matches and engaging in meaningful conversations. A dating coach provides ongoing support, helping you improve your interactions and maintain a strong online presence as your preferences evolve."
+  },
+  {
+    question: "How Quickly Can I Improve My Dating Profile with Lucy AI?",
+    answer: "Lucy AI's optimization tools provide instant feedback for improving your dating profile. Within minutes, you'll get actionable tips to make your presentation more attractive. While a dating coach may take several sessions to offer personalized advice, our AI works in real-time. This makes it a fast and effective way to optimize your dating profile, saving time compared to working with a dating coach."
+  },
+  {
+    question: "What are the Benefits of Using a Dating Coach Over AI Tools?",
+    answer: "A dating coach provides tailored, one-on-one guidance that accounts for personal nuances. However, AI tools like Lucy AI offer quick, automated solutions that are accessible anytime. A dating coach can offer deeper insights into your behaviors, preferences, and emotional needs. On the other hand, Lucy AI gives you an efficient and data-driven approach to profile optimization, which can be used for an instant boost to your dating experience."
+  },
+  {
+    question: "Is My Dating Profile Privacy Protected with Lucy AI?",
+    answer: "Yes, your privacy is a top priority. All data related to your dating profile is kept private and secure, unlike sharing personal details with a dating coach. We do not share your information, and all suggestions are AI-generated without human intervention. Your account is completely under your control, ensuring confidentiality. Lucy AI provides the same benefits without the exposure of sharing sensitive personal data with a dating coach."
+  },
+  {
+    question: "Can Lucy AI Help Me If I'm New to Online Dating?",
+    answer: "Absolutely! If you're new to online dating, Lucy AI is an excellent resource for creating your first dating profile. Our AI tools simplify the process with suggestions on photos and descriptions, much like what a dating coach might offer at the beginning of your journey. Whether starting out or improving an existing account, Lucy AI helps build a great dating profile. Many people use our tool as a first step before considering a dating coach."
+  }
+];
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
@@ -98,7 +143,7 @@ export default async function HomePage({ params }: Props) {
           </div>
 
           {/* 主要功能组件 */}
-          <div className="relative">
+          <div className="relative mb-20">
             <div className="absolute inset-0 bg-gradient-primary rounded-3xl blur-3xl opacity-10"></div>
             <div className="relative">
               <Suspense fallback={
@@ -115,6 +160,84 @@ export default async function HomePage({ params }: Props) {
           </div>
         </div>
       </div>
+
+      {/* FAQ 组件 */}
+      <div className="relative py-20">
+        {/* 背景装饰 */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-10 left-20 w-40 h-40 bg-gradient-secondary rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-blob"></div>
+          <div className="absolute bottom-10 right-20 w-40 h-40 bg-gradient-accent rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-blob animation-delay-4000"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-5xl mx-auto">
+            {/* 主标题 */}
+            <div className="text-center mb-16">
+              <div className="relative inline-block">
+                <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-gradient-primary mb-8 float-animation leading-tight">
+                  Your AI Dating Coach: Perfect Your Dating Profile and Start Meaningful Conversations
+                </h1>
+                <div className="absolute -inset-6 bg-gradient-primary rounded-full blur-3xl opacity-15 animate-pulse"></div>
+              </div>
+            </div>
+
+            {/* 功能特色卡片 */}
+            <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+              {/* 个性化AI指导 */}
+              <div className="card-glass rounded-2xl p-6 lg:p-8 text-center hover-lift group">
+                <div className="w-16 h-16 lg:w-20 lg:h-20 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 glow-primary group-hover:pulse-glow transition-all duration-300">
+                  <svg className="w-8 h-8 lg:w-10 lg:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <h2 className="text-xl lg:text-2xl font-bold text-foreground mb-4 leading-tight">
+                  Transform Your Dating Profile with Personalized AI Coaching
+                </h2>
+                <p className="text-foreground/70 leading-relaxed">
+                  Get AI-powered insights to optimize your profile and make a lasting first impression
+                </p>
+              </div>
+              
+              {/* 聊天开场白 */}
+              <div className="card-glass rounded-2xl p-6 lg:p-8 text-center hover-lift group">
+                <div className="w-16 h-16 lg:w-20 lg:h-20 bg-gradient-secondary rounded-2xl flex items-center justify-center mx-auto mb-6 glow-secondary group-hover:pulse-glow transition-all duration-300">
+                  <svg className="w-8 h-8 lg:w-10 lg:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                </div>
+                <h2 className="text-xl lg:text-2xl font-bold text-foreground mb-4 leading-tight">
+                  Unlock Tailored Chat Openers to Improve Your Match Success
+                </h2>
+                <p className="text-foreground/70 leading-relaxed">
+                  Generate personalized conversation starters that spark meaningful connections
+                </p>
+              </div>
+              
+              {/* 照片优化 */}
+              <div className="card-glass rounded-2xl p-6 lg:p-8 text-center hover-lift group">
+                <div className="w-16 h-16 lg:w-20 lg:h-20 bg-gradient-accent rounded-2xl flex items-center justify-center mx-auto mb-6 glow-accent group-hover:pulse-glow transition-all duration-300">
+                  <svg className="w-8 h-8 lg:w-10 lg:h-10 text-accent-green-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h2 className="text-xl lg:text-2xl font-bold text-foreground mb-4 leading-tight">
+                  Enhance Your Profile with Photo Ratings and Optimization
+                </h2>
+                <p className="text-foreground/70 leading-relaxed">
+                  Receive detailed feedback on your photos to maximize your profile's appeal
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* FAQ 组件 */}
+      <ModernFAQ 
+        title="FAQ"
+        subtitle="Frequently Asked Questions"
+        items={faqData}
+      />
       
       {/* 底部装饰 */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
