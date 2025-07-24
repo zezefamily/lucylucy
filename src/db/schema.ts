@@ -60,6 +60,7 @@ export const orders = pgTable("orders", {
   sub_times: integer(),
   product_id: varchar({ length: 255 }),
   product_name: varchar({ length: 255 }),
+  tier: varchar({ length: 20 }).notNull().default("none"), // 新增：订阅等级字段
   valid_months: integer(),
   order_detail: text(),
   paid_at: timestamp({ withTimezone: true }),
@@ -86,6 +87,7 @@ export const credits = pgTable("credits", {
   trans_type: varchar({ length: 50 }).notNull(),
   credits: integer().notNull(),
   order_no: varchar({ length: 255 }),
+  tier: varchar({ length: 20 }).notNull().default("none"), // 新增：关联的订阅等级
   expired_at: timestamp({ withTimezone: true }),
 });
 

@@ -67,3 +67,43 @@ export async function getCreditsByUserUuid(
 
   return data;
 }
+
+// 根据积分记录获取用户最高订阅等级（基于tier字段）
+export async function getUserHighestTierFromCredits(
+  user_uuid: string
+): Promise<{ tier: string; totalCredits: number }> {
+  const now = new Date().toISOString();
+  
+  // 定义等级优先级
+  const tierPriority = { 'elite': 3, 'pro': 2, 'starter': 1, 'none': 0 };
+  
+  const data = await db()
+    .select()
+    .from(credits)
+    .where(
+      and(
+        eq(credits.user_uuid, user_uuid),
+        gte(credits.expired_at, new Date(now)) // 未过期
+      )
+    )
+    .orderBy(desc(credits.created_at));
+
+  if (!data || data.length === 0) {
+    return { tier: 'none', totalCredits: 0 };
+  }
+
+  // 找到最高等级并计算总积分
+  let highestTier = 'none';
+  let totalCredits = 0;
+  
+  for (const credit of data) {
+    const currentTier = credit.tier || 'none';
+    totalCredits += credit.credits || 0;
+    
+    if (tierPriority[currentTier as keyof typeof tierPriority] > tierPriority[highestTier as keyof typeof tierPriority]) {
+      highestTier = currentTier;
+    }
+  }
+
+  return { tier: highestTier, totalCredits };
+}

@@ -43,7 +43,7 @@ export default function SignUser({ user }: { user: User }) {
     <>
       <DropdownMenu>
         <div className="flex items-center gap-2">
-          <CreditsBadge showIcon={true} size="sm" onClick={handleCreditsBadgeClick} />
+          <CreditsBadge showTier={true} size="sm" onClick={handleCreditsBadgeClick} />
           <DropdownMenuTrigger asChild>
             <Avatar className="cursor-pointer">
               <AvatarImage src={user.avatar_url} alt={user.nickname} />

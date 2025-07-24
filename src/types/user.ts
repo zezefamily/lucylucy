@@ -26,3 +26,21 @@ export interface UserCredits {
   is_recharged?: boolean;
   is_pro?: boolean;
 }
+
+// 订阅等级枚举
+export enum SubscriptionTier {
+  NONE = "none",
+  STARTER = "starter", 
+  PRO = "pro",
+  ELITE = "elite"
+}
+
+// 用户订阅信息
+export interface UserSubscription {
+  tier: SubscriptionTier;
+  productId?: string;
+  productName?: string;
+  isActive: boolean;
+  expiredAt?: Date;
+  interval?: string;
+} 

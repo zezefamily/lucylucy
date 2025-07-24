@@ -154,7 +154,7 @@
         },
         "product_id": "elite_weekly",
         "product_name": "Lucy AI Elite 周订阅",
-        "credits": 9999,
+        "credits": 0,
         "valid_months": 0
       },
       {
@@ -182,7 +182,7 @@
         },
         "product_id": "elite_monthly",
         "product_name": "Lucy AI Elite 月订阅",
-        "credits": 9999,
+        "credits": 0,
         "valid_months": 1
       }
     ]

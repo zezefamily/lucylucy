@@ -192,6 +192,67 @@ export async function getPaidOrdersTotal(): Promise<number | undefined> {
   return total;
 }
 
+// 获取用户有效的订阅订单（未过期的已支付订单）
+export async function getValidSubscriptionsByUserUuid(
+  user_uuid: string
+): Promise<(typeof orders.$inferSelect)[] | undefined> {
+  const now = new Date();
+  
+  const data = await db()
+    .select()
+    .from(orders)
+    .where(
+      and(
+        eq(orders.user_uuid, user_uuid),
+        eq(orders.status, OrderStatus.Paid),
+        gte(orders.expired_at, now) // 未过期
+      )
+    )
+    .orderBy(desc(orders.created_at));
+
+  return data;
+}
+
+// 根据订阅等级获取用户最高等级（优化版本 - 直接使用tier字段）
+export async function getUserHighestTierFromOrders(
+  user_uuid: string
+): Promise<{ tier: string; order: typeof orders.$inferSelect | null }> {
+  const now = new Date();
+  
+  // 定义等级优先级
+  const tierPriority = { 'elite': 3, 'pro': 2, 'starter': 1, 'none': 0 };
+  
+  const data = await db()
+    .select()
+    .from(orders)
+    .where(
+      and(
+        eq(orders.user_uuid, user_uuid),
+        eq(orders.status, OrderStatus.Paid),
+        gte(orders.expired_at, now) // 未过期
+      )
+    )
+    .orderBy(desc(orders.created_at));
+
+  if (!data || data.length === 0) {
+    return { tier: 'none', order: null };
+  }
+
+  // 找到最高等级的订单
+  let highestTier = 'none';
+  let highestOrder = null;
+  
+  for (const order of data) {
+    const currentTier = order.tier || 'none';
+    if (tierPriority[currentTier as keyof typeof tierPriority] > tierPriority[highestTier as keyof typeof tierPriority]) {
+      highestTier = currentTier;
+      highestOrder = order;
+    }
+  }
+
+  return { tier: highestTier, order: highestOrder };
+}
+
 export async function getOrderCountByDate(
   startTime: string,
   status?: string

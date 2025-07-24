@@ -126,6 +126,15 @@ export async function POST(req: Request) {
 
     expired_at = newDate.toISOString();
 
+    // 根据 product_id 确定订阅等级
+    const getTierFromProductId = (productId: string): string => {
+      const lowerProductId = productId.toLowerCase();
+      if (lowerProductId.includes('starter')) return 'starter';
+      if (lowerProductId.includes('pro')) return 'pro';
+      if (lowerProductId.includes('elite')) return 'elite';
+      return 'none';
+    };
+
     const order = {
       order_no: order_no,
       created_at: new Date(created_at),
@@ -139,6 +148,7 @@ export async function POST(req: Request) {
       currency: currency,
       product_id: product_id,
       product_name: product_name,
+      tier: getTierFromProductId(product_id), // 新增：设置订阅等级
       valid_months: valid_months,
     };
     await insertOrder(order as typeof orders.$inferInsert);

@@ -10,6 +10,9 @@ import { toast } from "sonner";
 import imageCompression from 'browser-image-compression';
 import AnalysisThinkingProcess from "./analysis-thinking-process";
 import AnalysisThinkingProcessStream from "./analysis-thinking-process-stream";
+import { useAppContext } from "@/contexts/app";
+import { SubscriptionTier } from "@/types/user";
+
 
 // 单张照片分析结果
 interface PhotoAnalysis {
@@ -119,6 +122,7 @@ function StreamTextRenderer({ text, isStreaming }: { text: string; isStreaming: 
 export default function ProfileAnalyzer() {
   const t = useTranslations("profile_analyzer");
   const locale = useLocale();
+  const { user, userCredits, setShowSignModal, setShowPricingModal, refreshUserCredits } = useAppContext();
   
   const [files, setFiles] = useState<File[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -541,6 +545,53 @@ export default function ProfileAnalyzer() {
       return;
     }
 
+    // 1. 检查用户登录状态
+    if (!user) {
+      // toast.warning(locale === 'zh' ? "请先登录以使用分析功能" : "Please login to use analysis feature");
+      setShowSignModal?.(true);
+      return;
+    }
+
+    // 2. 获取用户订阅等级
+    let userTier: SubscriptionTier = SubscriptionTier.NONE;
+    try {
+      const response = await fetch('/api/get-user-subscription');
+      if (response.ok) {
+        const { data } = await response.json();
+        userTier = data.subscription?.tier || SubscriptionTier.NONE;
+      }
+    } catch (error) {
+      console.error('获取用户订阅等级失败:', error);
+    }
+
+    // 3. 权限检查逻辑
+    if (userTier === SubscriptionTier.ELITE) {
+      // Elite 用户直接放行
+      console.log('Elite 用户，直接放行');
+    } else {
+      // 非 Elite 用户检查积分
+      const requiredCredits = 10;
+      const availableCredits = userCredits?.left_credits || 0;
+      
+      if (availableCredits < requiredCredits) {
+        // 积分不足，弹出 Pricing 弹窗
+        // toast.warning(
+        //   locale === 'zh' 
+        //     ? `分析功能需要 ${requiredCredits} 积分，当前剩余 ${availableCredits} 积分，请充值后继续`
+        //     : `Analysis requires ${requiredCredits} credits, you have ${availableCredits} credits remaining, please top up to continue`
+        // );
+        setShowPricingModal?.(true);
+        return;
+      } else {
+        // 积分充足，放行并提示扣费
+        // toast.info(
+        //   locale === 'zh' 
+        //     ? `本次分析将消耗 ${requiredCredits} 积分，剩余 ${availableCredits - requiredCredits} 积分`
+        //     : `This analysis will consume ${requiredCredits} credits, ${availableCredits - requiredCredits} credits remaining`
+        // );
+      }
+    }
+
     setIsAnalyzing(true);
     setResult(null);
     setShowThinkingProcess(true);
@@ -663,6 +714,8 @@ export default function ProfileAnalyzer() {
           setResult(analysisData);
           setIsAnalyzing(false);
           toast.success(t("toast_analysis_complete"));
+          // 刷新用户积分余额
+          refreshUserCredits?.();
         } else {
           // 否则暂存结果，等待思考过程完成
           setPendingAnalysisResult(analysisData);
@@ -709,8 +762,10 @@ export default function ProfileAnalyzer() {
       setPendingAnalysisResult(null);
       setIsAnalyzing(false);
       toast.success(t("toast_analysis_complete"));
+      // 刷新用户积分余额
+      refreshUserCredits?.();
     }
-  }, [thinkingComplete, analysisResultReady, pendingAnalysisResult, result, t]);
+  }, [thinkingComplete, analysisResultReady, pendingAnalysisResult, result, t, refreshUserCredits]);
 
   const getScoreColor = (score: number) => {
     if (score >= 8) return "text-green-600";

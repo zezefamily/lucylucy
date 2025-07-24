@@ -108,12 +108,14 @@ export async function increaseCredits({
   credits,
   expired_at,
   order_no,
+  tier,
 }: {
   user_uuid: string;
   trans_type: string;
   credits: number;
   expired_at?: string;
   order_no?: string;
+  tier?: string;
 }) {
   try {
     const new_credit: typeof creditsTable.$inferInsert = {
@@ -123,6 +125,7 @@ export async function increaseCredits({
       trans_type: trans_type,
       credits: credits,
       order_no: order_no || "",
+      tier: tier || "none", // 新增：设置订阅等级
       expired_at: expired_at ? new Date(expired_at) : null,
     };
     await insertCredit(new_credit);
@@ -140,12 +143,25 @@ export async function updateCreditForOrder(order: Order) {
       return;
     }
 
+    // 如果订单有 tier 信息，使用订单的 tier；否则根据 product_id 推导
+    let tierValue = 'none';
+    if ('tier' in order && order.tier) {
+      tierValue = order.tier as string;
+    } else if (order.product_id) {
+      // 兼容旧数据，根据 product_id 推导 tier
+      const lowerProductId = order.product_id.toLowerCase();
+      if (lowerProductId.includes('starter')) tierValue = 'starter';
+      else if (lowerProductId.includes('pro')) tierValue = 'pro';
+      else if (lowerProductId.includes('elite')) tierValue = 'elite';
+    }
+
     await increaseCredits({
       user_uuid: order.user_uuid,
       trans_type: CreditsTransType.OrderPay,
       credits: order.credits,
       expired_at: order.expired_at,
       order_no: order.order_no,
+      tier: tierValue, // 新增：传递订阅等级
     });
   } catch (e) {
     console.log("update credit for order failed: ", e);

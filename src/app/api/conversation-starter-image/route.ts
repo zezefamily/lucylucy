@@ -1,6 +1,8 @@
 import { NextRequest } from "next/server";
 import { respData, respErr } from "@/lib/resp";
 import OpenAI from "openai";
+import { getUserUuid } from "@/services/user";
+import { CreditsAmount, CreditsTransType, decreaseCredits } from "@/services/credit";
 
 // 文件类型验证
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
@@ -230,6 +232,25 @@ Please return the result in the following JSON format, only return JSON content 
           ? "未能生成有效的开场白，请重试" 
           : "Unable to generate effective conversation starters, please try again";
         return respErr(errorMessage);
+      }
+
+      // 成功生成开场白后，核销积分（等同于调用 ping 接口的扣分逻辑）
+      try {
+        const user_uuid = await getUserUuid();
+        if (user_uuid) {
+          // 直接调用积分扣减函数，等同于 ping 接口的扣分逻辑
+          await decreaseCredits({
+            user_uuid,
+            trans_type: CreditsTransType.Ping,
+            credits: CreditsAmount.PingCost,
+          });
+          console.log('积分扣减成功 - 开场白生成');
+        } else {
+          console.warn('用户未登录，跳过积分扣减');
+        }
+      } catch (creditError) {
+        console.error('积分扣减过程出错:', creditError);
+        // 不影响主流程，继续返回结果
       }
 
       return respData({
