@@ -105,12 +105,130 @@ export default function ConversationStarterPage() {
   const [showScrollButton, setShowScrollButton] = useState(false);
   
   const MAX_FILES = 9;
+  const CACHE_KEY = 'conversation_starter_photos';
   
   // 使用 ref 来追踪当前处理的结果，避免重复执行
   const processedResultRef = useRef<ConversationStarter | null>(null);
   const streamingTimeoutsRef = useRef<NodeJS.Timeout[]>([]);
   const prevLocaleRef = useRef<string>(locale);
   const completedAnalysisRef = useRef<string>('');
+
+  // 保存照片到本地缓存
+  const savePhotosToCache = useCallback((photoFiles: File[]) => {
+    try {
+      const photoPromises = photoFiles.map(async (file) => {
+        const base64 = await fileToBase64(file);
+        return {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          lastModified: file.lastModified,
+          base64: base64
+        };
+      });
+      
+      Promise.all(photoPromises).then((photoData) => {
+        const cacheData = {
+          photos: photoData,
+          timestamp: Date.now(),
+          version: '1.0'
+        };
+        localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+        console.log(`已缓存 ${photoData.length} 张照片到本地`);
+      }).catch((error) => {
+        console.warn('照片缓存失败:', error);
+      });
+    } catch (error) {
+      console.warn('保存照片缓存失败:', error);
+    }
+  }, []);
+
+  // 从本地缓存恢复照片
+  const loadPhotosFromCache = useCallback(async () => {
+    try {
+      const cachedData = localStorage.getItem(CACHE_KEY);
+      if (!cachedData) return;
+
+      const parsed = JSON.parse(cachedData);
+      const { photos, timestamp } = parsed;
+      
+      // 检查缓存是否过期（24小时）
+      const maxAge = 24 * 60 * 60 * 1000; // 24小时
+      if (Date.now() - timestamp > maxAge) {
+        localStorage.removeItem(CACHE_KEY);
+        console.log('照片缓存已过期，已清理');
+        return;
+      }
+
+      if (photos && photos.length > 0) {
+        const restoredFiles: File[] = [];
+        const restoredUrls: string[] = [];
+
+        for (const photoData of photos) {
+          try {
+            const file = base64ToFile(photoData.base64, photoData.name, photoData.type);
+            const url = URL.createObjectURL(file);
+            
+            restoredFiles.push(file);
+            restoredUrls.push(url);
+          } catch (error) {
+            console.warn('恢复照片失败:', photoData.name, error);
+          }
+        }
+
+        if (restoredFiles.length > 0) {
+          setFiles(restoredFiles);
+          setPreviewUrls(restoredUrls);
+          console.log(`已从缓存恢复 ${restoredFiles.length} 张照片`);
+          toast.success(t("toast_photos_restored", { count: restoredFiles.length }) || `已恢复 ${restoredFiles.length} 张照片`);
+        }
+      }
+    } catch (error) {
+      console.warn('加载照片缓存失败:', error);
+      // 清理损坏的缓存
+      localStorage.removeItem(CACHE_KEY);
+    }
+  }, [setFiles, setPreviewUrls, t]);
+
+  // 清理照片缓存
+  const clearPhotosCache = useCallback(() => {
+    try {
+      localStorage.removeItem(CACHE_KEY);
+      console.log('已清理照片缓存');
+    } catch (error) {
+      console.warn('清理照片缓存失败:', error);
+    }
+  }, []);
+
+  // 工具函数：File转Base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  // 工具函数：Base64转File
+  const base64ToFile = (base64: string, filename: string, mimeType: string): File => {
+    const arr = base64.split(',');
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mimeType });
+  };
+
+  // 页面加载时恢复缓存的照片
+  useEffect(() => {
+    // 只在组件首次挂载且没有照片时尝试恢复缓存
+    if (files.length === 0) {
+      loadPhotosFromCache();
+    }
+  }, []); // 只运行一次
 
   // 自动滚动到底部 - 使用 useCallback 确保函数稳定
   const scrollToBottom = useCallback(() => {
@@ -381,8 +499,13 @@ export default function ConversationStarterPage() {
       });
       
       if (compressedFiles.length > 0) {
-        setFiles(prev => [...prev, ...compressedFiles]);
+        const newFiles = [...files, ...compressedFiles];
+        setFiles(newFiles);
         setPreviewUrls(prev => [...prev, ...newPreviewUrls]);
+        
+        // 保存照片到本地缓存
+        savePhotosToCache(newFiles);
+        
         setResult(null); // 清空之前的结果
         
         // 清理之前的定时器
@@ -418,8 +541,16 @@ export default function ConversationStarterPage() {
       URL.revokeObjectURL(previewUrls[index]);
     }
     
-    setFiles(prev => prev.filter((_, i) => i !== index));
+    const newFiles = files.filter((_, i) => i !== index);
+    setFiles(newFiles);
     setPreviewUrls(prev => prev.filter((_, i) => i !== index));
+    
+    // 更新缓存
+    if (newFiles.length > 0) {
+      savePhotosToCache(newFiles);
+    } else {
+      clearPhotosCache();
+    }
     
     toast.success(t("toast_image_removed"));
   };
@@ -437,6 +568,9 @@ export default function ConversationStarterPage() {
     setAnalysisTypingComplete(false);
     setShowScrollButton(false);
     setIsAnalyzing(false);
+    
+    // 清理照片缓存
+    clearPhotosCache();
     
     // 清理定时器
     clearStreamingTimeouts();

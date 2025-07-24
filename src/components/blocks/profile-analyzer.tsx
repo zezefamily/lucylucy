@@ -155,6 +155,124 @@ export default function ProfileAnalyzer() {
   } | null>(null);
   
   const MAX_FILES = 9;
+  const CACHE_KEY = 'profile_analyzer_photos';
+
+  // 保存照片到本地缓存
+  const savePhotosToCache = useCallback((photoFiles: File[]) => {
+    try {
+      const photoPromises = photoFiles.map(async (file) => {
+        const base64 = await fileToBase64(file);
+        return {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          lastModified: file.lastModified,
+          base64: base64
+        };
+      });
+      
+      Promise.all(photoPromises).then((photoData) => {
+        const cacheData = {
+          photos: photoData,
+          timestamp: Date.now(),
+          version: '1.0'
+        };
+        localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+        console.log(`已缓存 ${photoData.length} 张照片到本地`);
+      }).catch((error) => {
+        console.warn('照片缓存失败:', error);
+      });
+    } catch (error) {
+      console.warn('保存照片缓存失败:', error);
+    }
+  }, []);
+
+  // 从本地缓存恢复照片
+  const loadPhotosFromCache = useCallback(async () => {
+    try {
+      const cachedData = localStorage.getItem(CACHE_KEY);
+      if (!cachedData) return;
+
+      const parsed = JSON.parse(cachedData);
+      const { photos, timestamp } = parsed;
+      
+      // 检查缓存是否过期（24小时）
+      const maxAge = 24 * 60 * 60 * 1000; // 24小时
+      if (Date.now() - timestamp > maxAge) {
+        localStorage.removeItem(CACHE_KEY);
+        console.log('照片缓存已过期，已清理');
+        return;
+      }
+
+      if (photos && photos.length > 0) {
+        const restoredFiles: File[] = [];
+        const restoredUrls: string[] = [];
+
+        for (const photoData of photos) {
+          try {
+            const file = base64ToFile(photoData.base64, photoData.name, photoData.type);
+            const url = URL.createObjectURL(file);
+            
+            restoredFiles.push(file);
+            restoredUrls.push(url);
+          } catch (error) {
+            console.warn('恢复照片失败:', photoData.name, error);
+          }
+        }
+
+        if (restoredFiles.length > 0) {
+          setFiles(restoredFiles);
+          setPreviewUrls(restoredUrls);
+          console.log(`已从缓存恢复 ${restoredFiles.length} 张照片`);
+          toast.success(t("toast_photos_restored", { count: restoredFiles.length }) || `已恢复 ${restoredFiles.length} 张照片`);
+        }
+      }
+    } catch (error) {
+      console.warn('加载照片缓存失败:', error);
+      // 清理损坏的缓存
+      localStorage.removeItem(CACHE_KEY);
+    }
+  }, [setFiles, setPreviewUrls, t]);
+
+  // 清理照片缓存
+  const clearPhotosCache = useCallback(() => {
+    try {
+      localStorage.removeItem(CACHE_KEY);
+      console.log('已清理照片缓存');
+    } catch (error) {
+      console.warn('清理照片缓存失败:', error);
+    }
+  }, []);
+
+  // 工具函数：File转Base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  // 工具函数：Base64转File
+  const base64ToFile = (base64: string, filename: string, mimeType: string): File => {
+    const arr = base64.split(',');
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mimeType });
+  };
+
+  // 页面加载时恢复缓存的照片
+  useEffect(() => {
+    // 只在组件首次挂载且没有照片时尝试恢复缓存
+    if (files.length === 0) {
+      loadPhotosFromCache();
+    }
+  }, []); // 只运行一次
 
   // 清理预览URL
   useEffect(() => {
@@ -436,8 +554,12 @@ export default function ProfileAnalyzer() {
       });
       
       if (compressedFiles.length > 0) {
-        setFiles(prev => [...prev, ...compressedFiles]);
+        const newFiles = [...files, ...compressedFiles];
+        setFiles(newFiles);
         setPreviewUrls(prev => [...prev, ...newPreviewUrls]);
+        
+        // 保存照片到本地缓存
+        savePhotosToCache(newFiles);
         
         // 重置所有状态
         setResult(null);
@@ -473,8 +595,16 @@ export default function ProfileAnalyzer() {
       URL.revokeObjectURL(previewUrls[index]);
     }
     
-    setFiles(prev => prev.filter((_, i) => i !== index));
+    const newFiles = files.filter((_, i) => i !== index);
+    setFiles(newFiles);
     setPreviewUrls(prev => prev.filter((_, i) => i !== index));
+    
+    // 更新缓存
+    if (newFiles.length > 0) {
+      savePhotosToCache(newFiles);
+    } else {
+      clearPhotosCache();
+    }
     
     toast.success(t("toast_image_removed"));
   };
@@ -490,6 +620,9 @@ export default function ProfileAnalyzer() {
     setThinkingComplete(false);
     setAnalysisResultReady(false);
     setPendingAnalysisResult(null);
+    
+    // 清理照片缓存
+    clearPhotosCache();
     
     // 重置压缩统计
     setCompressionStats(null);
