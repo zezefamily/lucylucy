@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     }
 
     const item = page.pricing.items.find(
-      (item: PricingItem) => item.product_id === product_id
+      (item: PricingItem) => item.product_id === product_id && item.interval === interval
     );
 
     let isPriceValid = false;
