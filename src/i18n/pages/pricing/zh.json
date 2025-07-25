@@ -38,7 +38,7 @@
           "url": "/#pricing",
           "icon": "RiFlashlightFill"
         },
-        "product_id": "starter_weekly",
+        "product_id": "prod_SiHUfjhHkgeFNf",
         "product_name": "Lucy AI Starter 周订阅",
         "credits": 50,
         "valid_months": 0
@@ -66,7 +66,7 @@
           "url": "/#pricing",
           "icon": "RiFlashlightFill"
         },
-        "product_id": "starter_monthly",
+        "product_id": "prod_SiHUfjhHkgeFNf",
         "product_name": "Lucy AI Starter 月订阅",
         "credits": 200,
         "valid_months": 1
@@ -95,7 +95,7 @@
           "url": "/#pricing",
           "icon": "RiFlashlightFill"
         },
-        "product_id": "pro_weekly",
+        "product_id": "prod_Se9qEAfocf0ZGx",
         "product_name": "Lucy AI Pro 周订阅",
         "credits": 150,
         "valid_months": 0
@@ -124,7 +124,7 @@
           "url": "/#pricing",
           "icon": "RiFlashlightFill"
         },
-        "product_id": "pro_monthly",
+        "product_id": "prod_Se9qEAfocf0ZGx",
         "product_name": "Lucy AI Pro 月订阅",
         "credits": 600,
         "valid_months": 1
@@ -152,7 +152,7 @@
           "url": "/#pricing",
           "icon": "RiFlashlightFill"
         },
-        "product_id": "elite_weekly",
+        "product_id": "prod_SiHV9nrzTglJ4t",
         "product_name": "Lucy AI Elite 周订阅",
         "credits": 0,
         "valid_months": 0
@@ -180,7 +180,7 @@
           "url": "/#pricing",
           "icon": "RiFlashlightFill"
         },
-        "product_id": "elite_monthly",
+        "product_id": "prod_SiHV9nrzTglJ4t",
         "product_name": "Lucy AI Elite 月订阅",
         "credits": 0,
         "valid_months": 1
