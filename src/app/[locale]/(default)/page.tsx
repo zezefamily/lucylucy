@@ -4,6 +4,9 @@ import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
 import ProfileAnalyzer from "@/components/blocks/profile-analyzer";
 import { ModernFAQ } from "@/components/blocks/faq";
+import { Testimonial as TestimonialType, TestimonialItem } from "@/types/blocks/testimonial";
+import LucyFeature from "@/components/blocks/lucy-feature";
+import { Section } from "@/types/blocks/section";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -53,6 +56,89 @@ const faqData = [
   }
 ];
 
+// Testimonials 数据
+const testimonials: TestimonialType = {
+  title: "What Users Are Saying",
+  description: "Real stories from real users who transformed their dating experience",
+  items: [
+    {
+      emoji: "🧑‍💼",
+      name: "David, 30",
+      title: "Product Manager",
+      comment: "I always thought I had good credentials—turns out people weren't even clicking on my profile. I'm a product manager at a tech company. My life's pretty stable, and I joined dating apps wanting something real. I spent hours writing my Tinder profile, trying to sound smart but approachable. Still—nothing. Some weeks I wouldn't even get a single match. Then I found Lucy. She showed me that my profile didn't reflect my personality at all—it was too formal, too stiff, more like a résumé than a real intro. She rewrote my bio in three different styles, each more personal and expressive. The result? My matches tripled. People actually messaged me about lines in my bio. One person even said, 'Your profile feels like you actually care about life.' That's when I realized—good first impressions aren't about looks, they're about clarity and connection."
+    },
+    {
+      emoji: "👩‍🎓",
+      name: "Sophie, 22", 
+      title: "Recent Graduate",
+      comment: "I had no idea what to write. Honestly, I was scared someone might actually read it. I'm kind of shy. I'd just signed up for Hinge, and everyone's profile looked so natural, witty, polished. I only posted a selfie and wrote something vague like: 'Love music and art.' No matches. No likes. I felt invisible. Then I tried Lucy. I gave her one photo and listed some things I liked. In return, she gave me three versions of a profile bio—one sweet, one artsy, one playful. I picked the 'soft & sincere' one. It felt like me, just… more fluent. That night, I got my first like. The guy said, 'I love that bookstore line—it sounds like a rom-com meet-cute.' It made me smile. Turns out I wasn't boring. I just didn't know how to show my shine. Lucy did."
+    },
+    {
+      emoji: "🧑‍🎤",
+      name: "Liam, 27",
+      title: "Music Producer", 
+      comment: "I matched with people—but conversations always died fast. I'm not shy. I love talking to people, I'm a bit of a goofball. On dating apps, I got plenty of matches, but conversations went nowhere. A joke here, a meme there—people either ghosted or replied with a dry 'lol.' Lucy changed that. I pasted in a match's profile, and she gave me an opener tailored to that person's vibe. One girl mentioned she loved sunsets and LANY, so Lucy suggested this: 'What's your favorite street to watch the sunset from? I've got a secret overpass I'll trade you for.' She sent me a voice message back. We talked till 3am. We swapped Instagrams. Later, we went to a concert together. Lucy didn't just help me talk. She helped me connect."
+    },
+    {
+      emoji: "👩‍⚕️", 
+      name: "Joanne, 29",
+      title: "Nurse",
+      comment: "I'm looking for something serious—but I kept attracting people who weren't. I work long shifts at the hospital. My schedule's hectic, and I don't have time for endless small talk or flaky people. I joined dating apps to find someone mature, grounded, ready. But most matches felt like… distractions. Lucy helped me rethink my whole profile. She pointed out that my bio was too 'nice'—too neutral, too agreeable. It didn't communicate my values or my standards. She rewrote it to be clearer about what I wanted, and more confident in my tone. She also helped me re-order my photos to better show my lifestyle and energy. After that, I got fewer matches—but they were better. The conversations were real, intentional. Now I'm dating someone I met through Lucy's help, and for the first time, I feel like I'm building something that matters. Lucy didn't just improve my profile. She helped me believe again."
+    }
+  ]
+};
+
+// Lucy AI 功能配置
+const lucyFeatures: Section = {
+  title: "What Can You Do with Lucy AI?",
+  description: "Unlock the power of AI to transform your dating experience",
+  items: [
+    {
+      icon: "RiUserStarLine",
+      title: "Create an Irresistible Dating Profile",
+      description: "Generates multiple high-impact profile versions based on your photos, interests, and profession. Adapts tone and language for different platforms like Tinder, Bumble, Hinge. Avoids generic bios—stand out from the crowd with unique, engaging intros."
+    },
+    {
+      icon: "RiChatSmileLine", 
+      title: "Write High-Response Openers",
+      description: "Analyzes your match's profile to identify interests and personality cues. Creates multiple openers that feel natural, personal, and targeted. Boosts your reply rate and makes cold starts feel effortless."
+    },
+    {
+      icon: "RiHeartLine",
+      title: "Get Personalized Dating Coach Feedback", 
+      description: "Evaluates compatibility between you and your match. Identifies weak points and areas to improve in your conversations. Offers strategic advice to attract the kind of people you actually want."
+    }
+  ]
+};
+
+// 适用人群配置
+const targetAudience: Section = {
+  title: "Who Is Lucy For?",
+  description: "Perfect for anyone looking to improve their dating game",
+  items: [
+    {
+      icon: "RiAppsLine",
+      title: "App Users Struggling with Match Quality",
+      description: "People using Tinder, Hinge, or Bumble but struggling with poor match quality"
+    },
+    {
+      icon: "RiEditLine",
+      title: "Profile Improvement Seekers", 
+      description: "Those who want a more attractive profile but don't know how to write it"
+    },
+    {
+      icon: "RiQuestionLine",
+      title: "Conversation Starters",
+      description: "Anyone unsure how to break the ice or start meaningful chats"
+    },
+    {
+      icon: "RiTimeLine",
+      title: "Serious Daters",
+      description: "Serious daters who value their time and want better results"
+    }
+  ]
+};
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "profile_analyzer" });
@@ -70,6 +156,64 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
   };
 }
+
+// 渲染单个评价的辅助函数
+const renderTestimonialItem = (item: TestimonialItem, index: number) => {
+  if (!item) return null;
+  
+  // 解析评价内容，提取引用和主要内容
+  const parts = item.comment?.split('. ') || [];
+  const quote = parts[0] + (parts[0]?.endsWith('.') ? '' : '.');
+  const content = parts.slice(1).join('. ');
+  
+  // 根据索引确定渐变色
+  const gradients = [
+    'bg-gradient-primary',
+    'bg-gradient-secondary', 
+    'bg-gradient-accent',
+    'bg-gradient-primary'
+  ];
+  
+  const textColors = [
+    'text-white',
+    'text-white',
+    'text-accent-green-foreground',
+    'text-white'
+  ];
+
+  return (
+    <div key={index} className="card-glass rounded-2xl p-8 hover-lift">
+      <div className="flex items-center gap-4 mb-6">
+        <div className={`w-16 h-16 ${gradients[index % gradients.length]} rounded-full flex items-center justify-center ${textColors[index % textColors.length]} font-bold text-xl`}>
+          {item.emoji}
+        </div>
+        <div>
+          <h3 className="text-xl font-semibold text-foreground">{item.name}</h3>
+          <p className="text-foreground/70">{item.title}</p>
+        </div>
+      </div>
+      <blockquote className="text-lg font-medium text-primary mb-4">
+        "{quote}"
+      </blockquote>
+      <div className="text-foreground/80 leading-relaxed">
+        {/* 渲染格式化的内容 */}
+        <div 
+          dangerouslySetInnerHTML={{
+            __html: content
+              .replace(/The result\? My matches tripled/g, '<strong class="text-primary">The result? My matches tripled</strong>')
+              .replace(/That night, I got my first like/g, '<strong class="text-primary">That night, I got my first like</strong>')
+              .replace(/She sent me a voice message back\. We talked till 3am/g, '<strong class="text-primary">She sent me a voice message back. We talked till 3am</strong>')
+              .replace(/After that, I got fewer matches—but they were better/g, '<strong class="text-primary">After that, I got fewer matches—but they were better</strong>')
+              .replace(/That's when I realized—good first impressions aren't about looks, they're about clarity and connection/g, '<em>That\'s when I realized—good first impressions aren\'t about looks, they\'re about clarity and connection</em>')
+              .replace(/Turns out I wasn't boring\. I just didn't know how to show my shine\. Lucy did/g, '<em>Turns out I wasn\'t boring. I just didn\'t know how to show my shine. Lucy did</em>')
+              .replace(/Lucy didn't just help me talk\. She helped me connect/g, '<em>Lucy didn\'t just help me talk. She helped me connect</em>')
+              .replace(/Lucy didn't just improve my profile\. She helped me believe again/g, '<em>Lucy didn\'t just improve my profile. She helped me believe again</em>')
+          }}
+        />
+      </div>
+    </div>
+  );
+};
 
 export default async function HomePage({ params }: Props) {
   const { locale } = await params;
@@ -174,9 +318,9 @@ export default async function HomePage({ params }: Props) {
             {/* 主标题 */}
             <div className="text-center mb-16">
               <div className="relative inline-block">
-                <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-gradient-primary mb-8 float-animation leading-tight">
+                <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-gradient-primary mb-8 float-animation leading-tight">
                   Your AI Dating Coach: Perfect Your Dating Profile and Start Meaningful Conversations
-                </h1>
+                </h2>
                 <div className="absolute -inset-6 bg-gradient-primary rounded-full blur-3xl opacity-15 animate-pulse"></div>
               </div>
             </div>
@@ -231,6 +375,43 @@ export default async function HomePage({ params }: Props) {
           </div>
         </div>
       </div>
+
+      {/* Feature */}
+      <LucyFeature section={lucyFeatures} />
+      <LucyFeature section={targetAudience} />
+
+      {/* Testimonials */}
+      {!testimonials.disabled && (
+        <div className="relative py-20">
+          {/* 背景装饰 */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-20 right-10 w-60 h-60 bg-gradient-primary rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob"></div>
+            <div className="absolute bottom-20 left-10 w-60 h-60 bg-gradient-secondary rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob animation-delay-2000"></div>
+          </div>
+          
+          <div className="container mx-auto px-4 relative z-10">
+            <div className="max-w-6xl mx-auto">
+              {/* 标题 */}
+              <div className="text-center mb-16">
+                <h2 className="text-3xl md:text-5xl font-bold text-gradient-primary mb-6">
+                  {testimonials.title}
+                </h2>
+                {testimonials.description && (
+                  <p className="text-lg text-foreground/70 mb-8">
+                    {testimonials.description}
+                  </p>
+                )}
+                <div className="w-32 h-1 bg-gradient-primary mx-auto mb-8 rounded-full"></div>
+              </div>
+
+              {/* 用户评价网格 */}
+              <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
+                {testimonials.items?.map((item, index) => renderTestimonialItem(item, index))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* FAQ 组件 */}
       <ModernFAQ 
