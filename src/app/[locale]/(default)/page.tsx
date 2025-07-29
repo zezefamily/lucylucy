@@ -12,132 +12,11 @@ type Props = {
   params: Promise<{ locale: string }>;
 };
 
-// FAQ 数据
-const faqData = [
-  {
-    question: "What is a Dating Coach and How Can LucyAI Help Me?",
-    answer: "A dating coach is a professional offering personalized strategies to navigate the dating world. This expert works to enhance communication and boost confidence, making them invaluable for attracting the right matches. If you need help with your dating profile or first messages, a dating coach provides step-by-step guidance. While AI tools can optimize profiles, a dating coach offers in-depth insights into your behaviors and strategies to improve your overall dating approach."
-  },
-  {
-    question: "How Can I Improve My Dating Profile with Lucy AI?",
-    answer: "LucyAI uses artificial intelligence to help you optimize your dating profile. Our system evaluates your photos and descriptions to provide suggestions that make your page more engaging. Unlike a dating coach who offers subjective feedback, Lucy AI provides data-driven tips. This optimization ensures your page makes a strong first impression, much like what a dating coach might guide you toward in the dating world."
-  },
-  {
-    question: "Do I Need a Dating Coach to Create a Strong Dating Profile?",
-    answer: "While a personal dating coach provides tailored advice, tools like Lucy AI can significantly improve your dating profile on your own. Our AI platform helps optimize your bio and photos with professional suggestions, enhancing your chances of making a great impression. Lucy AI offers similar insights and optimizations that you would receive from a dating coach, but without the cost or commitment."
-  },
-  {
-    question: "What Should I Include in My Dating Profile?",
-    answer: "To build a strong dating profile, it's essential to showcase your personality, interests, and values authentically. A dating coach might ask you to list your hobbies, career, and what you're looking for. Lucy AI helps select the right images and write captivating descriptions. With Lucy AI, you can create a dating profile that reflects your true self, much like a dating coach would advise you to do."
-  },
-  {
-    question: "How Does Lucy AI's Dating Profile Optimization Work?",
-    answer: "Lucy AI provides an in-depth optimization tool that analyzes your entire dating profile. We give you personalized feedback on photos and descriptions, much like a dating coach would. Our AI ensures your account is optimized for the best results, increasing your chances of getting matches. By using advanced algorithms, a task a dating coach can't perform in real time, we suggest tweaks that boost appeal for your dating profile."
-  },
-  {
-    question: "Can a Dating Coach Help Me After I Create My Dating Profile?",
-    answer: "Yes, a dating coach is a great support even after your initial setup. Once your dating profile is optimized, a dating coach can help refine communication strategies, like following up with matches and engaging in meaningful conversations. A dating coach provides ongoing support, helping you improve your interactions and maintain a strong online presence as your preferences evolve."
-  },
-  {
-    question: "How Quickly Can I Improve My Dating Profile with Lucy AI?",
-    answer: "Lucy AI's optimization tools provide instant feedback for improving your dating profile. Within minutes, you'll get actionable tips to make your presentation more attractive. While a dating coach may take several sessions to offer personalized advice, our AI works in real-time. This makes it a fast and effective way to optimize your dating profile, saving time compared to working with a dating coach."
-  },
-  {
-    question: "What are the Benefits of Using a Dating Coach Over AI Tools?",
-    answer: "A dating coach provides tailored, one-on-one guidance that accounts for personal nuances. However, AI tools like Lucy AI offer quick, automated solutions that are accessible anytime. A dating coach can offer deeper insights into your behaviors, preferences, and emotional needs. On the other hand, Lucy AI gives you an efficient and data-driven approach to profile optimization, which can be used for an instant boost to your dating experience."
-  },
-  {
-    question: "Is My Dating Profile Privacy Protected with Lucy AI?",
-    answer: "Yes, your privacy is a top priority. All data related to your dating profile is kept private and secure, unlike sharing personal details with a dating coach. We do not share your information, and all suggestions are AI-generated without human intervention. Your account is completely under your control, ensuring confidentiality. Lucy AI provides the same benefits without the exposure of sharing sensitive personal data with a dating coach."
-  },
-  {
-    question: "Can Lucy AI Help Me If I'm New to Online Dating?",
-    answer: "Absolutely! If you're new to online dating, Lucy AI is an excellent resource for creating your first dating profile. Our AI tools simplify the process with suggestions on photos and descriptions, much like what a dating coach might offer at the beginning of your journey. Whether starting out or improving an existing account, Lucy AI helps build a great dating profile. Many people use our tool as a first step before considering a dating coach."
-  }
-];
 
-// Testimonials 数据
-const testimonials: TestimonialType = {
-  title: "What Users Are Saying",
-  description: "Real stories from real users who transformed their dating experience",
-  items: [
-    {
-      emoji: "🧑‍💼",
-      name: "David, 30",
-      title: "Product Manager",
-      comment: "I always thought I had good credentials—turns out people weren't even clicking on my profile. I'm a product manager at a tech company. My life's pretty stable, and I joined dating apps wanting something real. I spent hours writing my Tinder profile, trying to sound smart but approachable. Still—nothing. Some weeks I wouldn't even get a single match. Then I found Lucy. She showed me that my profile didn't reflect my personality at all—it was too formal, too stiff, more like a résumé than a real intro. She rewrote my bio in three different styles, each more personal and expressive. The result? My matches tripled. People actually messaged me about lines in my bio. One person even said, 'Your profile feels like you actually care about life.' That's when I realized—good first impressions aren't about looks, they're about clarity and connection."
-    },
-    {
-      emoji: "👩‍🎓",
-      name: "Sophie, 22", 
-      title: "Recent Graduate",
-      comment: "I had no idea what to write. Honestly, I was scared someone might actually read it. I'm kind of shy. I'd just signed up for Hinge, and everyone's profile looked so natural, witty, polished. I only posted a selfie and wrote something vague like: 'Love music and art.' No matches. No likes. I felt invisible. Then I tried Lucy. I gave her one photo and listed some things I liked. In return, she gave me three versions of a profile bio—one sweet, one artsy, one playful. I picked the 'soft & sincere' one. It felt like me, just… more fluent. That night, I got my first like. The guy said, 'I love that bookstore line—it sounds like a rom-com meet-cute.' It made me smile. Turns out I wasn't boring. I just didn't know how to show my shine. Lucy did."
-    },
-    {
-      emoji: "🧑‍🎤",
-      name: "Liam, 27",
-      title: "Music Producer", 
-      comment: "I matched with people—but conversations always died fast. I'm not shy. I love talking to people, I'm a bit of a goofball. On dating apps, I got plenty of matches, but conversations went nowhere. A joke here, a meme there—people either ghosted or replied with a dry 'lol.' Lucy changed that. I pasted in a match's profile, and she gave me an opener tailored to that person's vibe. One girl mentioned she loved sunsets and LANY, so Lucy suggested this: 'What's your favorite street to watch the sunset from? I've got a secret overpass I'll trade you for.' She sent me a voice message back. We talked till 3am. We swapped Instagrams. Later, we went to a concert together. Lucy didn't just help me talk. She helped me connect."
-    },
-    {
-      emoji: "👩‍⚕️", 
-      name: "Joanne, 29",
-      title: "Nurse",
-      comment: "I'm looking for something serious—but I kept attracting people who weren't. I work long shifts at the hospital. My schedule's hectic, and I don't have time for endless small talk or flaky people. I joined dating apps to find someone mature, grounded, ready. But most matches felt like… distractions. Lucy helped me rethink my whole profile. She pointed out that my bio was too 'nice'—too neutral, too agreeable. It didn't communicate my values or my standards. She rewrote it to be clearer about what I wanted, and more confident in my tone. She also helped me re-order my photos to better show my lifestyle and energy. After that, I got fewer matches—but they were better. The conversations were real, intentional. Now I'm dating someone I met through Lucy's help, and for the first time, I feel like I'm building something that matters. Lucy didn't just improve my profile. She helped me believe again."
-    }
-  ]
-};
 
-// Lucy AI 功能配置
-const lucyFeatures: Section = {
-  title: "What Can You Do with Lucy AI?",
-  description: "Unlock the power of AI to transform your dating experience",
-  items: [
-    {
-      icon: "RiUserStarLine",
-      title: "Create an Irresistible Dating Profile",
-      description: "Generates multiple high-impact profile versions based on your photos, interests, and profession. Adapts tone and language for different platforms like Tinder, Bumble, Hinge. Avoids generic bios—stand out from the crowd with unique, engaging intros."
-    },
-    {
-      icon: "RiChatSmileLine", 
-      title: "Write High-Response Openers",
-      description: "Analyzes your match's profile to identify interests and personality cues. Creates multiple openers that feel natural, personal, and targeted. Boosts your reply rate and makes cold starts feel effortless."
-    },
-    {
-      icon: "RiHeartLine",
-      title: "Get Personalized Dating Coach Feedback", 
-      description: "Evaluates compatibility between you and your match. Identifies weak points and areas to improve in your conversations. Offers strategic advice to attract the kind of people you actually want."
-    }
-  ]
-};
 
-// 适用人群配置
-const targetAudience: Section = {
-  title: "Who Is Lucy For?",
-  description: "Perfect for anyone looking to improve their dating game",
-  items: [
-    {
-      icon: "RiAppsLine",
-      title: "App Users Struggling with Match Quality",
-      description: "People using Tinder, Hinge, or Bumble but struggling with poor match quality"
-    },
-    {
-      icon: "RiEditLine",
-      title: "Profile Improvement Seekers", 
-      description: "Those who want a more attractive profile but don't know how to write it"
-    },
-    {
-      icon: "RiQuestionLine",
-      title: "Conversation Starters",
-      description: "Anyone unsure how to break the ice or start meaningful chats"
-    },
-    {
-      icon: "RiTimeLine",
-      title: "Serious Daters",
-      description: "Serious daters who value their time and want better results"
-    }
-  ]
-};
+
+
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
@@ -162,9 +41,24 @@ const renderTestimonialItem = (item: TestimonialItem, index: number) => {
   if (!item) return null;
   
   // 解析评价内容，提取引用和主要内容
-  const parts = item.comment?.split('. ') || [];
-  const quote = parts[0] + (parts[0]?.endsWith('.') ? '' : '.');
-  const content = parts.slice(1).join('. ');
+  const comment = item.comment || '';
+  let quote = '';
+  let content = '';
+  
+  // 检测是否为中文内容
+  const isChinese = /[\u4e00-\u9fff]/.test(comment);
+  
+  if (isChinese) {
+    // 中文文本：按句号分割
+    const parts = comment.split('。');
+    quote = parts[0] + (parts[0] ? '。' : '');
+    content = parts.slice(1).join('。');
+  } else {
+    // 英文文本：按句点分割
+    const parts = comment.split('. ');
+    quote = parts[0] + (parts[0]?.endsWith('.') ? '' : '.');
+    content = parts.slice(1).join('. ');
+  }
   
   // 根据索引确定渐变色
   const gradients = [
@@ -200,6 +94,7 @@ const renderTestimonialItem = (item: TestimonialItem, index: number) => {
         <div 
           dangerouslySetInnerHTML={{
             __html: content
+              // 英文高亮规则
               .replace(/The result\? My matches tripled/g, '<strong class="text-primary">The result? My matches tripled</strong>')
               .replace(/That night, I got my first like/g, '<strong class="text-primary">That night, I got my first like</strong>')
               .replace(/She sent me a voice message back\. We talked till 3am/g, '<strong class="text-primary">She sent me a voice message back. We talked till 3am</strong>')
@@ -208,6 +103,15 @@ const renderTestimonialItem = (item: TestimonialItem, index: number) => {
               .replace(/Turns out I wasn't boring\. I just didn't know how to show my shine\. Lucy did/g, '<em>Turns out I wasn\'t boring. I just didn\'t know how to show my shine. Lucy did</em>')
               .replace(/Lucy didn't just help me talk\. She helped me connect/g, '<em>Lucy didn\'t just help me talk. She helped me connect</em>')
               .replace(/Lucy didn't just improve my profile\. She helped me believe again/g, '<em>Lucy didn\'t just improve my profile. She helped me believe again</em>')
+              // 中文高亮规则
+              .replace(/结果呢？我的匹配数量翻了三倍/g, '<strong class="text-primary">结果呢？我的匹配数量翻了三倍</strong>')
+              .replace(/那天晚上，我得到了第一个赞/g, '<strong class="text-primary">那天晚上，我得到了第一个赞</strong>')
+              .replace(/她给我回了语音消息。我们聊到了凌晨3点/g, '<strong class="text-primary">她给我回了语音消息。我们聊到了凌晨3点</strong>')
+              .replace(/之后，我得到的匹配少了——但质量更好了/g, '<strong class="text-primary">之后，我得到的匹配少了——但质量更好了</strong>')
+              .replace(/那时我才意识到——好的第一印象不是关于外貌，而是关于清晰度和连接/g, '<em>那时我才意识到——好的第一印象不是关于外貌，而是关于清晰度和连接</em>')
+              .replace(/原来我并不无聊。我只是不知道如何展现我的光芒。Lucy帮我做到了/g, '<em>原来我并不无聊。我只是不知道如何展现我的光芒。Lucy帮我做到了</em>')
+              .replace(/Lucy不只是帮我说话。她帮我建立连接/g, '<em>Lucy不只是帮我说话。她帮我建立连接</em>')
+              .replace(/Lucy不只是改善了我的资料。她帮我重新相信了/g, '<em>Lucy不只是改善了我的资料。她帮我重新相信了</em>')
           }}
         />
       </div>
@@ -219,6 +123,134 @@ export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("profile_analyzer");
+  const homepageT = await getTranslations("homepage");
+  
+  // FAQ 数据 - 使用翻译
+  const faqData = [
+    {
+      question: homepageT("faq.q1_question"),
+      answer: homepageT("faq.q1_answer")
+    },
+    {
+      question: homepageT("faq.q2_question"),
+      answer: homepageT("faq.q2_answer")
+    },
+    {
+      question: homepageT("faq.q3_question"),
+      answer: homepageT("faq.q3_answer")
+    },
+    {
+      question: homepageT("faq.q4_question"),
+      answer: homepageT("faq.q4_answer")
+    },
+    {
+      question: homepageT("faq.q5_question"),
+      answer: homepageT("faq.q5_answer")
+    },
+    {
+      question: homepageT("faq.q6_question"),
+      answer: homepageT("faq.q6_answer")
+    },
+    {
+      question: homepageT("faq.q7_question"),
+      answer: homepageT("faq.q7_answer")
+    },
+    {
+      question: homepageT("faq.q8_question"),
+      answer: homepageT("faq.q8_answer")
+    },
+    {
+      question: homepageT("faq.q9_question"),
+      answer: homepageT("faq.q9_answer")
+    },
+    {
+      question: homepageT("faq.q10_question"),
+      answer: homepageT("faq.q10_answer")
+    }
+  ];
+
+  // Lucy AI 功能配置 - 使用翻译
+  const lucyFeatures: Section = {
+    title: homepageT("lucy_features.title"),
+    description: homepageT("lucy_features.description"),
+    items: [
+      {
+        icon: "RiUserStarLine",
+        title: homepageT("lucy_features.irresistible_profile_title"),
+        description: homepageT("lucy_features.irresistible_profile_desc")
+      },
+      {
+        icon: "RiChatSmileLine", 
+        title: homepageT("lucy_features.high_response_openers_title"),
+        description: homepageT("lucy_features.high_response_openers_desc")
+      },
+      {
+        icon: "RiHeartLine",
+        title: homepageT("lucy_features.personalized_feedback_title"), 
+        description: homepageT("lucy_features.personalized_feedback_desc")
+      }
+    ]
+  };
+
+  // 适用人群配置 - 使用翻译
+  const targetAudience: Section = {
+    title: homepageT("target_audience.title"),
+    description: homepageT("target_audience.description"),
+    items: [
+      {
+        icon: "RiAppsLine",
+        title: homepageT("target_audience.app_users_title"),
+        description: homepageT("target_audience.app_users_desc")
+      },
+      {
+        icon: "RiEditLine",
+        title: homepageT("target_audience.profile_improvement_title"), 
+        description: homepageT("target_audience.profile_improvement_desc")
+      },
+      {
+        icon: "RiQuestionLine",
+        title: homepageT("target_audience.conversation_starters_title"),
+        description: homepageT("target_audience.conversation_starters_desc")
+      },
+      {
+        icon: "RiTimeLine",
+        title: homepageT("target_audience.serious_daters_title"),
+        description: homepageT("target_audience.serious_daters_desc")
+      }
+    ]
+  };
+
+  // Testimonials 数据 - 使用翻译
+  const testimonials: TestimonialType = {
+    title: homepageT("testimonials.title"),
+    description: homepageT("testimonials.description"),
+    items: [
+      {
+        emoji: "🧑‍💼",
+        name: homepageT("testimonials.david_name"),
+        title: homepageT("testimonials.david_title"),
+        comment: homepageT("testimonials.david_comment")
+      },
+      {
+        emoji: "👩‍🎓",
+        name: homepageT("testimonials.sophie_name"), 
+        title: homepageT("testimonials.sophie_title"),
+        comment: homepageT("testimonials.sophie_comment")
+      },
+      {
+        emoji: "🧑‍🎤",
+        name: homepageT("testimonials.liam_name"),
+        title: homepageT("testimonials.liam_title"), 
+        comment: homepageT("testimonials.liam_comment")
+      },
+      {
+        emoji: "👩‍⚕️", 
+        name: homepageT("testimonials.joanne_name"),
+        title: homepageT("testimonials.joanne_title"),
+        comment: homepageT("testimonials.joanne_comment")
+      }
+    ]
+  };
   
   return (
     <div className="min-h-screen bg-gradient-fluid relative overflow-hidden">
@@ -319,7 +351,7 @@ export default async function HomePage({ params }: Props) {
             <div className="text-center mb-16">
               <div className="relative inline-block">
                 <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-gradient-primary mb-8 float-animation leading-tight">
-                  Your AI Dating Coach: Perfect Your Dating Profile and Start Meaningful Conversations
+                  {homepageT("ai_dating_coach_title")}
                 </h2>
                 <div className="absolute -inset-6 bg-gradient-primary rounded-full blur-3xl opacity-15 animate-pulse"></div>
               </div>
@@ -335,10 +367,10 @@ export default async function HomePage({ params }: Props) {
                   </svg>
                 </div>
                 <h2 className="text-xl lg:text-2xl font-bold text-foreground mb-4 leading-tight">
-                  Transform Your Dating Profile with Personalized AI Coaching
+                  {homepageT("personalized_coaching_title")}
                 </h2>
                 <p className="text-foreground/70 leading-relaxed">
-                  Get AI-powered insights to optimize your profile and make a lasting first impression
+                  {homepageT("personalized_coaching_desc")}
                 </p>
               </div>
               
@@ -350,10 +382,10 @@ export default async function HomePage({ params }: Props) {
                   </svg>
                 </div>
                 <h2 className="text-xl lg:text-2xl font-bold text-foreground mb-4 leading-tight">
-                  Unlock Tailored Chat Openers to Improve Your Match Success
+                  {homepageT("chat_openers_title")}
                 </h2>
                 <p className="text-foreground/70 leading-relaxed">
-                  Generate personalized conversation starters that spark meaningful connections
+                  {homepageT("chat_openers_desc")}
                 </p>
               </div>
               
@@ -365,10 +397,10 @@ export default async function HomePage({ params }: Props) {
                   </svg>
                 </div>
                 <h2 className="text-xl lg:text-2xl font-bold text-foreground mb-4 leading-tight">
-                  Enhance Your Profile with Photo Ratings and Optimization
+                  {homepageT("photo_optimization_title")}
                 </h2>
                 <p className="text-foreground/70 leading-relaxed">
-                  Receive detailed feedback on your photos to maximize your profile's appeal
+                  {homepageT("photo_optimization_desc")}
                 </p>
               </div>
             </div>
@@ -415,8 +447,8 @@ export default async function HomePage({ params }: Props) {
 
       {/* FAQ 组件 */}
       <ModernFAQ 
-        title="FAQ"
-        subtitle="Frequently Asked Questions"
+        title={homepageT("faq.title")}
+        subtitle={homepageT("faq.subtitle")}
         items={faqData}
       />
       
