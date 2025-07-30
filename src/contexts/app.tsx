@@ -35,6 +35,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   });
 
   const [showSignModal, setShowSignModal] = useState<boolean>(false);
+  const [showPricingModal, setShowPricingModal] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
   const [userCredits, setUserCredits] = useState<UserCredits | null>(null);
 
@@ -159,6 +160,8 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
         setTheme,
         showSignModal,
         setShowSignModal,
+        showPricingModal,
+        setShowPricingModal,
         user,
         setUser,
         userCredits,

@@ -4,14 +4,17 @@ import Analytics from "@/components/analytics";
 import { CacheKey } from "@/services/constant";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import SignModal from "@/components/sign/modal";
+import PricingModal from "@/components/blocks/pricing/modal";
 import type { ThemeProviderProps } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import { cacheGet } from "@/lib/cache";
 import { useAppContext } from "@/contexts/app";
+import { usePricingData } from "@/hooks/usePricingData";
 import { useEffect } from "react";
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
-  const { theme, setTheme } = useAppContext();
+  const { theme, setTheme, showPricingModal, setShowPricingModal } = useAppContext();
+  const { pricing } = usePricingData();
 
   useEffect(() => {
     const themeInCache = cacheGet(CacheKey.Theme);
@@ -49,6 +52,13 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
 
       <Toaster position="top-center" richColors />
       <SignModal />
+      {pricing && (
+        <PricingModal 
+          pricing={pricing}
+          open={showPricingModal}
+          onOpenChange={setShowPricingModal}
+        />
+      )}
       <Analytics />
     </NextThemesProvider>
   );

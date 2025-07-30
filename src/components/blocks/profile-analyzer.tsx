@@ -705,7 +705,6 @@ export default function ProfileAnalyzer() {
       // 非 Elite 用户检查积分
       const requiredCredits = 10;
       const availableCredits = userCredits?.left_credits || 0;
-      
       if (availableCredits < requiredCredits) {
         // 积分不足，弹出 Pricing 弹窗
         // toast.warning(
