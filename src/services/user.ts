@@ -120,12 +120,12 @@ export async function getUserInfo() {
  * @param productId 产品ID
  * @returns 订阅等级
  */
-export function getSubscriptionTierFromProductId(productId: string): SubscriptionTier {
-  if (!productId) {
+export function getSubscriptionTierFromProductId(productName: string): SubscriptionTier {
+  if (!productName) {
     return SubscriptionTier.NONE;
   }
   
-  const lowerProductId = productId.toLowerCase();
+  const lowerProductId = productName.toLowerCase();
   
   if (lowerProductId.includes('starter')) {
     return SubscriptionTier.STARTER;
@@ -191,7 +191,7 @@ export async function getUserHighestSubscriptionTier(user_uuid?: string): Promis
     let highestSubscription = null;
     
     for (const subscription of validSubscriptions) {
-      const tier = getSubscriptionTierFromProductId(subscription.product_id || '');
+      const tier = getSubscriptionTierFromProductId(subscription.product_name || '');
       
       if (getSubscriptionTierPriority(tier) > getSubscriptionTierPriority(highestTier)) {
         highestTier = tier;

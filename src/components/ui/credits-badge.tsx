@@ -145,7 +145,16 @@ export function CreditsBadge({
           {getTierDisplayName(userTier)}
         </span>
       )}
-      {userCredits.left_credits} {t("credits")}
+      {/* 显示积分或无限制状态 */}
+      {userTier === SubscriptionTier.ELITE ? (
+        <span className="text-xs font-medium">
+          {t("unlimited")}
+        </span>
+      ) : (
+        <>
+          {userCredits.left_credits} {t("credits")}
+        </>
+      )}
     </Badge>
   );
 } 
