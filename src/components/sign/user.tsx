@@ -30,6 +30,10 @@ export default function SignUser({ user }: { user: User }) {
       title: user.nickname,
     },
     {
+      title: t("user.personal_center"),
+      url: "/personal",
+    },
+    {
       title: t("user.sign_out"),
       onClick: () => signOut(),
     },
@@ -54,18 +58,20 @@ export default function SignUser({ user }: { user: User }) {
         <DropdownMenuContent className="mx-4 bg-background">
           {dropdownItems.map((item, index) => (
             <React.Fragment key={index}>
-              <DropdownMenuItem
-                key={index}
-                className="flex justify-center cursor-pointer"
-              >
-                {item.url ? (
+              {item.url ? (
+                <DropdownMenuItem asChild className="flex justify-center cursor-pointer">
                   <Link href={item.url as any} target={item.target}>
                     {item.title}
                   </Link>
-                ) : (
-                  <button onClick={item.onClick}>{item.title}</button>
-                )}
-              </DropdownMenuItem>
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem
+                  className="flex justify-center cursor-pointer"
+                  onClick={item.onClick}
+                >
+                  {item.title}
+                </DropdownMenuItem>
+              )}
               {index !== dropdownItems.length - 1 && <DropdownMenuSeparator />}
             </React.Fragment>
           ))}
