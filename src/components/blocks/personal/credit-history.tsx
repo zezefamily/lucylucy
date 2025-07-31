@@ -84,6 +84,7 @@ export function CreditHistory() {
       'conversation_starter': { label: t("credits.transaction_types.conversation_starter"), color: 'text-orange-600' },
       'invite_reward': { label: t("credits.transaction_types.invite_reward"), color: 'text-cyan-600' },
       'refund': { label: t("credits.transaction_types.refund"), color: 'text-gray-600' },
+      'ping': { label: t("credits.transaction_types.ping"), color: 'text-gray-600' },
     };
     
     return typeMap[transType] || { label: transType, color: 'text-gray-600' };
@@ -103,7 +104,7 @@ export function CreditHistory() {
       'elite': { label: 'Elite', variant: 'default' },
       'pro': { label: 'Pro', variant: 'secondary' },
       'starter': { label: 'Starter', variant: 'outline' },
-      'none': { label: 'Free', variant: 'destructive' },
+      'none': { label: '', variant: '' },
     };
     
     const tierInfo = tierMap[tier] || { label: tier, variant: 'outline' };
@@ -176,7 +177,8 @@ export function CreditHistory() {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 {getTransTypeBadge(record.trans_type, record.credits)}
-                {getTierBadge(record.tier)}
+                {/* 如果返回为 none  不展示标签 */}
+                {record.tier !== 'none' && getTierBadge(record.tier)}
               </div>
               
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -184,17 +186,17 @@ export function CreditHistory() {
                 {moment(record.created_at).format('YYYY-MM-DD HH:mm')}
               </div>
               
-              {record.order_no && (
+              {record.trans_no && (
                 <div className="text-xs text-muted-foreground">
-                  {t("management.order_no")}: {record.order_no}
+                  {t("management.order_no")}: {record.trans_no}
                 </div>
               )}
               
-              {record.expired_at && (
+              {/* {record.expired_at && (
                 <div className="text-xs text-muted-foreground">
                   {t("subscription.expired_at")}: {moment(record.expired_at).format('YYYY-MM-DD')}
                 </div>
-              )}
+              )} */}
             </div>
 
             <div className="text-right space-y-1">
@@ -209,7 +211,7 @@ export function CreditHistory() {
                 {Math.abs(record.credits).toLocaleString()}
               </div>
               <div className="text-xs text-muted-foreground">
-                #{record.trans_no.substring(0, 8)}...
+                {/* #{record.trans_no.substring(0, 8)}... */}
               </div>
             </div>
           </div>

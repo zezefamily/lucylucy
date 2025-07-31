@@ -147,9 +147,9 @@ export async function updateCreditForOrder(order: Order) {
     let tierValue = 'none';
     if ('tier' in order && order.tier) {
       tierValue = order.tier as string;
-    } else if (order.product_id) {
-      // 兼容旧数据，根据 product_id 推导 tier
-      const lowerProductId = order.product_id.toLowerCase();
+    } else if (order.product_name) {
+      // 兼容旧数据，根据 product_name 推导 tier
+      const lowerProductId = order.product_name.toLowerCase();
       if (lowerProductId.includes('starter')) tierValue = 'starter';
       else if (lowerProductId.includes('pro')) tierValue = 'pro';
       else if (lowerProductId.includes('elite')) tierValue = 'elite';

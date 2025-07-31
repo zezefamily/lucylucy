@@ -54,24 +54,23 @@ export default function PersonalPage() {
         </div>
 
         {/* 下半部分：详细管理信息 - 使用标签页 */}
-        <Tabs defaultValue="subscriptions" className="w-full">
+        <Tabs defaultValue="credits" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="subscriptions" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              {t("subscription_management")}
-            </TabsTrigger>
             <TabsTrigger value="credits" className="flex items-center gap-2">
               <History className="h-4 w-4" />
               {t("credit_history")}
             </TabsTrigger>
+            <TabsTrigger value="subscriptions" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              {t("subscription_management")}
+            </TabsTrigger>
           </TabsList>
-
-          <TabsContent value="subscriptions" className="mt-6">
-            <SubscriptionManagement />
-          </TabsContent>
 
           <TabsContent value="credits" className="mt-6">
             <CreditHistory />
+          </TabsContent>
+          <TabsContent value="subscriptions" className="mt-6">
+            <SubscriptionManagement />
           </TabsContent>
         </Tabs>
       </div>
