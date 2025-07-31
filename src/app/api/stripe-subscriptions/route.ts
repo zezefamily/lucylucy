@@ -19,7 +19,7 @@ export async function GET() {
     }
 
     // 筛选出有订阅ID的订单
-    const subscriptionOrders = orders.filter(order => order.sub_id && order.status === "paid");
+    const subscriptionOrders = orders.filter(order => order.status === "paid");
     
     if (subscriptionOrders.length === 0) {
       return respData([]);
