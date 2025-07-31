@@ -99,11 +99,11 @@ export function UserInfo({ user, loading }: UserInfoProps) {
               <span className="text-muted-foreground">{t("user_info.registration_date")}:</span>
               <span>{moment(user.created_at).format("YYYY-MM-DD")}</span>
             </div>
-            {user.uuid && (
+            {/* {user.uuid && (
               <div className="text-xs text-muted-foreground">
                 {t("user_info.user_id")}: {user.uuid.substring(0, 8)}...
               </div>
-            )}
+            )} */}
           </div>
           
           {user.invite_code && (

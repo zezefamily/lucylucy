@@ -55,12 +55,18 @@ export default function PersonalPage() {
 
         {/* 下半部分：详细管理信息 - 使用标签页 */}
         <Tabs defaultValue="credits" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="credits" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl h-12">
+            <TabsTrigger 
+              value="credits" 
+              className="personal-tab-trigger"
+            >
               <History className="h-4 w-4" />
               {t("credit_history")}
             </TabsTrigger>
-            <TabsTrigger value="subscriptions" className="flex items-center gap-2">
+            <TabsTrigger 
+              value="subscriptions" 
+              className="personal-tab-trigger"
+            >
               <Settings className="h-4 w-4" />
               {t("subscription_management")}
             </TabsTrigger>

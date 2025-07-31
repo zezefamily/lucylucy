@@ -45,8 +45,12 @@ export async function handleOrderSession(session: Stripe.Checkout.Session) {
     );
 
     if (order.user_uuid) {
-      if (order.credits > 0) {
-        // increase credits for paied order
+      // 检查是否为 Elite 等级（无限制使用，credits = 0）
+      const isEliteOrder = (order.tier === 'elite') || 
+                          (order.product_name && order.product_name.toLowerCase().includes('elite'));
+      
+      if (order.credits > 0 || isEliteOrder) {
+        // increase credits for paied order (包括 Elite 等级的 0 积分订单)
         await updateCreditForOrder(order as unknown as Order);
       }
 

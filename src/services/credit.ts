@@ -118,14 +118,16 @@ export async function increaseCredits({
   tier?: string;
 }) {
   try {
+    // 注意：Elite 等级允许 credits = 0，这是为了在数据库中标记用户的等级
+    // Elite 用户享有无限制使用权限，不需要积分消耗
     const new_credit: typeof creditsTable.$inferInsert = {
       trans_no: getSnowId(),
       created_at: new Date(getIsoTimestr()),
       user_uuid: user_uuid,
       trans_type: trans_type,
-      credits: credits,
+      credits: credits, // Elite 等级可能为 0
       order_no: order_no || "",
-      tier: tier || "none", // 新增：设置订阅等级
+      tier: tier || "none", // 设置订阅等级，Elite 等级的重要标识
       expired_at: expired_at ? new Date(expired_at) : null,
     };
     await insertCredit(new_credit);

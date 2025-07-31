@@ -191,7 +191,12 @@ export function CreditHistory() {
                   {t("management.order_no")}: {record.trans_no}
                 </div>
               )}
-              
+              {/* 如果是 订阅订单，则展示过期时间 */}
+              {record.trans_type === 'order_pay' && (
+                <div className="text-xs text-muted-foreground">
+                  {t("subscription.expired_at")}: {moment(record.expired_at).format('YYYY-MM-DD')}
+                </div>
+              )}
               {/* {record.expired_at && (
                 <div className="text-xs text-muted-foreground">
                   {t("subscription.expired_at")}: {moment(record.expired_at).format('YYYY-MM-DD')}
@@ -201,11 +206,13 @@ export function CreditHistory() {
 
             <div className="text-right space-y-1">
               <div className={`text-lg font-semibold flex items-center gap-1 ${
-                record.credits > 0 ? 'text-green-600' : 'text-red-600'
+                record.credits >= 0 ? 'text-green-600' : 'text-red-600'
               }`}>
-                {record.credits > 0 ? (
+                {/* 如果为 订阅订单，且 等级为 无限制，则不展示积分 */}
+                {record.credits >= 0 ? (
                   <Plus className="h-4 w-4" />
                 ) : (
+                  // 如果 credits == 0 不展示积分
                   <Minus className="h-4 w-4" />
                 )}
                 {Math.abs(record.credits).toLocaleString()}
