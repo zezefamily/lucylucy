@@ -139,12 +139,12 @@ export function SubscriptionInfo({ userCredits, loading }: SubscriptionInfoProps
             </div>
           </div>
 
-          <div className="p-4 rounded-lg border bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
+          {/* <div className="p-4 rounded-lg border bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
             <div className="text-sm text-muted-foreground">{t("subscription.one_time_credits")}</div>
             <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
               {(userCredits?.one_time_credits || 0).toLocaleString()}
             </div>
-          </div>
+          </div> */}
         </div>
 
         {subscription?.expiredAt && (
