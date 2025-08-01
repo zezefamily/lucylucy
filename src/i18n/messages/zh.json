@@ -332,6 +332,10 @@
       }
     }
   },
+  "tabbar": {
+    "photo_analyzer": "照片分析",
+    "conversation_starter": "聊天开场白"
+  },
   "common": {
     "loading": "加载中...",
     "cancel": "取消",

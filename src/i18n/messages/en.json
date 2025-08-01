@@ -332,6 +332,10 @@
       }
     }
   },
+  "tabbar": {
+    "photo_analyzer": "Photo Analyzer",
+    "conversation_starter": "Conversation Starter"
+  },
   "common": {
     "loading": "Loading...",
     "cancel": "Cancel",
