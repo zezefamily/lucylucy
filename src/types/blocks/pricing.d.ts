@@ -9,6 +9,7 @@ export interface PricingGroup {
 
 export interface PricingItem {
   title?: string;
+  tag?: string;
   description?: string;
   label?: string;
   price?: string;

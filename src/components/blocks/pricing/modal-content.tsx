@@ -213,6 +213,12 @@ export default function PricingModalContent({ pricing }: { pricing: PricingType 
                           {item.unit}
                         </span>
                       )}
+                      {/* 如果是item.tag 有值且不为空字符串，则展示标签 */}
+                      {item.tag && (
+                        <Badge variant="outline" className="border-primary bg-primary px-1.5 text-primary-foreground">
+                          {item.tag}
+                        </Badge>
+                      )}
                     </div>
                     {item.description && (
                       <p className="text-muted-foreground text-sm mb-3">

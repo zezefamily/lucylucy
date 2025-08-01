@@ -17,6 +17,7 @@
     "items": [
       {
         "title": "Starter（入门版）",
+        "tag": "限时特惠",
         "description": "初次尝试AI恋爱教练",
         "features_title": "功能",
         "features": [
@@ -45,6 +46,7 @@
       },
       {
         "title": "Starter（入门版）",
+        "tag": "限时特惠",
         "description": "初次尝试AI恋爱教练",
         "features_title": "功能",
         "features": [
