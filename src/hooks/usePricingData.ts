@@ -5,6 +5,7 @@ import { useLocale } from 'next-intl';
 // 直接导入定价数据
 import pricingEn from '@/i18n/pages/pricing/en.json';
 import pricingZh from '@/i18n/pages/pricing/zh.json';
+import pricingEs from '@/i18n/pages/pricing/es.json';
 
 export function usePricingData() {
   const [pricing, setPricing] = useState<Pricing | null>(null);
@@ -19,11 +20,19 @@ export function usePricingData() {
       
       let pricingData;
       
-      // 根据语言选择对应的定价数据
-      if (locale === 'zh' || locale === 'zh-CN') {
-        pricingData = pricingZh.pricing as Pricing;
-      } else {
-        pricingData = pricingEn.pricing as Pricing;
+      // 根据语言选择对应的定价数据 
+      switch (locale) {
+        case 'zh':
+        case 'zh-CN':
+          pricingData = pricingZh.pricing as Pricing;
+          break;
+        case 'es':
+          pricingData = pricingEs.pricing as Pricing;
+          break;
+        case 'en':
+        default:
+          pricingData = pricingEn.pricing as Pricing;
+          break;
       }
       
       console.log('Loading pricing data for locale:', locale, 'Data:', pricingData);

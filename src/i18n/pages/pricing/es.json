@@ -1,0 +1,200 @@
+{
+  "pricing": {
+    "name": "pricing",
+    "label": "Planes de membresía de Lucy",
+    "title": "Planes de membresía de Lucy",
+    "description": "",
+    "groups": [
+      {
+        "name": "subscribe-weekly",
+        "title": "Suscribirse semanalmente"
+      },
+      {
+        "name": "subscribe-monthly",
+        "title": "Suscribirse mensualmente"
+      }
+    ],
+    "items": [
+      {
+        "title": "Starter",
+        "tag": "Oferta por tiempo limitado",
+        "description": "Para cualquiera nuevo en coaching de citas con IA",
+        "features_title": "Características",
+        "features": [
+          "Revisión y optimización de perfil (10 créditos por uso)",
+          "Generación de rompehielos (10 créditos por uso)",
+          "Créditos semanales: 50"
+        ],
+        "group": "subscribe-weekly",
+        "interval": "week",
+        "amount": 490,
+        "currency": "USD",
+        "price": "$4.9",
+        "original_price": "$7.0",
+        "unit": "/sem",
+        "is_featured": false,
+        "tip": "Plan semanal flexible",
+        "button": {
+          "title": "Comprar ahora",
+          "url": "/#pricing",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "prod_SiHUfjhHkgeFNf",
+        "product_name": "Lucy AI Starter Semanal",
+        "credits": 50,
+        "valid_months": 0
+      },
+      {
+        "title": "Starter",
+        "tag": "Oferta por tiempo limitado",
+        "description": "Para cualquiera nuevo en coaching de citas con IA",
+        "features_title": "Características",
+        "features": [
+          "Revisión y optimización de perfil (10 créditos por uso)",
+          "Generación de rompehielos (10 créditos por uso)",
+          "Créditos mensuales: 200"
+        ],
+        "group": "subscribe-monthly",
+        "interval": "month",
+        "amount": 1370,
+        "currency": "USD",
+        "price": "$13.7",
+        "original_price": "$19.6",
+        "unit": "/mes",
+        "is_featured": false,
+        "tip": "Más popular",
+        "button": {
+          "title": "Comprar ahora",
+          "url": "/#pricing",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "prod_SiHVfjhHkgeFOg",
+        "product_name": "Lucy AI Starter Mensual",
+        "credits": 200,
+        "valid_months": 0
+      },
+      {
+        "title": "Pro",
+        "tag": "",
+        "description": "Para usuarios serios sobre citas online",
+        "features_title": "Características",
+        "features": [
+          "Todo en Inicial",
+          "Análisis de perfil avanzado",
+          "Iniciadores de conversación premium",
+          "Créditos semanales: 100"
+        ],
+        "group": "subscribe-weekly",
+        "interval": "week",
+        "amount": 990,
+        "currency": "USD",
+        "price": "$9.9",
+        "original_price": "$14.1",
+        "unit": "/sem",
+        "is_featured": true,
+        "tip": "Mejor valor",
+        "button": {
+          "title": "Comprar ahora",
+          "url": "/#pricing",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "prod_SiHWfjhHkgeFPh",
+        "product_name": "Lucy AI Pro Semanal",
+        "credits": 100,
+        "valid_months": 0
+      },
+      {
+        "title": "Pro",
+        "tag": "",
+        "description": "Para usuarios serios sobre citas online",
+        "features_title": "Características",
+        "features": [
+          "Todo en Inicial",
+          "Análisis de perfil avanzado",
+          "Iniciadores de conversación premium",
+          "Créditos mensuales: 400"
+        ],
+        "group": "subscribe-monthly",
+        "interval": "month",
+        "amount": 2770,
+        "currency": "USD",
+        "price": "$27.7",
+        "original_price": "$39.6",
+        "unit": "/mes",
+        "is_featured": true,
+        "tip": "Más popular",
+        "button": {
+          "title": "Comprar ahora",
+          "url": "/#pricing",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "prod_SiHXfjhHkgeFQi",
+        "product_name": "Lucy AI Pro Mensual",
+        "credits": 400,
+        "valid_months": 0
+      },
+      {
+        "title": "Elite",
+        "tag": "",
+        "description": "Para usuarios power que quieren resultados máximos",
+        "features_title": "Características",
+        "features": [
+          "Todo en Pro",
+          "Coaching personal con IA",
+          "Análisis de compatibilidad",
+          "Soporte prioritario",
+          "Créditos semanales: 200"
+        ],
+        "group": "subscribe-weekly",
+        "interval": "week",
+        "amount": 6990,
+        "currency": "USD",
+        "price": "$69.9",
+        "original_price": "$99.9",
+        "unit": "/sem",
+        "is_featured": false,
+        "tip": "Máximo poder",
+        "button": {
+          "title": "Comprar ahora",
+          "url": "/#pricing",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "prod_SiHYfjhHkgeFRj",
+        "product_name": "Lucy AI Elite Semanal",
+        "credits": 200,
+        "valid_months": 0
+      },
+      {
+        "title": "Elite",
+        "tag": "",
+        "description": "Para usuarios power que quieren resultados máximos",
+        "features_title": "Características",
+        "features": [
+          "Todo en Pro",
+          "Coaching personal con IA",
+          "Análisis de compatibilidad",
+          "Soporte prioritario",
+          "Créditos mensuales: 800"
+        ],
+        "group": "subscribe-monthly",
+        "interval": "month",
+        "amount": 19570,
+        "currency": "USD",
+        "price": "$195.7",
+        "original_price": "$279.6",
+        "unit": "/mes",
+        "is_featured": false,
+        "tip": "Máximo valor",
+        "button": {
+          "title": "Comprar ahora",
+          "url": "/#pricing",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "prod_SiHZfjhHkgeFSk",
+        "product_name": "Lucy AI Elite Mensual",
+        "credits": 800,
+        "valid_months": 0
+      }
+    ]
+  }
+} 

@@ -1,0 +1,248 @@
+{
+  "template": "lucylucy-ai-dating-assistant",
+  "theme": "light",
+  "header": {
+    "brand": {
+      "title": "Lucy AI",
+      "logo": {
+        "src": "/logo.png",
+        "alt": "Lucy AI"
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "Análisis de atracción",
+          "url": "/",
+          "icon": "RiStarLine"
+        },
+        {
+          "title": "Iniciador de conversación",
+          "url": "/conversation-starter",
+          "icon": "RiChatSmile3Line"
+        },
+        {
+          "title": "Acerca de",
+          "url": "/about",
+          "icon": "RiInformationLine"
+        }
+      ]
+    },
+    "buttons": [
+    ],
+    "show_sign": true,
+    "show_theme": false,
+    "show_locale": true
+  },
+  "hero": {
+    "title": "El asistente de IA hace las citas simples",
+    "highlight_text": "lucylucy",
+    "description": "No más luchar con escribir perfiles o líneas de apertura incómodas.<br/>lucylucy AI hace tu journey de citas más suave y confiada.",
+    "tip": "💝 Gratis para probar, paga mientras creces",
+    "buttons": [
+      {
+        "title": "Comenzar ahora",
+        "icon": "RiHeartLine",
+        "url": "/",
+        "target": "_self",
+        "variant": "default"
+      }
+    ],
+    "images": [
+      {
+        "src": "/imgs/features/how-it-works.svg",
+        "alt": "Cómo funciona"
+      }
+    ],
+    "happy_users": {
+      "title": "Únete a {count}+ usuarios felices",
+      "count": "12000",
+      "users": [
+        {
+          "name": "Sofia",
+          "avatar": "/imgs/avatars/sarah.jpg"
+        },
+        {
+          "name": "Diego",
+          "avatar": "/imgs/avatars/david.jpg"
+        },
+        {
+          "name": "María",
+          "avatar": "/imgs/avatars/maria.jpg"
+        }
+      ]
+    }
+  },
+  "feature": {
+    "tagline": "Características",
+    "title": "Todo lo que necesitas para tener éxito en citas",
+    "description": "Herramientas poderosas de IA para optimizar tu perfil de citas y generar iniciadores de conversación irresistibles",
+    "items": [
+      {
+        "title": "Análisis inteligente de fotos",
+        "description": "IA analiza tus fotos de perfil y proporciona feedback detallado para maximizar tu atractivo",
+        "icon": "RiCameraLine",
+        "url": "/"
+      },
+      {
+        "title": "Iniciadores de conversación personalizados",
+        "description": "Genera líneas de apertura únicas basadas en el perfil de tu match para tasas de respuesta más altas",
+        "icon": "RiChatSmile3Line",
+        "url": "/conversation-starter"
+      },
+      {
+        "title": "Optimización de perfil",
+        "description": "Consejos expertos para mejorar tu bio y fotos para más matches de calidad",
+        "icon": "RiUserStarLine",
+        "url": "/"
+      }
+    ]
+  },
+  "lucy_feature": {
+    "tagline": "Conoce a Lucy",
+    "title": "Tu coach personal de citas con IA",
+    "description": "Lucy entiende lo que hace atractivo un perfil de citas y te ayuda a optimizar el tuyo para el éxito",
+    "features": [
+      {
+        "title": "Análisis de fotos impulsado por IA",
+        "description": "Lucy analiza tus fotos usando algoritmos avanzados para proporcionar puntuaciones de atractivo y sugerencias de mejora específicas",
+        "icon": "RiEyeLine"
+      },
+      {
+        "title": "Iniciadores de conversación inteligentes",
+        "description": "Genera abridores personalizados analizando el perfil, intereses y fotos de tu match para máximo impacto",
+        "icon": "RiChatQuoteLine"
+      },
+      {
+        "title": "Consejos de optimización expertos",
+        "description": "Recibe orientación profesional sobre posing, iluminación, composición y selección de fotos para tu perfil",
+        "icon": "RiLightbulbLine"
+      }
+    ]
+  },
+  "testimonial": {
+    "tagline": "Testimonios",
+    "title": "Lo que dicen nuestros usuarios",
+    "description": "Historias reales de personas que transformaron su experiencia de citas con Lucy AI",
+    "items": [
+      {
+        "name": "Carlos",
+        "title": "Desarrollador de software",
+        "comment": "Lucy AI triplicó mis matches en solo una semana. El análisis de fotos me mostró exactamente qué cambiar en mi perfil.",
+        "avatar": "/imgs/users/1.png",
+        "rating": 5
+      },
+      {
+        "name": "Ana",
+        "title": "Diseñadora gráfica",
+        "comment": "Los iniciadores de conversación son oro puro. Finalmente tengo conversaciones reales en lugar de solo 'hola'.",
+        "avatar": "/imgs/users/2.png",
+        "rating": 5
+      },
+      {
+        "name": "Miguel",
+        "title": "Profesor",
+        "comment": "Como alguien que luchaba con las citas online, Lucy me dio la confianza que necesitaba. ¡Ahora tengo una cita cada semana!",
+        "avatar": "/imgs/users/3.png",
+        "rating": 5
+      }
+    ]
+  },
+  "faq": {
+    "tagline": "Preguntas frecuentes",
+    "title": "¿Tienes preguntas? Tenemos respuestas",
+    "description": "Todo lo que necesitas saber sobre Lucy AI",
+    "items": [
+      {
+        "question": "¿Cómo funciona el análisis de fotos de Lucy AI?",
+        "answer": "Lucy AI usa algoritmos avanzados de aprendizaje automático para analizar factores como composición, iluminación, expresiones faciales y atractivo general. Luego proporciona puntuaciones detalladas y sugerencias específicas para mejorar."
+      },
+      {
+        "question": "¿Es segura mi información personal?",
+        "answer": "Absolutamente. Todas las fotos se procesan de forma segura y se eliminan después del análisis. No almacenamos tus imágenes personales y toda la comunicación está encriptada."
+      },
+      {
+        "question": "¿Qué tan precisos son los iniciadores de conversación?",
+        "answer": "Nuestros iniciadores de conversación están diseñados para ser altamente efectivos basados en análisis de perfiles exitosos. La mayoría de los usuarios reportan tasas de respuesta significativamente más altas."
+      },
+      {
+        "question": "¿Puedo usar Lucy AI con cualquier app de citas?",
+        "answer": "Sí, Lucy AI funciona con todas las plataformas de citas populares incluyendo Tinder, Bumble, Hinge, y más."
+      }
+    ]
+  },
+  "pricing": {
+    "tagline": "Precios",
+    "title": "Elige tu plan",
+    "description": "Comienza gratis y actualiza cuando estés listo",
+    "button_text": "Ver todos los planes",
+    "button_url": "/pricing"
+  },
+  "cta": {
+    "tagline": "Listo para transformar tu vida amorosa",
+    "title": "Comienza tu journey con Lucy AI hoy",
+    "description": "Únete a miles de usuarios que ya han mejorado su experiencia de citas con nuestra IA",
+    "buttons": [
+      {
+        "title": "Comenzar gratis",
+        "icon": "RiHeartLine",
+        "url": "/",
+        "target": "_self",
+        "variant": "default"
+      }
+    ]
+  },
+  "footer": {
+    "brand": {
+      "title": "Lucy AI",
+      "description": "La plataforma de IA definitiva para optimizar tu experiencia de citas y encontrar conexiones significativas."
+    },
+    "sections": [
+      {
+        "title": "Producto",
+        "links": [
+          {
+            "title": "Análisis de fotos",
+            "url": "/"
+          },
+          {
+            "title": "Iniciadores de conversación",
+            "url": "/conversation-starter"
+          },
+          {
+            "title": "Precios",
+            "url": "/pricing"
+          }
+        ]
+      },
+      {
+        "title": "Empresa",
+        "links": [
+          {
+            "title": "Acerca de",
+            "url": "/about"
+          },
+          {
+            "title": "Blog",
+            "url": "/posts"
+          }
+        ]
+      },
+      {
+        "title": "Legal",
+        "links": [
+          {
+            "title": "Privacidad",
+            "url": "/privacy"
+          },
+          {
+            "title": "Términos",
+            "url": "/terms"
+          }
+        ]
+      }
+    ],
+    "copyright": "© 2024 Lucy AI. Todos los derechos reservados."
+  }
+} 
