@@ -9,6 +9,7 @@ import Hero from "@/components/blocks/hero";
 import LucyHero from "@/components/blocks/lucy-hero";
 import LucyCompatible from "@/components/blocks/lucy-compatible";
 import LucyWhyChoose from "@/components/blocks/lucy-why-choose";
+import LucyFeatures from "@/components/blocks/lucy-features";
 import Pricing from "@/components/blocks/pricing";
 import Showcase from "@/components/blocks/showcase";
 import Stats from "@/components/blocks/stats";
@@ -50,6 +51,8 @@ export default async function HomePage({
       <LucyCompatible />
       {/* Why Choose Lucy AI ？ */}
       <LucyWhyChoose />
+      {/* Your AI Dating Coach */}
+      <LucyFeatures />
     </>
   );
 }
