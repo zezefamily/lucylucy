@@ -31,7 +31,8 @@ import {
   type IAgentTranscription,
   type ISubtitleHelperItem,
   EConversationalAIAPIEvents,
-  ESubtitleHelperMode
+  ESubtitleHelperMode,
+  ETurnStatus
 } from '@/conversational-ai-api/type';
 
 export default function CallLucyPlus() {
@@ -52,6 +53,14 @@ export default function CallLucyPlus() {
   const [isListening, setIsListening] = useState(false);
   const [showSubtitle, setShowSubtitle] = useState(false);
   const [subtitleRtmClient, setSubtitleRtmClient] = useState<RTMClient | null>(null);
+  
+  // AI 状态管理
+  const [aiState, setAiState] = useState<'waiting' | 'listening' | 'thinking' | 'speaking'>('waiting');
+  
+  // Agent 缓存管理
+  const AGENT_CACHE_KEY = 'lucy_agent_cache';
+  const AGENT_CACHE_TIMESTAMP_KEY = 'lucy_agent_cache_timestamp';
+  const CACHE_DURATION = 10 * 60 * 1000; // 10分钟缓存过期
   
   // 字幕相关状态
   const [chatHistory, setChatHistory] = useState<
@@ -102,17 +111,42 @@ export default function CallLucyPlus() {
     };
   }, [callState, state.isJoined]);
 
-  // 语音活动检测
+  // 真实语音活动检测和 AI 状态管理
   useEffect(() => {
     if (callState === 'connected' && state.isJoined) {
+      // 基于麦克风音量级别判断是否在说话
       const interval = setInterval(() => {
-        setIsListening(prev => !prev);
-      }, 1500);
+        const currentLevel = microphoneLevel;
+        const threshold = 0.05; // 音量阈值，可以调整
+        
+        if (!state.isMuted && currentLevel > threshold) {
+          // 用户正在说话，AI 应该在聆听
+          setIsListening(true);
+          setAiState('listening');
+        } else {
+          // 用户没有说话，AI 在思考或等待
+          setIsListening(false);
+          
+          // 根据字幕内容判断 AI 状态
+          const hasRecentMessages = chatHistory.length > 0;
+          const lastMessage = chatHistory[chatHistory.length - 1];
+          
+                     if (hasRecentMessages && lastMessage?.uid === 'agent' && lastMessage?.status === ETurnStatus.IN_PROGRESS) {
+             setAiState('speaking');
+           } else if (hasRecentMessages && lastMessage?.uid === 'user') {
+            setAiState('thinking');
+          } else {
+            setAiState('waiting');
+          }
+        }
+      }, 200); // 更频繁的检测，200ms
+      
       return () => clearInterval(interval);
     } else {
       setIsListening(false);
+      setAiState('waiting');
     }
-  }, [callState, state.isJoined]);
+  }, [callState, state.isJoined, microphoneLevel, state.isMuted, chatHistory]);
 
 
 
@@ -141,7 +175,11 @@ export default function CallLucyPlus() {
       const result = await response.json();
       
       if (result.success) {
-        setAgentId(result.data.agentId);
+        const newAgentId = result.data.agentId;
+        setAgentId(newAgentId);
+        // 缓存新的 Agent ID
+        setCachedAgentId(newAgentId);
+        console.log('AI 加入成功，Agent ID 已缓存:', newAgentId);
         return true;
       } else {
         throw new Error(result.error || 'Failed to invite AI to room');
@@ -153,10 +191,12 @@ export default function CallLucyPlus() {
   };
 
   // 让 AI 离开房间
-  const removeAIFromRoom = async (): Promise<void> => {
-    if (!agentId) return;
+  const removeAIFromRoom = async (targetAgentId?: string): Promise<void> => {
+    const currentAgentId = targetAgentId || agentId;
+    if (!currentAgentId) return;
     
     try {
+      console.log('正在让 Agent 离开房间:', currentAgentId);
       await fetch('/api/call-lucy/levelRoom', {
         method: 'POST',
         headers: {
@@ -165,13 +205,16 @@ export default function CallLucyPlus() {
         body: JSON.stringify({
           channel: config.channel,
           uid: config.uid,
-          agentId: agentId,
+          agentId: currentAgentId,
         }),
       });
+      console.log('Agent 已离开房间:', currentAgentId);
     } catch (error) {
       console.warn('Error making AI leave room:', error);
     }
   };
+
+
 
   // 主要通话控制函数
   const handleCallToggle = async () => {
@@ -186,7 +229,10 @@ export default function CallLucyPlus() {
       toast.loading('正在连接 Lucy...', { id: 'call-status' });
 
       try {
-        // 0. 检查麦克风状态
+        // 0. 检查并清理缓存的 Agent
+        await cleanupCachedAgent();
+
+        // 1. 检查麦克风状态
         const microphoneOk = await checkMicrophoneStatus();
         if (!microphoneOk) {
           setCallState('idle');
@@ -194,11 +240,11 @@ export default function CallLucyPlus() {
           return;
         }
 
-        // 1. 用户加入声网房间
+        // 2. 用户加入声网房间
         await actions.join(config);
         console.log('User joined Agora room successfully');
 
-        // 2. 邀请 AI 加入房间
+        // 3. 邀请 AI 加入房间
         const aiJoined = await inviteAIToRoom();
         
                 if (aiJoined) {
@@ -248,6 +294,10 @@ export default function CallLucyPlus() {
         } catch (leaveError) {
           console.warn('Error during cleanup:', leaveError);
         }
+        
+        // 连接失败时也清理缓存
+        clearAgentCache();
+        console.log('连接失败，Agent 缓存已清理');
       }
     } else if (callState === 'connected') {
       // 结束通话
@@ -277,6 +327,11 @@ export default function CallLucyPlus() {
         setAgentId(null);
         setCallDuration(0);
         setShowSubtitle(false);
+        
+        // 5. 正常挂断，清空缓存
+        clearAgentCache();
+        console.log('正常挂断，Agent 缓存已清理');
+        
         toast.success('通话已结束', { id: 'call-status' });
       } catch (error) {
         console.error('Error ending call:', error);
@@ -286,6 +341,11 @@ export default function CallLucyPlus() {
         setCallDuration(0);
         setShowSubtitle(false);
         setSubtitleRtmClient(null);
+        
+        // 异常挂断，也清空缓存
+        clearAgentCache();
+        console.log('异常挂断，Agent 缓存已清理');
+        
         toast.success('通话已结束', { id: 'call-status' });
       }
     }
@@ -317,6 +377,73 @@ export default function CallLucyPlus() {
   const handleConnectionChange = useCallback((connected: boolean) => {
     console.log('字幕连接状态:', connected);
   }, []);
+
+  // Agent 缓存管理函数
+  const getCachedAgentId = useCallback(() => {
+    try {
+      const cachedAgentId = localStorage.getItem(AGENT_CACHE_KEY);
+      const cachedTimestamp = localStorage.getItem(AGENT_CACHE_TIMESTAMP_KEY);
+      
+      if (!cachedAgentId || !cachedTimestamp) {
+        return null;
+      }
+      
+      const timestamp = parseInt(cachedTimestamp, 10);
+      const now = Date.now();
+      
+      // 检查缓存是否过期
+      if (now - timestamp > CACHE_DURATION) {
+        console.log('Agent 缓存已过期，清理缓存');
+        clearAgentCache();
+        return null;
+      }
+      
+      console.log('找到缓存的 Agent ID:', cachedAgentId);
+      return cachedAgentId;
+    } catch (error) {
+      console.warn('读取 Agent 缓存失败:', error);
+      return null;
+    }
+  }, [AGENT_CACHE_KEY, AGENT_CACHE_TIMESTAMP_KEY, CACHE_DURATION]);
+
+  const setCachedAgentId = useCallback((agentId: string) => {
+    try {
+      localStorage.setItem(AGENT_CACHE_KEY, agentId);
+      localStorage.setItem(AGENT_CACHE_TIMESTAMP_KEY, Date.now().toString());
+      console.log('Agent ID 已缓存:', agentId);
+    } catch (error) {
+      console.warn('缓存 Agent ID 失败:', error);
+    }
+  }, [AGENT_CACHE_KEY, AGENT_CACHE_TIMESTAMP_KEY]);
+
+  const clearAgentCache = useCallback(() => {
+    try {
+      localStorage.removeItem(AGENT_CACHE_KEY);
+      localStorage.removeItem(AGENT_CACHE_TIMESTAMP_KEY);
+      console.log('Agent 缓存已清理');
+    } catch (error) {
+      console.warn('清理 Agent 缓存失败:', error);
+    }
+  }, [AGENT_CACHE_KEY, AGENT_CACHE_TIMESTAMP_KEY]);
+
+  // 清理缓存中的 Agent
+  const cleanupCachedAgent = useCallback(async () => {
+    const cachedAgentId = getCachedAgentId();
+    if (cachedAgentId) {
+      console.log('发现缓存的 Agent，尝试清理:', cachedAgentId);
+      toast.loading('正在清理之前的会话...', { id: 'cleanup-agent' });
+      
+      try {
+        await removeAIFromRoom(cachedAgentId);
+        toast.success('之前的会话已清理', { id: 'cleanup-agent' });
+      } catch (error) {
+        console.warn('清理缓存 Agent 失败:', error);
+        toast.warning('清理之前的会话时出现问题，但不影响新会话', { id: 'cleanup-agent' });
+      } finally {
+        clearAgentCache();
+      }
+    }
+  }, [getCachedAgentId, clearAgentCache, config.channel, config.uid]);
 
   // 检查麦克风权限和状态
   const checkMicrophoneStatus = useCallback(async (showToast = false) => {
@@ -486,6 +613,18 @@ export default function CallLucyPlus() {
     checkMicrophoneStatus();
   }, [checkMicrophoneStatus]);
 
+  // 组件加载时检查并显示缓存状态
+  useEffect(() => {
+    const cachedAgentId = getCachedAgentId();
+    if (cachedAgentId) {
+      console.log('页面加载时发现缓存的 Agent ID:', cachedAgentId);
+      toast.info('检测到之前的会话，下次通话时将自动清理', { 
+        id: 'cached-agent-info',
+        duration: 3000
+      });
+    }
+  }, [getCachedAgentId]);
+
   // 监听网络质量和连接状态
   useEffect(() => {
     if (rtcClient && callState === 'connected') {
@@ -528,6 +667,33 @@ export default function CallLucyPlus() {
       }
     }
   }, [rtcClient, callState]);
+
+  // 页面卸载时的清理逻辑
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // 页面刷新或关闭时，如果正在通话中，清理 Agent 缓存
+      if (callState === 'connected' && agentId) {
+        // 由于是同步操作，这里只能清理本地缓存
+        // Agent 的清理会在下次打开页面时进行
+        console.log('页面卸载，保留 Agent 缓存供下次清理');
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      // 页面隐藏时不做处理，因为用户可能只是切换标签页
+      if (document.hidden) {
+        console.log('页面隐藏，保持 Agent 状态');
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [callState, agentId]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden">
@@ -706,11 +872,11 @@ export default function CallLucyPlus() {
                     <motion.div
                       className="absolute inset-0 rounded-full border-4 border-blue-200"
                       animate={{
-                        scale: isListening ? [1, 1.1, 1] : [1, 1.05, 1],
-                        opacity: isListening ? [0.3, 0.6, 0.3] : [0.2, 0.4, 0.2],
+                        scale: aiState === 'listening' ? [1, 1.1, 1] : aiState === 'speaking' ? [1, 1.08, 1] : [1, 1.05, 1],
+                        opacity: aiState === 'listening' ? [0.3, 0.6, 0.3] : aiState === 'speaking' ? [0.4, 0.7, 0.4] : [0.2, 0.4, 0.2],
                       }}
                       transition={{
-                        duration: isListening ? 1.5 : 4,
+                        duration: aiState === 'listening' ? 1.5 : aiState === 'speaking' ? 2 : 4,
                         repeat: Infinity,
                         ease: "easeInOut"
                       }}
@@ -718,33 +884,44 @@ export default function CallLucyPlus() {
 
                     {/* 核心头像 */}
                     <motion.div
-                      className="absolute inset-4 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center"
+                      className={`absolute inset-4 rounded-full flex items-center justify-center ${
+                        aiState === 'listening' ? 'bg-gradient-to-br from-green-400 to-blue-500' :
+                        aiState === 'thinking' ? 'bg-gradient-to-br from-purple-400 to-pink-500' :
+                        aiState === 'speaking' ? 'bg-gradient-to-br from-orange-400 to-red-500' :
+                        'bg-gradient-to-br from-blue-400 to-purple-500'
+                      }`}
                       animate={{
-                        scale: isListening ? [1, 1.05, 1] : 1,
+                        scale: aiState === 'listening' || aiState === 'speaking' ? [1, 1.05, 1] : 1,
                       }}
                       transition={{
                         duration: 1,
-                        repeat: isListening ? Infinity : 0,
+                        repeat: (aiState === 'listening' || aiState === 'speaking') ? Infinity : 0,
                         ease: "easeInOut"
                       }}
                     >
-                      <span className="text-4xl font-bold text-white">L</span>
+                      <span className="text-4xl font-bold text-white">
+                        {aiState === 'listening' ? '👂' : 
+                         aiState === 'thinking' ? '🤔' : 
+                         aiState === 'speaking' ? '💬' : 'L'}
+                      </span>
                     </motion.div>
 
-                    {/* 语音波纹 */}
-                    {isListening && (
+                    {/* 语音波纹 - 根据状态显示不同的波纹 */}
+                    {(aiState === 'listening' || aiState === 'speaking') && (
                       <>
                         {[...Array(3)].map((_, i) => (
                           <motion.div
                             key={i}
-                            className="absolute inset-0 rounded-full border-2 border-blue-400/30"
+                            className={`absolute inset-0 rounded-full border-2 ${
+                              aiState === 'listening' ? 'border-green-400/30' : 'border-orange-400/30'
+                            }`}
                             initial={{ scale: 1, opacity: 0.6 }}
                             animate={{
                               scale: [1, 1.5, 2],
                               opacity: [0.6, 0.3, 0],
                             }}
                             transition={{
-                              duration: 2,
+                              duration: aiState === 'listening' ? 2 : 2.5,
                               repeat: Infinity,
                               delay: i * 0.4,
                               ease: "easeOut"
@@ -759,10 +936,12 @@ export default function CallLucyPlus() {
                   <div className="mb-6">
                     <h3 className="text-2xl font-semibold text-gray-800 mb-2">Lucy</h3>
                     <p className="text-gray-600">
-                      {callState === 'connected' && isListening && '正在聆听...'}
-                      {callState === 'connected' && !isListening && '思考中...'}
                       {callState === 'connecting' && '正在加入通话...'}
                       {callState === 'disconnecting' && '正在离开...'}
+                      {callState === 'connected' && aiState === 'listening' && '🎧 正在聆听...'}
+                      {callState === 'connected' && aiState === 'thinking' && '🤔 分析中...'}
+                      {callState === 'connected' && aiState === 'speaking' && '💬 回复中...'}
+                      {callState === 'connected' && aiState === 'waiting' && '😊 等待对话...'}
                     </p>
                   </div>
 
@@ -1041,6 +1220,7 @@ export default function CallLucyPlus() {
                            <p>• RTM 连接: {subtitleRtmClient ? '✓' : '×'}</p>
                            <p>• 频道状态: {state.isJoined ? '已加入' : '未加入'}</p>
                            <p>• ConversationalAI: {isConversationalAPIInitialized ? '已初始化' : '未初始化'}</p>
+                           <p>• Agent 缓存: {getCachedAgentId() ? '有缓存' : '无缓存'}</p>
                          </div>
                          {(!rtcClient || !subtitleRtmClient || !state.isJoined) && (
                            <div className="mt-4">
