@@ -50,8 +50,9 @@ export function useRealTimeSubtitle(options: UseRealTimeSubtitleOptions = {}): U
   const apiRef = useRef<ConversationalAIAPI | null>(null)
   const channelNameRef = useRef<string>('')
   const maxMessagesRef = useRef(options.maxMessages || 50)
+  const enableLogRef = useRef(options.enableLog || false)
 
-  // 处理字幕更新的回调函数
+  // 处理字幕更新的回调函数 - 使用 useCallback 避免重新创建
   const handleTranscriptionUpdate = useCallback((
     transcriptions: ISubtitleHelperItem<Partial<IUserTranscription | IAgentTranscription>>[]
   ) => {
@@ -69,7 +70,7 @@ export function useRealTimeSubtitle(options: UseRealTimeSubtitleOptions = {}): U
       const combined = [...prev, ...newMessages]
       return combined.slice(-maxMessagesRef.current)
     })
-  }, [])
+  }, [])  // 空依赖数组，确保函数引用稳定
 
   // 初始化 API
   const initialize = useCallback(async (config: Required<Pick<UseRealTimeSubtitleOptions, 'rtcEngine' | 'rtmEngine' | 'channelName'>>) => {
@@ -77,7 +78,7 @@ export function useRealTimeSubtitle(options: UseRealTimeSubtitleOptions = {}): U
       setError(null)
       
       if (apiRef.current) {
-        console.warn('ConversationalAIAPI already initialized')
+        console.warn('ConversationalAIAPI already initialized, skipping...')
         return
       }
 
@@ -86,8 +87,13 @@ export function useRealTimeSubtitle(options: UseRealTimeSubtitleOptions = {}): U
         rtcEngine: config.rtcEngine,
         rtmEngine: config.rtmEngine,
         renderMode: ESubtitleHelperMode.TEXT, // 使用文本模式
-        enableLog: options.enableLog || false
+        enableLog: enableLogRef.current
       })
+      
+      // 确保单例实例正确设置
+      if (!apiRef.current) {
+        throw new Error('Failed to get ConversationalAIAPI instance')
+      }
 
       channelNameRef.current = config.channelName
       setIsInitialized(true)
@@ -95,14 +101,16 @@ export function useRealTimeSubtitle(options: UseRealTimeSubtitleOptions = {}): U
       // 注册事件监听器
       apiRef.current.on('transcription_updated' as any, handleTranscriptionUpdate)
 
-      console.log('实时字幕初始化成功')
+      if (enableLogRef.current) {
+        console.log('实时字幕初始化成功')
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '初始化失败'
       setError(errorMessage)
       console.error('实时字幕初始化失败:', err)
       throw err
     }
-  }, [options.enableLog, handleTranscriptionUpdate])
+  }, [handleTranscriptionUpdate])  // 移除 options.enableLog 依赖
 
   // 开始监听字幕
   const startListening = useCallback(async () => {
@@ -117,7 +125,9 @@ export function useRealTimeSubtitle(options: UseRealTimeSubtitleOptions = {}): U
       await apiRef.current.subscribeMessage(channelNameRef.current)
       setIsConnected(true)
       
-      console.log('开始监听实时字幕')
+      if (enableLogRef.current) {
+        console.log('开始监听实时字幕')
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '开始监听失败'
       setError(errorMessage)
@@ -137,7 +147,9 @@ export function useRealTimeSubtitle(options: UseRealTimeSubtitleOptions = {}): U
       apiRef.current.unsubscribe()
       setIsConnected(false)
       
-      console.log('停止监听实时字幕')
+      if (enableLogRef.current) {
+        console.log('停止监听实时字幕')
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '停止监听失败'
       setError(errorMessage)
@@ -150,19 +162,25 @@ export function useRealTimeSubtitle(options: UseRealTimeSubtitleOptions = {}): U
     setMessages([])
   }, [])
 
-  // 销毁实例
+  // 销毁实例 - 移除不必要的依赖项避免重复调用
   const destroy = useCallback(() => {
     if (apiRef.current) {
-      // 移除事件监听器
-      apiRef.current.off('transcription_updated' as any, handleTranscriptionUpdate)
-      
-      // 如果还在连接状态，先停止监听
-      if (isConnected) {
-        stopListening().catch(console.error)
+      // 移除所有事件监听器
+      try {
+        apiRef.current.removeAllEventListeners()
+      } catch (error) {
+        console.warn('移除事件监听器时出错:', error)
       }
       
-      // 销毁 API 实例
-      apiRef.current.destroy()
+      // 停止监听
+      try {
+        apiRef.current.unsubscribe()
+      } catch (error) {
+        console.warn('停止监听时出错:', error)
+      }
+      
+      // 注意：不要销毁全局单例，只清理本地引用
+      // apiRef.current.destroy()
       apiRef.current = null
     }
     
@@ -171,15 +189,28 @@ export function useRealTimeSubtitle(options: UseRealTimeSubtitleOptions = {}): U
     setError(null)
     setMessages([])
     
-    console.log('实时字幕实例已销毁')
-  }, [isConnected, stopListening, handleTranscriptionUpdate])
+    if (enableLogRef.current) {
+      console.log('实时字幕实例已清理')
+    }
+  }, [])  // 移除所有依赖项，直接在函数内部使用最新的引用
 
-  // 组件卸载时清理
+  // 组件卸载时清理 - 使用空依赖数组避免重复调用
   useEffect(() => {
     return () => {
-      destroy()
+      // 在组件真正卸载时清理
+      if (apiRef.current) {
+        try {
+          apiRef.current.removeAllEventListeners()
+        } catch (error) {
+          console.warn('组件卸载清理事件监听器时出错:', error)
+        }
+        apiRef.current = null
+      }
+      if (enableLogRef.current) {
+        console.log('实时字幕组件卸载清理')
+      }
     }
-  }, [destroy])
+  }, [])  // 空依赖数组，只在组件卸载时执行
 
   return {
     messages,

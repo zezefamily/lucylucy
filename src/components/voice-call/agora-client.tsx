@@ -41,6 +41,7 @@ export interface AgoraClientActions {
 interface UseAgoraClientReturn {
   state: AgoraClientState;
   actions: AgoraClientActions;
+  rtcClient: IAgoraRTCClient | null;
 }
 
 export const useAgoraClient = (): UseAgoraClientReturn => {
@@ -297,7 +298,8 @@ export const useAgoraClient = (): UseAgoraClientReturn => {
       toggleMute,
       toggleAIDenoise,
       destroy
-    }
+    },
+    rtcClient: clientRef.current
   };
 };
 

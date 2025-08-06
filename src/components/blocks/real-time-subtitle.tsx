@@ -65,19 +65,28 @@ export function RealTimeSubtitle({
     scrollToBottom()
   }, [messages])
 
-  // 监听连接状态变化
+  // 监听连接状态变化 - 使用 ref 避免频繁触发
+  const prevConnectionStateRef = useRef(isConnected)
   useEffect(() => {
-    onConnectionChange?.(isConnected)
+    if (prevConnectionStateRef.current !== isConnected) {
+      prevConnectionStateRef.current = isConnected
+      onConnectionChange?.(isConnected)
+    }
   }, [isConnected, onConnectionChange])
 
-  // 初始化实时字幕
+  // 初始化实时字幕 - 使用 ref 来避免重复初始化
+  const initializationKeyRef = useRef<string>('')
   useEffect(() => {
     if (rtcEngine && rtmEngine && channelName && !isInitialized) {
-      initialize({
-        rtcEngine,
-        rtmEngine,
-        channelName
-      }).catch(console.error)
+      const currentKey = `${rtcEngine.constructor.name}-${channelName}`
+      if (initializationKeyRef.current !== currentKey) {
+        initializationKeyRef.current = currentKey
+        initialize({
+          rtcEngine,
+          rtmEngine,
+          channelName
+        }).catch(console.error)
+      }
     }
   }, [rtcEngine, rtmEngine, channelName, isInitialized, initialize])
 

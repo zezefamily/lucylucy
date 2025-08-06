@@ -229,6 +229,12 @@ export class ConversationalAIAPI extends EventHelper<IConversationalAIAPIEventHa
    * @since 1.6.0
    */
   public static init(cfg: IConversationalAIAPIConfig) {
+    // 如果已经存在实例，直接返回（避免重复创建）
+    if (ConversationalAIAPI._instance) {
+      console.log('ConversationalAIAPI already initialized, reusing existing instance')
+      return ConversationalAIAPI._instance
+    }
+    
     ConversationalAIAPI._instance = new ConversationalAIAPI()
     ConversationalAIAPI._instance.rtcEngine = cfg.rtcEngine
     ConversationalAIAPI._instance.rtmEngine = cfg.rtmEngine

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -22,8 +22,8 @@ import { useAgoraClient, AgoraConfig } from '@/components/voice-call/agora-clien
 import { RealTimeSubtitle } from '@/components/blocks/real-time-subtitle';
 import { toast } from 'sonner';
 
-// 动态导入 AgoraRTM
-import type { RTMClient } from 'agora-rtm';
+// 导入 AgoraRTM
+import AgoraRTM, { type RTMClient } from 'agora-rtm';
 
 export default function CallLucyPlus() {
   // 声网配置
@@ -31,7 +31,7 @@ export default function CallLucyPlus() {
     appId: process.env.NEXT_PUBLIC_AGORA_APP_ID || '',
     channel: process.env.NEXT_PUBLIC_AGORA_DEFAULT_CHANNEL || 'lucy-voice-call',
     token: undefined,
-    uid: Math.floor(Math.random() * 1000000)
+    uid: 123456
   });
 
   // 状态管理
@@ -45,7 +45,7 @@ export default function CallLucyPlus() {
   const [subtitleRtmClient, setSubtitleRtmClient] = useState<RTMClient | null>(null);
 
   // 声网客户端
-  const { state, actions } = useAgoraClient();
+  const { state, actions, rtcClient } = useAgoraClient();
 
   // 通话计时器
   const callTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -172,13 +172,13 @@ export default function CallLucyPlus() {
           
           // 为字幕功能创建独立的 RTM 客户端
           try {
-            const subtitleRtm = new AgoraRTM.RTM(config.appId, `subtitle_user_${config.uid}`);
-            if (config.token) {
-              await subtitleRtm.login({ token: config.token });
+            const subtitleRtm = new AgoraRTM.RTM(config.appId, `${config.uid}`);
+            // if (config.token) {
+              await subtitleRtm.login({ token: "007eJxTYMi0aHlRMUFhqtHZ9VYpl/TfrK63+aR/+L6G1+zpF47wa9cqMBimGiYaWCSbm5oZWpqYmRkkWaQlmZmkGiQlWpgmJyaa6hpPzmgIZGQo6fzIysjAxMAIhCA+G4OhkbGJqRkAYOEfSA==" });
               await subtitleRtm.subscribe(config.channel);
               setSubtitleRtmClient(subtitleRtm);
               console.log('字幕 RTM 客户端初始化成功');
-            }
+            // }
           } catch (error) {
             console.warn('字幕 RTM 客户端初始化失败:', error);
           }
@@ -264,6 +264,11 @@ export default function CallLucyPlus() {
       toast.error('AI 降噪切换失败');
     }
   };
+
+  // 字幕连接状态变化回调 - 使用 useCallback 避免重新创建
+  const handleConnectionChange = useCallback((connected: boolean) => {
+    console.log('字幕连接状态:', connected);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden">
@@ -582,19 +587,17 @@ export default function CallLucyPlus() {
 
                                                         {/* 字幕内容 */}
                    <div className="h-80">
-                     {subtitleRtmClient ? (
+                                          {subtitleRtmClient && rtcClient && state.isJoined ? (
                        <RealTimeSubtitle
                          className="border-0 shadow-none rounded-none h-full"
-                         rtcEngine={undefined}
+                         rtcEngine={rtcClient}
                          rtmEngine={subtitleRtmClient}
                          channelName={config.channel}
                          maxMessages={20}
                          showTimestamp={true}
                          showUserControls={false}
-                         enableLog={false}
-                         onConnectionChange={(connected) => {
-                           console.log('字幕连接状态:', connected)
-                         }}
+                         enableLog={true}
+                         onConnectionChange={handleConnectionChange}
                        />
                      ) : (
                        /* 字幕功能提示 */
@@ -605,14 +608,14 @@ export default function CallLucyPlus() {
                            正在准备实时字幕功能...
                          </p>
                          <div className="text-xs text-gray-400 space-y-1">
-                           <p>• 建立 RTM 连接</p>
-                           <p>• 配置字幕服务</p>
-                           <p>• 准备语音识别</p>
+                           <p>• RTC 连接: {rtcClient ? '✓' : '×'}</p>
+                           <p>• RTM 连接: {subtitleRtmClient ? '✓' : '×'}</p>
+                           <p>• 频道状态: {state.isJoined ? '已加入' : '未加入'}</p>
                          </div>
-                         {!config.token && (
+                         {(!rtcClient || !subtitleRtmClient || !state.isJoined) && (
                            <div className="mt-4">
-                             <p className="text-xs text-red-500">
-                               需要有效的 Token 来启用字幕功能
+                             <p className="text-xs text-yellow-500">
+                               等待通话连接建立完成...
                              </p>
                            </div>
                          )}
