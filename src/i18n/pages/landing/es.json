@@ -23,6 +23,11 @@
           "icon": "RiChatSmile3Line"
         },
         {
+          "title": "Llamar a Lucy (Beta)",
+          "url": "/call-lucy",
+          "icon": "RiPhoneLine"
+        },
+        {
           "title": "Acerca de",
           "url": "/about",
           "icon": "RiInformationLine"

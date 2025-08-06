@@ -23,6 +23,11 @@
           "icon": "RiChatSmile3Line"
         },
         {
+          "title": "与Lucy通话(Beta)",
+          "url": "/call-lucy",
+          "icon": "RiPhoneLine"
+        },
+        {
           "title": "关于我们",
           "url": "/about",
           "icon": "RiInformationLine"
