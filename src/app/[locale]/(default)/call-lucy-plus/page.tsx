@@ -16,7 +16,8 @@ import {
   Settings,
   Waves,
   MessageSquare,
-  X
+  X,
+  Image
 } from 'lucide-react';
 import { useAgoraClient, AgoraConfig } from '@/components/voice-call/agora-client';
 import { toast } from 'sonner';
@@ -32,8 +33,14 @@ import {
   type ISubtitleHelperItem,
   EConversationalAIAPIEvents,
   ESubtitleHelperMode,
-  ETurnStatus
+  ETurnStatus,
+  TMessageReceipt,
+  EModuleType
 } from '@/conversational-ai-api/type';
+
+import { EChatMessageType } from '@/conversational-ai-api/type'
+import { genUUID } from '@/lib/utils';
+import imageCompression from 'browser-image-compression';
 
 export default function CallLucyPlus() {
   // 声网配置
@@ -46,7 +53,8 @@ export default function CallLucyPlus() {
 
   // 状态管理
   const [callState, setCallState] = useState<'idle' | 'connecting' | 'connected' | 'disconnecting'>('idle');
-  const [agentId, setAgentId] = useState<string | null>(null);
+  const [agentId, setAgentId] = useState<string>('');
+  const [agentUid, setAgentUid] = useState<string>('');
   const [callDuration, setCallDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(0.5);
@@ -73,9 +81,26 @@ export default function CallLucyPlus() {
   const [microphoneLevel, setMicrophoneLevel] = useState(0);
   const microphoneLevelRef = useRef<NodeJS.Timeout | null>(null);
   
+  // 使用 ref 保存最新的值，避免闭包问题
+  const microphoneLevelLatest = useRef(microphoneLevel);
+  const chatHistoryLatest = useRef(chatHistory);
+  
+  // 更新 ref 值
+  useEffect(() => {
+    microphoneLevelLatest.current = microphoneLevel;
+  }, [microphoneLevel]);
+  
+  useEffect(() => {
+    chatHistoryLatest.current = chatHistory;
+  }, [chatHistory]);
+  
   // 网络状态监控
   const [networkQuality, setNetworkQuality] = useState<{ uplinkNetworkQuality: number; downlinkNetworkQuality: number } | null>(null);
   const [connectionState, setConnectionState] = useState<string>('DISCONNECTED');
+  
+  // 图片上传状态
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 声网客户端
   const { state, actions, rtcClient } = useAgoraClient();
@@ -113,10 +138,13 @@ export default function CallLucyPlus() {
 
   // 真实语音活动检测和 AI 状态管理
   useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    
     if (callState === 'connected' && state.isJoined) {
       // 基于麦克风音量级别判断是否在说话
-      const interval = setInterval(() => {
-        const currentLevel = microphoneLevel;
+      interval = setInterval(() => {
+        const currentLevel = microphoneLevelLatest.current;
+        const currentChatHistory = chatHistoryLatest.current;
         const threshold = 0.05; // 音量阈值，可以调整
         
         if (!state.isMuted && currentLevel > threshold) {
@@ -128,8 +156,8 @@ export default function CallLucyPlus() {
           setIsListening(false);
           
           // 根据字幕内容判断 AI 状态
-          const hasRecentMessages = chatHistory.length > 0;
-          const lastMessage = chatHistory[chatHistory.length - 1];
+          const hasRecentMessages = currentChatHistory.length > 0;
+          const lastMessage = currentChatHistory[currentChatHistory.length - 1];
           
                      if (hasRecentMessages && lastMessage?.uid === 'agent' && lastMessage?.status === ETurnStatus.IN_PROGRESS) {
              setAiState('speaking');
@@ -141,12 +169,19 @@ export default function CallLucyPlus() {
         }
       }, 200); // 更频繁的检测，200ms
       
-      return () => clearInterval(interval);
+      console.log('语音活动检测定时器已启动');
     } else {
       setIsListening(false);
       setAiState('waiting');
     }
-  }, [callState, state.isJoined, microphoneLevel, state.isMuted, chatHistory]);
+    
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+        console.log('语音活动检测定时器已清理');
+      }
+    };
+  }, [callState, state.isJoined, state.isMuted]); // 移除 microphoneLevel 和 chatHistory 依赖，减少重复创建
 
 
 
@@ -177,6 +212,8 @@ export default function CallLucyPlus() {
       if (result.success) {
         const newAgentId = result.data.agentId;
         setAgentId(newAgentId);
+        const agentUid = result.data.agentUid;
+        setAgentUid(agentUid);
         // 缓存新的 Agent ID
         setCachedAgentId(newAgentId);
         console.log('AI 加入成功，Agent ID 已缓存:', newAgentId);
@@ -314,17 +351,28 @@ export default function CallLucyPlus() {
         // 3. 清理字幕 RTM 客户端
         try {
           if (subtitleRtmClient) {
+            // 移除所有事件监听器
+            subtitleRtmClient.removeAllListeners();
+            
+            // 取消订阅频道
+            await subtitleRtmClient.unsubscribe(config.channel);
+            
+            // 退出登录
             await subtitleRtmClient.logout();
+            
             setSubtitleRtmClient(null);
-            console.log('字幕 RTM 客户端已清理');
+            console.log('字幕 RTM 客户端已完全清理');
           }
         } catch (error) {
           console.warn('字幕 RTM 客户端清理失败:', error);
+          // 即使清理失败，也要设置为 null 避免内存泄漏
+          setSubtitleRtmClient(null);
         }
         
         // 4. 重置状态
         setCallState('idle');
-        setAgentId(null);
+        setAgentId('');
+        setAgentUid('');
         setCallDuration(0);
         setShowSubtitle(false);
         
@@ -337,9 +385,21 @@ export default function CallLucyPlus() {
         console.error('Error ending call:', error);
         // 强制重置状态
         setCallState('idle');
-        setAgentId(null);
+        setAgentId('');
+        setAgentUid('');
         setCallDuration(0);
         setShowSubtitle(false);
+        
+        // 清理 RTM 客户端
+        try {
+          if (subtitleRtmClient) {
+            subtitleRtmClient.removeAllListeners();
+            await subtitleRtmClient.unsubscribe(config.channel).catch(() => {});
+            await subtitleRtmClient.logout().catch(() => {});
+          }
+        } catch (error) {
+          console.warn('异常情况下 RTM 清理失败:', error);
+        }
         setSubtitleRtmClient(null);
         
         // 异常挂断，也清空缓存
@@ -445,6 +505,214 @@ export default function CallLucyPlus() {
     }
   }, [getCachedAgentId, clearAgentCache, config.channel, config.uid]);
 
+  // 图片压缩函数 - 使用 browser-image-compression
+  const compressImage = useCallback(async (
+    file: File, 
+    maxSizeMB: number = 5,
+    onProgress?: (progress: number) => void
+  ): Promise<File> => {
+    try {
+      const options = {
+        maxSizeMB: maxSizeMB, // 最大文件大小（MB）
+        maxWidthOrHeight: 1920, // 最大宽度或高度
+        useWebWorker: true, // 使用 Web Worker 提升性能
+        fileType: 'image/jpeg', // 输出格式
+        initialQuality: 0.8, // 初始质量
+        alwaysKeepResolution: false, // 允许降低分辨率
+        maxIteration: 10, // 最大迭代次数
+        exifOrientation: 1, // 保持图片方向
+        onProgress: onProgress || ((progress: number) => {
+          console.log(`压缩进度: ${Math.round(progress * 100)}%`);
+        }),
+      };
+
+      console.log(`开始压缩图片: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB) -> 目标: ${maxSizeMB}MB`);
+      
+      const compressedFile = await imageCompression(file, options);
+      
+      console.log(`图片压缩完成: ${(file.size / 1024 / 1024).toFixed(2)}MB -> ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`);
+      
+      return compressedFile;
+    } catch (error) {
+      console.error('图片压缩失败:', error);
+      throw new Error(`图片压缩失败: ${error instanceof Error ? error.message : '未知错误'}`);
+    }
+  }, []);
+
+  // 处理图片上传
+  const handleImageUpload = useCallback(async (file: File) => {
+    console.log('=== 图片上传调试信息 ===');
+    console.log('conversationalAPIRef.current:', !!conversationalAPIRef.current);
+    console.log('agentId:', agentId);
+    console.log('agentUid:', agentUid);
+    console.log('callState:', callState);
+    
+    if (!conversationalAPIRef.current) {
+      console.log('❌ 检查失败 - conversationalAPIRef 为空');
+      toast.error('请先连接到 Lucy');
+      return;
+    }
+    
+    if (!agentUid) {
+      console.log('❌ 检查失败 - agentUid 为空:', agentUid);
+      toast.error('Agent UID 不可用，请重新连接');
+      return;
+    }
+
+    setIsUploadingImage(true);
+    
+    try {
+      // 验证文件类型
+      if (!file.type.startsWith('image/')) {
+        toast.error('请选择图片文件');
+        return;
+      }
+
+      let processedFile = file;
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      
+      // 如果文件大于5MB，进行压缩
+      if (file.size > maxSize) {
+        toast.loading('图片较大，正在压缩...', { id: 'send-image' });
+        console.log(`原始文件大小: ${(file.size / 1024 / 1024).toFixed(2)}MB，开始压缩...`);
+        
+                 try {
+           // 压缩进度回调
+           const updateProgress = (progress: number) => {
+             const percentage = Math.round(progress * 100);
+             toast.loading(`压缩中... ${percentage}%`, { id: 'send-image' });
+           };
+
+           // 使用 browser-image-compression 进行压缩
+           let compressedFile = await compressImage(file, 5, updateProgress);
+           
+           // 如果压缩后仍然过大，尝试更严格的压缩
+           if (compressedFile.size > maxSize) {
+             console.log('第一次压缩仍超过限制，尝试更严格的压缩...');
+             toast.loading('进一步压缩中...', { id: 'send-image' });
+             compressedFile = await compressImage(file, 3, updateProgress); // 降低到3MB目标
+           }
+           
+           // 如果还是过大，尝试最严格的压缩
+           if (compressedFile.size > maxSize) {
+             console.log('第二次压缩仍超过限制，尝试最严格的压缩...');
+             toast.loading('最大程度压缩中...', { id: 'send-image' });
+             compressedFile = await compressImage(file, 2, updateProgress); // 降低到2MB目标
+           }
+           
+           // 如果压缩后仍然过大，显示错误
+           if (compressedFile.size > maxSize) {
+             toast.error('图片过大，即使压缩后仍超过5MB限制，请尝试其他图片', { id: 'send-image' });
+             return;
+           }
+           
+           processedFile = compressedFile;
+           
+           // 显示压缩结果
+           const compressionRatio = ((file.size - compressedFile.size) / file.size * 100).toFixed(1);
+           console.log(`压缩比例: ${compressionRatio}%`);
+           
+           toast.loading(`压缩完成 (节省${compressionRatio}%)，正在发送图片...`, { id: 'send-image' });
+         } catch (compressionError) {
+           console.error('图片压缩失败:', compressionError);
+           toast.error(`图片压缩失败: ${compressionError instanceof Error ? compressionError.message : '请尝试选择较小的图片'}`, { id: 'send-image' });
+           return;
+         }
+             } else {
+         // 即使文件小于5MB，也可以适当压缩以提高传输速度和画质
+         if (file.size > 1024 * 1024) { // 如果大于1MB，进行轻量压缩
+           toast.loading('优化图片中...', { id: 'send-image' });
+           try {
+             const optimizedFile = await compressImage(file, 4, (progress) => {
+               const percentage = Math.round(progress * 100);
+               toast.loading(`优化中... ${percentage}%`, { id: 'send-image' });
+             });
+             
+             if (optimizedFile.size < file.size) {
+               processedFile = optimizedFile;
+               const reductionRatio = ((file.size - optimizedFile.size) / file.size * 100).toFixed(1);
+               console.log(`图片优化完成，减少了${reductionRatio}%的大小`);
+             }
+           } catch (error) {
+             console.warn('图片优化失败，使用原图片:', error);
+           }
+         }
+         toast.loading('正在发送图片...', { id: 'send-image' });
+       }
+
+      // 将处理后的文件转换为 base64
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          // 移除 data:image/jpeg;base64, 前缀
+          const base64Data = result.split(',')[1];
+          resolve(base64Data);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(processedFile);
+      });
+
+      const uuid = genUUID();
+
+      // 发送图片消息 这里需要的是 agentUid 不是 agentId
+      console.log('agentUid =======>:', agentUid);
+      await conversationalAPIRef.current.chat(agentUid, {
+        messageType: EChatMessageType.IMAGE,
+        uuid: uuid,
+        url: "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2F3c648d61-f4d9-4954-abd3-6f10e033aabe%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1757089233&t=21f735709324a093faff0f3fc78e6492"
+      });
+
+      toast.success('图片发送成功', { id: 'send-image' });
+       console.log(`图片发送成功，UUID: ${uuid}，最终大小: ${(processedFile.size / 1024 / 1024).toFixed(2)}MB`);
+
+    } catch (error) {
+      console.error('图片上传失败:', error);
+      toast.error('图片发送失败，请重试', { id: 'send-image' });
+    } finally {
+      setIsUploadingImage(false);
+    }
+  }, [agentId, agentUid, compressImage]);
+
+  // 处理文件选择
+  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleImageUpload(file);
+    }
+    // 清空输入框，允许选择同一个文件
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }, [handleImageUpload]);
+
+  // 触发文件选择
+  const triggerImageUpload = useCallback(() => {
+    if (!conversationalAPIRef.current || !agentId) {
+      toast.error('请先连接到 Lucy1111111');
+      return;
+    }
+    fileInputRef.current?.click();
+  }, [agentId, agentUid]);
+
+  // 检查是否为图片消息的辅助函数
+  const isImageMessage = useCallback((message: ISubtitleHelperItem<Partial<IUserTranscription | IAgentTranscription>>) => {
+    return message.metadata && 
+           typeof message.metadata === 'object' && 
+           'messageType' in message.metadata && 
+           (message.metadata as any).messageType === 'IMAGE';
+  }, []);
+
+  // 获取图片URL的辅助函数
+  const getImageUrl = useCallback((message: ISubtitleHelperItem<Partial<IUserTranscription | IAgentTranscription>>) => {
+    if (!isImageMessage(message)) return null;
+    const metadata = message.metadata as any;
+    if (metadata.base64) {
+      return `data:image/jpeg;base64,${metadata.base64}`;
+    }
+    return metadata.url || null;
+  }, [isImageMessage]);
+
   // 检查麦克风权限和状态
   const checkMicrophoneStatus = useCallback(async (showToast = false) => {
     try {
@@ -538,6 +806,42 @@ export default function CallLucyPlus() {
         console.log('字幕更新:', transcriptions);
         setChatHistory(transcriptions);
       });
+      // 监听消息回执更新
+      api.on(EConversationalAIAPIEvents.MESSAGE_RECEIPT_UPDATED, (agentUserId: string,  messageReceipt: TMessageReceipt) => {
+        // 第一步：检查消息类型是否为 Context
+        if (messageReceipt.moduleType !== EModuleType.CONTEXT) {
+            return
+        }
+        // 第二步：解析 receipt.message 为 JSON 对象
+        try {
+            const receiptMessage = JSON.parse(messageReceipt.message)
+            // 第三步：检查是否包含 uuid 字段
+            const uuid = receiptMessage.uuid
+            if (!uuid) {
+                return
+            }
+            // 第四步：播报发送成功状态
+            console.log(`消息发送成功，UUID: ${uuid}`) // 这里可以替换为实际的播报逻辑
+        } catch (error) {
+            console.error('解析消息失败:', error)
+        }
+    })
+    
+      // 监听智能体错误事件
+      api.on(EConversationalAIAPIEvents.MESSAGE_ERROR, (agentUserId, error) => {
+        console.error(`Message error for agent ${agentUserId}:`, error);
+        if (error.type === EChatMessageType.IMAGE) {
+          try {
+              const errorData = JSON.parse(error.message);
+              if (errorData?.uuid) {
+                  console.warn(`Image error for agent ${agentUserId} with UUID: ${errorData.uuid}`);
+              }
+          } catch (e) {
+              console.error(`Failed to handle image error for agent ${agentUserId}:`, e);
+          }
+        }
+       })
+      
 
       // 订阅频道消息
       api.subscribeMessage(config.channel);
@@ -550,7 +854,7 @@ export default function CallLucyPlus() {
     }
   }, [rtcClient, subtitleRtmClient, config.channel]);
 
-  // 清理 ConversationalAIAPI
+    // 清理 ConversationalAIAPI
   const cleanupConversationalAPI = useCallback(() => {
     if (conversationalAPIRef.current) {
       try {
@@ -560,7 +864,10 @@ export default function CallLucyPlus() {
         // 移除事件监听器
         conversationalAPIRef.current.removeAllEventListeners();
         
-        console.log('ConversationalAIAPI 已清理');
+        // 销毁实例
+        conversationalAPIRef.current.destroy();
+        
+        console.log('ConversationalAIAPI 已完全清理和销毁');
       } catch (error) {
         console.warn('清理 ConversationalAIAPI 时出错:', error);
       }
@@ -568,7 +875,7 @@ export default function CallLucyPlus() {
       conversationalAPIRef.current = null;
       setIsConversationalAPIInitialized(false);
       setChatHistory([]);
-         }
+        }
    }, []);
 
   // 初始化 ConversationalAIAPI 当 RTC 和 RTM 都准备好时
@@ -584,6 +891,23 @@ export default function CallLucyPlus() {
       cleanupConversationalAPI();
     }
   }, [callState, isConversationalAPIInitialized, cleanupConversationalAPI]);
+
+  // 组件卸载时清理 RTM 客户端
+  useEffect(() => {
+    return () => {
+      if (subtitleRtmClient) {
+        console.log('组件卸载，清理 RTM 客户端');
+        try {
+          subtitleRtmClient.removeAllListeners();
+          subtitleRtmClient.logout().catch((error) => {
+            console.warn('组件卸载时 RTM logout 失败:', error);
+          });
+        } catch (error) {
+          console.warn('组件卸载时清理 RTM 客户端失败:', error);
+        }
+      }
+    };
+  }, [subtitleRtmClient]);
 
   // 麦克风音量级别监控
   useEffect(() => {
@@ -671,10 +995,36 @@ export default function CallLucyPlus() {
   // 页面卸载时的清理逻辑
   useEffect(() => {
     const handleBeforeUnload = () => {
-      // 页面刷新或关闭时，如果正在通话中，清理 Agent 缓存
+      console.log('页面即将卸载，开始清理资源');
+      
+      // 清理所有定时器
+      if (callTimerRef.current) {
+        clearInterval(callTimerRef.current);
+        callTimerRef.current = null;
+        console.log('通话计时器已清理');
+      }
+      
+      if (microphoneLevelRef.current) {
+        clearInterval(microphoneLevelRef.current);
+        microphoneLevelRef.current = null;
+        console.log('麦克风音量监控定时器已清理');
+      }
+      
+             // 清理 ConversationalAI API
+       if (conversationalAPIRef.current) {
+         try {
+           conversationalAPIRef.current.unsubscribe();
+           conversationalAPIRef.current.removeAllEventListeners();
+           conversationalAPIRef.current.destroy();
+           conversationalAPIRef.current = null;
+           console.log('ConversationalAI API 已完全清理和销毁');
+         } catch (error) {
+           console.warn('清理 ConversationalAI API 时出错:', error);
+         }
+       }
+      
+      // 如果正在通话中，标记缓存供下次清理
       if (callState === 'connected' && agentId) {
-        // 由于是同步操作，这里只能清理本地缓存
-        // Agent 的清理会在下次打开页面时进行
         console.log('页面卸载，保留 Agent 缓存供下次清理');
       }
     };
@@ -690,8 +1040,12 @@ export default function CallLucyPlus() {
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
+      console.log('移除页面事件监听器');
       window.removeEventListener('beforeunload', handleBeforeUnload);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      
+      // 组件卸载时的最终清理
+      handleBeforeUnload();
     };
   }, [callState, agentId]);
 
@@ -723,7 +1077,11 @@ export default function CallLucyPlus() {
                 className="mb-16"
               >
                 <h1 className="text-5xl font-light text-gray-800 mb-4">
-                  与 <span className="text-blue-600 font-medium">Lucy</span> 对话
+                  与 <span className="text-blue-600 font-medium" style={{
+                    background: 'linear-gradient(135deg, #9174FF, #FDB7FD)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }}>Lucy</span> 通话
                 </h1>
                 <p className="text-xl text-gray-600">
                   您的专属恋爱教练，随时为您提供建议
@@ -741,8 +1099,8 @@ export default function CallLucyPlus() {
                 <motion.div
                   className="absolute inset-0 rounded-full"
                   style={{
-                    background: 'linear-gradient(135deg, #3b82f6, #60a5fa, #93c5fd)',
-                    boxShadow: '0 0 40px rgba(59, 130, 246, 0.4), 0 0 80px rgba(59, 130, 246, 0.2)'
+                    background: 'linear-gradient(135deg, #9174FF, #FDB7FD)',
+                    boxShadow: '0 0 40px rgba(145, 116, 255, 0.4), 0 0 80px rgba(145, 116, 255, 0.2)'
                   }}
                   animate={{
                     scale: [1, 1.05, 1],
@@ -772,7 +1130,19 @@ export default function CallLucyPlus() {
                   <Button
                     onClick={handleCallToggle}
                     disabled={callState !== 'idle'}
-                    className="px-12 py-6 rounded-full text-xl font-medium shadow-lg bg-blue-500 hover:bg-blue-600 text-white transition-all duration-300"
+                    className="px-12 py-6 rounded-full text-xl font-medium shadow-lg text-white transition-all duration-300"
+                    style={{
+                      background: 'linear-gradient(135deg, #9174FF 0%, #FDB7FD 100%)',
+                      boxShadow: '0 0 20px rgba(145, 116, 255, 0.3)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'linear-gradient(135deg, #8461FF 0%, #FC9EFC 100%)';
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'linear-gradient(135deg, #9174FF 0%, #FDB7FD 100%)';
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
                   >
                     <Phone className="w-6 h-6 mr-3" />
                     Call Lucy
@@ -870,7 +1240,11 @@ export default function CallLucyPlus() {
                   >
                     {/* 外层光环 */}
                     <motion.div
-                      className="absolute inset-0 rounded-full border-4 border-blue-200"
+                      className="absolute inset-0 rounded-full border-4"
+                      style={{
+                        background: 'linear-gradient(135deg, #9174FF, #FDB7FD)',
+                        boxShadow: '0 0 40px rgba(145, 116, 255, 0.4), 0 0 80px rgba(145, 116, 255, 0.2)'
+                      }}
                       animate={{
                         scale: aiState === 'listening' ? [1, 1.1, 1] : aiState === 'speaking' ? [1, 1.08, 1] : [1, 1.05, 1],
                         opacity: aiState === 'listening' ? [0.3, 0.6, 0.3] : aiState === 'speaking' ? [0.4, 0.7, 0.4] : [0.2, 0.4, 0.2],
@@ -882,14 +1256,13 @@ export default function CallLucyPlus() {
                       }}
                     />
 
-                    {/* 核心头像 */}
+                                        {/* 核心头像 */}
                     <motion.div
-                      className={`absolute inset-4 rounded-full flex items-center justify-center ${
-                        aiState === 'listening' ? 'bg-gradient-to-br from-green-400 to-blue-500' :
-                        aiState === 'thinking' ? 'bg-gradient-to-br from-purple-400 to-pink-500' :
-                        aiState === 'speaking' ? 'bg-gradient-to-br from-orange-400 to-red-500' :
-                        'bg-gradient-to-br from-blue-400 to-purple-500'
-                      }`}
+                      className="absolute inset-4 rounded-full flex items-center justify-center overflow-hidden"
+                      style={{
+                        background: 'linear-gradient(135deg, #9174FF, #FDB7FD)',
+                        boxShadow: '0 0 40px rgba(145, 116, 255, 0.4), 0 0 80px rgba(145, 116, 255, 0.2)'
+                      }}
                       animate={{
                         scale: aiState === 'listening' || aiState === 'speaking' ? [1, 1.05, 1] : 1,
                       }}
@@ -899,11 +1272,47 @@ export default function CallLucyPlus() {
                         ease: "easeInOut"
                       }}
                     >
-                      <span className="text-4xl font-bold text-white">
-                        {aiState === 'listening' ? '👂' : 
-                         aiState === 'thinking' ? '🤔' : 
-                         aiState === 'speaking' ? '💬' : 'L'}
-                      </span>
+                      {/* Lucy 标识 */}
+                      <div className="relative flex items-center justify-center w-full h-full">
+                        <span 
+                          className="text-6xl font-bold select-none"
+                          style={{ 
+                            color: 'white',
+                            textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+                            fontFamily: 'var(--font-serif)'
+                          }}
+                        >
+                          L
+                        </span>
+                        
+                        {/* 状态指示器 */}
+                        <motion.div
+                          className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-xs"
+                          style={{
+                            background: aiState === 'listening' 
+                              ? '#CCFF00' 
+                              : aiState === 'thinking'
+                              ? '#9174FF'
+                              : aiState === 'speaking'
+                              ? '#FDB7FD'
+                              : '#9174FF',
+                            color: aiState === 'listening' ? '#000' : '#fff',
+                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
+                          }}
+                          animate={{
+                            scale: [1, 1.2, 1],
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                        >
+                          {aiState === 'listening' ? '👂' : 
+                           aiState === 'thinking' ? '🤔' : 
+                           aiState === 'speaking' ? '💬' : '💤'}
+                        </motion.div>
+                      </div>
                     </motion.div>
 
                     {/* 语音波纹 - 根据状态显示不同的波纹 */}
@@ -912,9 +1321,12 @@ export default function CallLucyPlus() {
                         {[...Array(3)].map((_, i) => (
                           <motion.div
                             key={i}
-                            className={`absolute inset-0 rounded-full border-2 ${
-                              aiState === 'listening' ? 'border-green-400/30' : 'border-orange-400/30'
-                            }`}
+                            className="absolute inset-0 rounded-full border-2"
+                            style={{
+                              borderColor: aiState === 'listening' 
+                                ? 'rgba(204, 255, 0, 0.3)' // 荧光绿波纹
+                                : 'rgba(253, 183, 253, 0.3)' // 粉色波纹
+                            }}
                             initial={{ scale: 1, opacity: 0.6 }}
                             animate={{
                               scale: [1, 1.5, 2],
@@ -1045,9 +1457,14 @@ export default function CallLucyPlus() {
                           onClick={toggleMute}
                           variant="outline"
                           size="lg"
-                          className={`rounded-full p-4 ${
-                            isMuted ? 'bg-red-100 border-red-300 text-red-600' : 'bg-blue-100 border-blue-300 text-blue-600'
-                          }`}
+                          className="rounded-full p-4"
+                          style={{
+                            background: isMuted 
+                              ? 'linear-gradient(135deg, #ff6b6b, #ff8e8e)' 
+                              : 'linear-gradient(135deg, #9174FF, #b69aff)',
+                            borderColor: isMuted ? '#ff6b6b' : '#9174FF',
+                            color: 'white'
+                          }}
                         >
                           {isMuted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
                         </Button>
@@ -1061,11 +1478,14 @@ export default function CallLucyPlus() {
                           onClick={() => setShowSubtitle(!showSubtitle)}
                           variant="outline"
                           size="lg"
-                          className={`rounded-full p-4 ${
-                            showSubtitle 
-                              ? 'bg-purple-100 border-purple-300 text-purple-600' 
-                              : 'bg-gray-100 border-gray-300 text-gray-600'
-                          }`}
+                          className="rounded-full p-4"
+                          style={{
+                            background: showSubtitle 
+                              ? 'linear-gradient(135deg, #FDB7FD, #CCFF00)' 
+                              : 'linear-gradient(135deg, #e5e7eb, #f3f4f6)',
+                            borderColor: showSubtitle ? '#FDB7FD' : '#e5e7eb',
+                            color: showSubtitle ? 'white' : '#6b7280'
+                          }}
                           title="实时字幕"
                         >
                           <MessageSquare className="w-6 h-6" />
@@ -1080,14 +1500,50 @@ export default function CallLucyPlus() {
                           onClick={toggleAIDenoise}
                           variant="outline"
                           size="lg"
-                          className={`rounded-full p-4 ${
-                            state.isAIDenoiseEnabled 
-                              ? 'bg-green-100 border-green-300 text-green-600' 
-                              : 'bg-gray-100 border-gray-300 text-gray-600'
-                          }`}
+                          className="rounded-full p-4"
+                          style={{
+                            background: state.isAIDenoiseEnabled 
+                              ? 'linear-gradient(135deg, #CCFF00, #9174FF)' 
+                              : 'linear-gradient(135deg, #e5e7eb, #f3f4f6)',
+                            borderColor: state.isAIDenoiseEnabled ? '#CCFF00' : '#e5e7eb',
+                            color: state.isAIDenoiseEnabled ? 'white' : '#6b7280'
+                          }}
                           title="AI 降噪"
                         >
                           <Waves className="w-6 h-6" />
+                        </Button>
+                      </motion.div>
+                    )}
+
+                    {/* 图片上传按钮 */}
+                    {callState === 'connected' && (
+                      <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                        <Button
+                          onClick={triggerImageUpload}
+                          disabled={isUploadingImage}
+                          variant="outline"
+                          size="lg"
+                          className="rounded-full p-4"
+                          style={{
+                            background: isUploadingImage 
+                              ? 'linear-gradient(135deg, #9174FF, #FDB7FD)' 
+                              : 'linear-gradient(135deg, #CCFF00, #9174FF)',
+                            borderColor: '#9174FF',
+                            color: 'white',
+                            opacity: isUploadingImage ? 0.7 : 1
+                          }}
+                          title={isUploadingImage ? "正在处理图片..." : "发送图片 (支持自动压缩)"}
+                        >
+                          {isUploadingImage ? (
+                            <motion.div
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            >
+                              <Image className="w-6 h-6" />
+                            </motion.div>
+                          ) : (
+                            <Image className="w-6 h-6" />
+                          )}
                         </Button>
                       </motion.div>
                     )}
@@ -1187,10 +1643,36 @@ export default function CallLucyPlus() {
                                      <span className="text-xs font-medium">
                                        {message.uid === 'agent' ? 'AI' : '用户'}
                                      </span>
+                                     {/* 显示消息类型图标 */}
+                                     {isImageMessage(message) && (
+                                       <Image className="w-3 h-3 opacity-70" />
+                                     )}
                                    </div>
-                                   <p className="leading-relaxed">
-                                     {message.text || '...'}
-                                   </p>
+                                   
+                                   {/* 检查是否为图片消息 */}
+                                   {isImageMessage(message) ? (
+                                     <div className="space-y-2">
+                                       {/* 显示图片预览 */}
+                                       {getImageUrl(message) && (
+                                         <img
+                                           src={getImageUrl(message)!}
+                                           alt="发送的图片"
+                                           className="max-w-full h-auto rounded border"
+                                           style={{ maxHeight: '200px' }}
+                                           onError={(e) => {
+                                             e.currentTarget.style.display = 'none';
+                                           }}
+                                         />
+                                       )}
+                                       <p className="leading-relaxed text-xs opacity-80">
+                                         {message.text || '发送了一张图片'}
+                                       </p>
+                                     </div>
+                                   ) : (
+                                     <p className="leading-relaxed">
+                                       {message.text || '...'}
+                                     </p>
+                                   )}
                                  </div>
                                  
                                  {/* 时间戳 */}
@@ -1244,6 +1726,15 @@ export default function CallLucyPlus() {
             </motion.div>
           )}
         </AnimatePresence>
+        
+        {/* 隐藏的文件输入 */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileSelect}
+          style={{ display: 'none' }}
+        />
       </div>
     </div>
   );

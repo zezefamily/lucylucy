@@ -128,9 +128,31 @@ export const useAgoraClient = (): UseAgoraClientReturn => {
     }
 
     return () => {
+      console.log('useAgoraClient cleanup: 开始清理 Agora 客户端');
+      
       if (clientRef.current) {
-        clientRef.current.removeAllListeners();
+        // 移除所有事件监听器
+        try {
+          clientRef.current.removeAllListeners();
+          console.log('已移除所有 RTC 事件监听器');
+        } catch (error) {
+          console.warn('移除 RTC 事件监听器时出错:', error);
+        }
+        
+        // 如果客户端仍在连接状态，尝试离开房间
+        try {
+          clientRef.current.leave().catch((error) => {
+            console.warn('组件卸载时离开房间失败:', error);
+          });
+        } catch (error) {
+          console.warn('调用 leave 方法时出错:', error);
+        }
+        
+        // 清空客户端引用
+        clientRef.current = null;
       }
+      
+      console.log('useAgoraClient cleanup: 清理完成');
     };
   }, []);
 
