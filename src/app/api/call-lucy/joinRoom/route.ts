@@ -18,9 +18,12 @@ interface AgoraAIAgentRequest {
       };
       enable_metrics: boolean;
       audio_scenario: string;
+      data_channel: string;
+      enable_error_message: boolean;
     };
     advanced_features: {
       enable_aivad: boolean;
+      enable_rtm: boolean;
     };
     vad: {
       interrupt_duration_ms: number;
@@ -72,7 +75,7 @@ function getAgoraConfig() {
   const projectId = process.env.AGORA_AI_PROJECT_ID || "1e1a08c756194660b8fb64e0ba85caa5";
   const basicAuth = process.env.AGORA_AI_BASIC_AUTH || "ZWRmNGM0MDE0MThiNDdmM2ExOTI4Yzg1YWNmNjA5OTQ6NTg5MTQ2OTgyMTgwNDdiNDliOTQ5ZDZhMTI4ZGE4ZmY=" ; // Basic Auth 格式: base64(username:password)
   const openaiApiKey = process.env.OPENAI_API_KEY || "sk-LCaAqd7cGUKKztDD4c24FcBf7dE64fF8Af796fDb20F4371c" ;
-  const openaiBaseUrl = process.env.OPENAI_BASE_URL || 'https://api.openai-next.com/v1/chat/completions';
+  const openaiBaseUrl = 'https://api.openai-next.com/v1/chat/completions';
   const minimaxGroupId = process.env.MINIMAX_GROUP_ID || "1855950250527691177";
   const minimaxKey = process.env.MINIMAX_KEY || "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJHcm91cE5hbWUiOiJCZXRhIiwiVXNlck5hbWUiOiJCZXRhIiwiQWNjb3VudCI6IiIsIlN1YmplY3RJRCI6IjE4NTU5NTAyNTA1MzYwNzk3ODUiLCJQaG9uZSI6IjEzMTYxOTI4OTY3IiwiR3JvdXBJRCI6IjE4NTU5NTAyNTA1Mjc2OTExNzciLCJQYWdlTmFtZSI6IiIsIk1haWwiOiIiLCJDcmVhdGVUaW1lIjoiMjAyNS0wOC0wNSAyMToyNzo1MiIsIlRva2VuVHlwZSI6MSwiaXNzIjoibWluaW1heCJ9.ZoWcNEVGK0m9b_lcUd1Be-omXlNDnEoEwhHz4OEBA9T4-02eUAbW5wTdtCn6332X9o3ZDgilyaekYHyUoo5WWlT6xKDEWs4VLPAGCOTKPOFDaXuPQKo10cRX2QDjL6sOlOUf-lzw7OwEJZIHEtN6sFYukaAcMcCkWZhjIbEjNOKM2bHwjB2Gu-YyAKNtpWVTogNs1keOBYNS0DTFOIBoD1q3Keg1PxIBy149k8iWOfeWXiELw0sTMbnYQGxQaIaI52vCW49UBM8fqGcXtLE3wng0vVD1T4oM9PI3unIbjRwAIEuDGcSRXaBotQJb3uwZSYbpSzcNLp9eIfOI6tKJyw";
 
@@ -146,10 +149,13 @@ export async function POST(request: NextRequest) {
             redundant: false
           },
           enable_metrics: true,
-          audio_scenario: "default"
+          audio_scenario: "default",
+          data_channel: "rtm",
+          enable_error_message: true
         },
         advanced_features: {
-          enable_aivad: true
+          enable_aivad: true,
+          enable_rtm: true
         },
         vad: {
           interrupt_duration_ms: 160,

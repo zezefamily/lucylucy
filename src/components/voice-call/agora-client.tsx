@@ -62,8 +62,10 @@ export const useAgoraClient = (): UseAgoraClientReturn => {
     if (!clientRef.current) {
       clientRef.current = AgoraRTC.createClient({ 
         mode: 'rtc', 
-        codec: 'vp8' 
+        codec: 'vp8'
       });
+
+      console.log('Agora RTC 客户端已创建');
 
       const client = clientRef.current;
 
@@ -151,6 +153,19 @@ export const useAgoraClient = (): UseAgoraClientReturn => {
 
       // 创建本地音频轨道
       const localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+      
+      // 检查麦克风状态
+      console.log('麦克风轨道创建成功:', {
+        trackId: localAudioTrack.getTrackId(),
+        enabled: localAudioTrack.enabled,
+        muted: localAudioTrack.muted,
+        volume: localAudioTrack.getVolumeLevel()
+      });
+      
+      // 监听音频级别变化
+      localAudioTrack.on('track-ended', () => {
+        console.warn('麦克风轨道已结束');
+      });
       
       // 初始化 AI 降噪处理器
       let aiDenoiseProcessor: any = null;

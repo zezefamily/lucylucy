@@ -19,11 +19,20 @@ import {
   X
 } from 'lucide-react';
 import { useAgoraClient, AgoraConfig } from '@/components/voice-call/agora-client';
-import { RealTimeSubtitle } from '@/components/blocks/real-time-subtitle';
 import { toast } from 'sonner';
 
 // 导入 AgoraRTM
 import AgoraRTM, { type RTMClient } from 'agora-rtm';
+
+// 导入 ConversationalAIAPI 相关
+import { ConversationalAIAPI } from '@/conversational-ai-api';
+import {
+  type IUserTranscription,
+  type IAgentTranscription,
+  type ISubtitleHelperItem,
+  EConversationalAIAPIEvents,
+  ESubtitleHelperMode
+} from '@/conversational-ai-api/type';
 
 export default function CallLucyPlus() {
   // 声网配置
@@ -43,6 +52,21 @@ export default function CallLucyPlus() {
   const [isListening, setIsListening] = useState(false);
   const [showSubtitle, setShowSubtitle] = useState(false);
   const [subtitleRtmClient, setSubtitleRtmClient] = useState<RTMClient | null>(null);
+  
+  // 字幕相关状态
+  const [chatHistory, setChatHistory] = useState<
+    ISubtitleHelperItem<Partial<IUserTranscription | IAgentTranscription>>[]
+  >([]);
+  const [isConversationalAPIInitialized, setIsConversationalAPIInitialized] = useState(false);
+  const conversationalAPIRef = useRef<ConversationalAIAPI | null>(null);
+  
+  // 麦克风状态监控
+  const [microphoneLevel, setMicrophoneLevel] = useState(0);
+  const microphoneLevelRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // 网络状态监控
+  const [networkQuality, setNetworkQuality] = useState<{ uplinkNetworkQuality: number; downlinkNetworkQuality: number } | null>(null);
+  const [connectionState, setConnectionState] = useState<string>('DISCONNECTED');
 
   // 声网客户端
   const { state, actions, rtcClient } = useAgoraClient();
@@ -89,6 +113,8 @@ export default function CallLucyPlus() {
       setIsListening(false);
     }
   }, [callState, state.isJoined]);
+
+
 
   // 格式化通话时长
   const formatDuration = (seconds: number) => {
@@ -160,6 +186,14 @@ export default function CallLucyPlus() {
       toast.loading('正在连接 Lucy...', { id: 'call-status' });
 
       try {
+        // 0. 检查麦克风状态
+        const microphoneOk = await checkMicrophoneStatus();
+        if (!microphoneOk) {
+          setCallState('idle');
+          toast.error('麦克风访问失败，请检查权限设置', { id: 'call-status' });
+          return;
+        }
+
         // 1. 用户加入声网房间
         await actions.join(config);
         console.log('User joined Agora room successfully');
@@ -193,7 +227,21 @@ export default function CallLucyPlus() {
       } catch (error) {
         console.error('Error starting call:', error);
         setCallState('idle');
-        toast.error('连接失败，请检查网络连接', { id: 'call-status' });
+        
+        // 根据错误类型提供更具体的错误信息
+        let errorMessage = '连接失败，请检查网络连接';
+        if (error instanceof Error) {
+          if (error.message.includes('STUN') || error.message.includes('ICE')) {
+            errorMessage = '网络连接问题，请检查防火墙设置或尝试更换网络';
+          } else if (error.message.includes('permission')) {
+            errorMessage = '权限被拒绝，请检查麦克风权限';
+          } else if (error.message.includes('timeout')) {
+            errorMessage = '连接超时，请检查网络状况';
+          }
+        }
+        
+        toast.error(errorMessage, { id: 'call-status' });
+        
         // 清理连接
         try {
           await actions.leave();
@@ -269,6 +317,217 @@ export default function CallLucyPlus() {
   const handleConnectionChange = useCallback((connected: boolean) => {
     console.log('字幕连接状态:', connected);
   }, []);
+
+  // 检查麦克风权限和状态
+  const checkMicrophoneStatus = useCallback(async (showToast = false) => {
+    try {
+      if (showToast) {
+        toast.loading('正在检查麦克风...', { id: 'mic-check' });
+      }
+
+      // 检查浏览器是否支持麦克风
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        console.error('浏览器不支持麦克风访问');
+        if (showToast) {
+          toast.error('浏览器不支持麦克风访问', { id: 'mic-check' });
+        }
+        return false;
+      }
+
+      // 检查麦克风权限
+      const permission = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+      console.log('麦克风权限状态:', permission.state);
+
+      // 尝试获取音频设备列表
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const audioInputs = devices.filter(device => device.kind === 'audioinput');
+      console.log('可用的音频输入设备:', audioInputs);
+
+      if (audioInputs.length === 0) {
+        console.warn('没有找到可用的音频输入设备');
+        if (showToast) {
+          toast.error('没有找到可用的音频输入设备', { id: 'mic-check' });
+        }
+        return false;
+      }
+
+      // 测试麦克风访问
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        console.log('麦克风访问测试成功');
+        
+        // 立即关闭测试流
+        stream.getTracks().forEach(track => track.stop());
+        
+        if (showToast) {
+          toast.success(`麦克风测试成功！找到 ${audioInputs.length} 个音频设备`, { id: 'mic-check' });
+        }
+        return true;
+      } catch (error) {
+        console.error('麦克风访问被拒绝:', error);
+        if (showToast) {
+          toast.error('麦克风访问被拒绝，请检查浏览器权限设置', { id: 'mic-check' });
+        }
+        return false;
+      }
+    } catch (error) {
+      console.error('检查麦克风状态时出错:', error);
+      if (showToast) {
+        toast.error('麦克风检查失败', { id: 'mic-check' });
+      }
+      return false;
+    }
+  }, []);
+
+  // 初始化 ConversationalAIAPI
+  const initializeConversationalAPI = useCallback(async () => {
+    if (!rtcClient || !subtitleRtmClient || conversationalAPIRef.current) {
+      return;
+    }
+
+    try {
+      console.log('开始初始化 ConversationalAIAPI...');
+      
+      // 初始化组件
+      const api = ConversationalAIAPI.init({
+        rtcEngine: rtcClient,
+        rtmEngine: subtitleRtmClient,
+        /**
+         * 设置转录字幕渲染模式，可选值：
+         * - `ESubtitleHelperMode.WORD`：逐字渲染模式，即回调接收的字幕内容将逐字渲染到 UI 上。
+         * - `ESubtitleHelperMode.TEXT`：逐句渲染模式，即回调接收的字幕内容将全量渲染到 UI 上。
+         * 
+         * 不指定则自动根据消息判断模式，或手动指定模式
+         */
+        renderMode: ESubtitleHelperMode.WORD,
+        enableLog: true
+      });
+
+      conversationalAPIRef.current = api;
+
+      // 注册字幕回调
+      // 监听转录内容更新，用于实时显示字幕转录内容
+      api.on(EConversationalAIAPIEvents.TRANSCRIPTION_UPDATED, (transcriptions) => {
+        console.log('字幕更新:', transcriptions);
+        setChatHistory(transcriptions);
+      });
+
+      // 订阅频道消息
+      api.subscribeMessage(config.channel);
+      
+      setIsConversationalAPIInitialized(true);
+      console.log('ConversationalAIAPI 初始化成功');
+      
+    } catch (error) {
+      console.error('ConversationalAIAPI 初始化失败:', error);
+    }
+  }, [rtcClient, subtitleRtmClient, config.channel]);
+
+  // 清理 ConversationalAIAPI
+  const cleanupConversationalAPI = useCallback(() => {
+    if (conversationalAPIRef.current) {
+      try {
+        // 取消订阅频道消息
+        conversationalAPIRef.current.unsubscribe();
+        
+        // 移除事件监听器
+        conversationalAPIRef.current.removeAllEventListeners();
+        
+        console.log('ConversationalAIAPI 已清理');
+      } catch (error) {
+        console.warn('清理 ConversationalAIAPI 时出错:', error);
+      }
+      
+      conversationalAPIRef.current = null;
+      setIsConversationalAPIInitialized(false);
+      setChatHistory([]);
+         }
+   }, []);
+
+  // 初始化 ConversationalAIAPI 当 RTC 和 RTM 都准备好时
+  useEffect(() => {
+    if (rtcClient && subtitleRtmClient && state.isJoined && callState === 'connected' && !isConversationalAPIInitialized) {
+      initializeConversationalAPI();
+    }
+  }, [rtcClient, subtitleRtmClient, state.isJoined, callState, isConversationalAPIInitialized, initializeConversationalAPI]);
+
+  // 清理 ConversationalAIAPI 当通话结束时
+  useEffect(() => {
+    if (callState === 'idle' && isConversationalAPIInitialized) {
+      cleanupConversationalAPI();
+    }
+  }, [callState, isConversationalAPIInitialized, cleanupConversationalAPI]);
+
+  // 麦克风音量级别监控
+  useEffect(() => {
+    if (callState === 'connected' && state.localAudioTrack && !state.isMuted) {
+      microphoneLevelRef.current = setInterval(() => {
+        const level = state.localAudioTrack?.getVolumeLevel() || 0;
+        setMicrophoneLevel(level);
+      }, 100); // 每100ms检查一次音量级别
+      
+      return () => {
+        if (microphoneLevelRef.current) {
+          clearInterval(microphoneLevelRef.current);
+          microphoneLevelRef.current = null;
+        }
+      };
+    } else {
+      setMicrophoneLevel(0);
+      if (microphoneLevelRef.current) {
+        clearInterval(microphoneLevelRef.current);
+        microphoneLevelRef.current = null;
+      }
+    }
+  }, [callState, state.localAudioTrack, state.isMuted]);
+
+  // 组件加载时检查麦克风
+  useEffect(() => {
+    checkMicrophoneStatus();
+  }, [checkMicrophoneStatus]);
+
+  // 监听网络质量和连接状态
+  useEffect(() => {
+    if (rtcClient && callState === 'connected') {
+      // 监听网络质量
+      const handleNetworkQuality = (quality: any) => {
+        setNetworkQuality(quality);
+        console.log('网络质量:', quality);
+      };
+
+      // 监听连接状态变化
+      const handleConnectionStateChange = (curState: string, revState: string, reason?: string) => {
+        setConnectionState(curState);
+        console.log('连接状态变化:', { current: curState, previous: revState, reason });
+        
+        if (curState === 'DISCONNECTED' || curState === 'FAILED') {
+          toast.error(`连接状态: ${curState}${reason ? ` (${reason})` : ''}`);
+        }
+      };
+
+      // 监听异常事件
+      const handleException = (event: any) => {
+        console.warn('连接异常:', event);
+        if (event.code === 'NETWORK_ERROR') {
+          toast.warning('网络连接不稳定，正在尝试重连...');
+        }
+      };
+
+      try {
+        rtcClient.on('network-quality', handleNetworkQuality);
+        rtcClient.on('connection-state-change', handleConnectionStateChange);
+        rtcClient.on('exception', handleException);
+
+        return () => {
+          rtcClient.off('network-quality', handleNetworkQuality);
+          rtcClient.off('connection-state-change', handleConnectionStateChange);
+          rtcClient.off('exception', handleException);
+        };
+      } catch (error) {
+        console.warn('设置网络监听器失败:', error);
+      }
+    }
+  }, [rtcClient, callState]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden">
@@ -368,6 +627,43 @@ export default function CallLucyPlus() {
                   </p>
                 </motion.div>
               )}
+
+                            {/* 麦克风测试按钮 */}
+              {/* {isConfigValid && (
+                <motion.div
+                  className="mt-8 flex justify-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.8 }}
+                >
+                  <Button
+                    variant="outline"
+                    onClick={() => checkMicrophoneStatus(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <Mic className="w-4 h-4" />
+                    测试麦克风
+                  </Button>
+                </motion.div>
+              )} */}
+
+              {/* 网络故障排除提示 */}
+              {/* {isConfigValid && (
+                <motion.div
+                  className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 2.0 }}
+                >
+                  <h4 className="text-sm font-medium text-blue-800 mb-2">连接问题故障排除</h4>
+                  <ul className="text-xs text-blue-700 space-y-1">
+                    <li>• 如遇连接超时，请检查防火墙设置</li>
+                    <li>• 企业网络可能需要配置代理服务器</li>
+                    <li>• 建议使用稳定的 Wi-Fi 或有线网络</li>
+                    <li>• 确保浏览器允许麦克风访问权限</li>
+                  </ul>
+                </motion.div>
+              )} */}
             </motion.div>
           )}
 
@@ -479,6 +775,88 @@ export default function CallLucyPlus() {
                     </div>
                   )}
 
+                  {/* 麦克风状态指示器 */}
+                  {callState === 'connected' && (
+                    <div className="mb-6">
+                      <div className="flex items-center justify-center gap-3">
+                        <Mic className={`w-5 h-5 ${
+                          state.isMuted ? 'text-red-500' : 'text-green-500'
+                        }`} />
+                        <div className="flex flex-col items-center">
+                          <span className="text-xs text-gray-600 mb-1">
+                            {state.isMuted ? '麦克风已静音' : '麦克风音量'}
+                          </span>
+                          {!state.isMuted && (
+                            <div className="flex items-center gap-1">
+                              {/* 音量级别可视化 */}
+                              {[...Array(10)].map((_, i) => (
+                                <div
+                                  key={i}
+                                  className={`w-1 h-4 rounded-full ${
+                                    i < Math.floor(microphoneLevel * 10)
+                                      ? 'bg-green-500'
+                                      : 'bg-gray-200'
+                                  }`}
+                                />
+                              ))}
+                              <span className="text-xs text-gray-500 ml-2">
+                                {Math.round(microphoneLevel * 100)}%
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 网络状态显示 */}
+                  {callState === 'connected' && (
+                    <div className="mb-6">
+                      <div className="flex items-center justify-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <Signal className="w-4 h-4 text-blue-500" />
+                          <span className="text-xs text-gray-600">
+                            连接: {connectionState}
+                          </span>
+                        </div>
+                        {networkQuality && (
+                          <div className="flex items-center gap-2">
+                            <div className="flex flex-col items-center">
+                              <span className="text-xs text-gray-500">上行</span>
+                              <div className="flex gap-1">
+                                {[...Array(6)].map((_, i) => (
+                                  <div
+                                    key={i}
+                                    className={`w-1 h-3 rounded-sm ${
+                                      i < networkQuality.uplinkNetworkQuality
+                                        ? 'bg-green-500'
+                                        : 'bg-gray-200'
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                            <div className="flex flex-col items-center">
+                              <span className="text-xs text-gray-500">下行</span>
+                              <div className="flex gap-1">
+                                {[...Array(6)].map((_, i) => (
+                                  <div
+                                    key={i}
+                                    className={`w-1 h-3 rounded-sm ${
+                                      i < networkQuality.downlinkNetworkQuality
+                                        ? 'bg-blue-500'
+                                        : 'bg-gray-200'
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   {/* 控制按钮 */}
                   <div className="flex items-center justify-center space-x-4">
                     {/* 静音按钮 */}
@@ -587,18 +965,69 @@ export default function CallLucyPlus() {
 
                                                         {/* 字幕内容 */}
                    <div className="h-80">
-                                          {subtitleRtmClient && rtcClient && state.isJoined ? (
-                       <RealTimeSubtitle
-                         className="border-0 shadow-none rounded-none h-full"
-                         rtcEngine={rtcClient}
-                         rtmEngine={subtitleRtmClient}
-                         channelName={config.channel}
-                         maxMessages={20}
-                         showTimestamp={true}
-                         showUserControls={false}
-                         enableLog={true}
-                         onConnectionChange={handleConnectionChange}
-                       />
+                                          {isConversationalAPIInitialized ? (
+                       /* 自定义字幕显示组件 */
+                       <div className="h-full flex flex-col">
+                         {/* 字幕状态栏 */}
+                         <div className="flex items-center justify-between p-2 border-b bg-gray-50">
+                           <div className="flex items-center gap-2">
+                             <MessageSquare className="w-4 h-4 text-blue-600" />
+                             <span className="text-sm font-medium">实时字幕</span>
+                             <Badge variant="default" className="bg-green-500">
+                               已连接
+                             </Badge>
+                           </div>
+                           <span className="text-xs text-gray-500">
+                             共 {chatHistory.length} 条消息
+                           </span>
+                         </div>
+                         
+                         {/* 字幕内容区域 */}
+                         <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                           {chatHistory.length === 0 ? (
+                             <div className="flex items-center justify-center h-full text-gray-500">
+                               等待对话开始...
+                             </div>
+                           ) : (
+                             chatHistory.map((message, index) => (
+                               <div
+                                 key={`${message.uid}-${message.turn_id}-${index}`}
+                                 className={`flex flex-col space-y-1 ${
+                                   message.uid === 'agent' ? 'items-start' : 'items-end'
+                                 }`}
+                               >
+                                 {/* 消息气泡 */}
+                                 <div
+                                   className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
+                                     message.uid === 'agent'
+                                       ? 'bg-gray-100 text-gray-800'
+                                       : 'bg-blue-500 text-white'
+                                   }`}
+                                 >
+                                   <div className="flex items-center gap-2 mb-1">
+                                     <span className="text-xs font-medium">
+                                       {message.uid === 'agent' ? 'AI' : '用户'}
+                                     </span>
+                                   </div>
+                                   <p className="leading-relaxed">
+                                     {message.text || '...'}
+                                   </p>
+                                 </div>
+                                 
+                                 {/* 时间戳 */}
+                                 <span className="text-xs text-gray-400">
+                                   {new Date(message._time).toLocaleTimeString('zh-CN', {
+                                     hour12: false,
+                                     hour: '2-digit',
+                                     minute: '2-digit',
+                                     second: '2-digit'
+                                   })}
+                                 </span>
+                               </div>
+                             ))
+                           )}
+                         </div>
+                       </div>
                      ) : (
                        /* 字幕功能提示 */
                        <div className="flex flex-col items-center justify-center h-full text-center p-6">
@@ -611,11 +1040,19 @@ export default function CallLucyPlus() {
                            <p>• RTC 连接: {rtcClient ? '✓' : '×'}</p>
                            <p>• RTM 连接: {subtitleRtmClient ? '✓' : '×'}</p>
                            <p>• 频道状态: {state.isJoined ? '已加入' : '未加入'}</p>
+                           <p>• ConversationalAI: {isConversationalAPIInitialized ? '已初始化' : '未初始化'}</p>
                          </div>
                          {(!rtcClient || !subtitleRtmClient || !state.isJoined) && (
                            <div className="mt-4">
                              <p className="text-xs text-yellow-500">
                                等待通话连接建立完成...
+                             </p>
+                           </div>
+                         )}
+                         {(rtcClient && subtitleRtmClient && state.isJoined && !isConversationalAPIInitialized) && (
+                           <div className="mt-4">
+                             <p className="text-xs text-blue-500">
+                               正在初始化 ConversationalAI API...
                              </p>
                            </div>
                          )}
