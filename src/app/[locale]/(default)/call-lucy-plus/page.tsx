@@ -38,8 +38,9 @@ import {
   EModuleType
 } from '@/conversational-ai-api/type';
 
-import { EChatMessageType } from '@/conversational-ai-api/type'
+import { EChatMessageType, EChatMessagePriority } from '@/conversational-ai-api/type'
 import { genUUID } from '@/lib/utils';
+import { progressiveImageCompression, validateImageFile, formatFileSize } from '@/lib/image-utils';
 import imageCompression from 'browser-image-compression';
 
 export default function CallLucyPlus() {
@@ -562,114 +563,98 @@ export default function CallLucyPlus() {
     setIsUploadingImage(true);
     
     try {
-      // // 验证文件类型
-      // if (!file.type.startsWith('image/')) {
-      //   toast.error('请选择图片文件');
-      //   return;
-      // }
+      // 验证文件
+      const validation = validateImageFile(file);
+      if (!validation.valid) {
+        toast.error(validation.error || '图片文件验证失败');
+        return;
+      }
 
-      // let processedFile = file;
-      // const maxSize = 5 * 1024 * 1024; // 5MB
+      console.log(`原始文件: ${file.name}, 大小: ${formatFileSize(file.size)}`);
+
+      // 使用新的渐进式压缩
+      toast.loading('正在处理图片...', { id: 'send-image' });
       
-      // // 如果文件大于5MB，进行压缩
-      // if (file.size > maxSize) {
-      //   toast.loading('图片较大，正在压缩...', { id: 'send-image' });
-      //   console.log(`原始文件大小: ${(file.size / 1024 / 1024).toFixed(2)}MB，开始压缩...`);
-        
-      //            try {
-      //      // 压缩进度回调
-      //      const updateProgress = (progress: number) => {
-      //        const percentage = Math.round(progress * 100);
-      //        toast.loading(`压缩中... ${percentage}%`, { id: 'send-image' });
-      //      };
+             const compressionResult = await progressiveImageCompression(
+         file,
+         5, // 5MB 目标
+         (progress: number, stage: string) => {
+           const percentage = Math.round(progress);
+           toast.loading(`${stage}... ${percentage}%`, { id: 'send-image' });
+         }
+       );
 
-      //      // 使用 browser-image-compression 进行压缩
-      //      let compressedFile = await compressImage(file, 5, updateProgress);
-           
-      //      // 如果压缩后仍然过大，尝试更严格的压缩
-      //      if (compressedFile.size > maxSize) {
-      //        console.log('第一次压缩仍超过限制，尝试更严格的压缩...');
-      //        toast.loading('进一步压缩中...', { id: 'send-image' });
-      //        compressedFile = await compressImage(file, 3, updateProgress); // 降低到3MB目标
-      //      }
-           
-      //      // 如果还是过大，尝试最严格的压缩
-      //      if (compressedFile.size > maxSize) {
-      //        console.log('第二次压缩仍超过限制，尝试最严格的压缩...');
-      //        toast.loading('最大程度压缩中...', { id: 'send-image' });
-      //        compressedFile = await compressImage(file, 2, updateProgress); // 降低到2MB目标
-      //      }
-           
-      //      // 如果压缩后仍然过大，显示错误
-      //      if (compressedFile.size > maxSize) {
-      //        toast.error('图片过大，即使压缩后仍超过5MB限制，请尝试其他图片', { id: 'send-image' });
-      //        return;
-      //      }
-           
-      //      processedFile = compressedFile;
-           
-      //      // 显示压缩结果
-      //      const compressionRatio = ((file.size - compressedFile.size) / file.size * 100).toFixed(1);
-      //      console.log(`压缩比例: ${compressionRatio}%`);
-           
-      //      toast.loading(`压缩完成 (节省${compressionRatio}%)，正在发送图片...`, { id: 'send-image' });
-      //    } catch (compressionError) {
-      //      console.error('图片压缩失败:', compressionError);
-      //      toast.error(`图片压缩失败: ${compressionError instanceof Error ? compressionError.message : '请尝试选择较小的图片'}`, { id: 'send-image' });
-      //      return;
-      //    }
-      //        } else {
-      //    // 即使文件小于5MB，也可以适当压缩以提高传输速度和画质
-      //    if (file.size > 1024 * 1024) { // 如果大于1MB，进行轻量压缩
-      //      toast.loading('优化图片中...', { id: 'send-image' });
-      //      try {
-      //        const optimizedFile = await compressImage(file, 4, (progress) => {
-      //          const percentage = Math.round(progress * 100);
-      //          toast.loading(`优化中... ${percentage}%`, { id: 'send-image' });
-      //        });
-             
-      //        if (optimizedFile.size < file.size) {
-      //          processedFile = optimizedFile;
-      //          const reductionRatio = ((file.size - optimizedFile.size) / file.size * 100).toFixed(1);
-      //          console.log(`图片优化完成，减少了${reductionRatio}%的大小`);
-      //        }
-      //      } catch (error) {
-      //        console.warn('图片优化失败，使用原图片:', error);
-      //      }
-      //    }
-      //    toast.loading('正在发送图片...', { id: 'send-image' });
-      //  }
+      if (!compressionResult.success) {
+        toast.error(compressionResult.error || '图片处理失败，请重试');
+        return;
+      }
 
-      // // 将处理后的文件转换为 base64
-      // const base64 = await new Promise<string>((resolve, reject) => {
-      //   const reader = new FileReader();
-      //   reader.onload = () => {
-      //     const result = reader.result as string;
-      //     // 移除 data:image/jpeg;base64, 前缀
-      //     const base64Data = result.split(',')[1];
-      //     resolve(base64Data);
-      //   };
-      //   reader.onerror = reject;
-      //   reader.readAsDataURL(processedFile);
-      // });
+      const processedFile = compressionResult.file;
+      
+      // 显示压缩结果
+      if (compressionResult.compressionRatio > 0) {
+        console.log(`压缩完成: ${formatFileSize(compressionResult.originalSize)} → ${formatFileSize(compressionResult.compressedSize)} (节省 ${compressionResult.compressionRatio.toFixed(1)}%)`);
+        toast.loading(`压缩完成，节省${compressionResult.compressionRatio.toFixed(1)}%，正在上传...`, { id: 'send-image' });
+      } else {
+        toast.loading('正在上传图片...', { id: 'send-image' });
+      }
 
+
+      // 上传图片到存储服务
+      const formData = new FormData();
+      formData.append('file', processedFile);
+      formData.append('prefix', 'call-lucy');
+
+      const uploadResponse = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      console.log('上传响应状态:', uploadResponse.status, uploadResponse.statusText);
+
+      if (!uploadResponse.ok) {
+        const errorText = await uploadResponse.text();
+        console.error('上传失败响应:', errorText);
+        throw new Error(`上传失败 (${uploadResponse.status}): ${errorText}`);
+      }
+
+      const uploadResult = await uploadResponse.json();
+      console.log('上传结果:', uploadResult);
+      
+      if (!uploadResult.success) {
+        console.error('上传结果错误:', uploadResult);
+        throw new Error(uploadResult.message || '上传失败');
+      }
+
+      const imageUrl = uploadResult.data.url;
+      console.log('图片上传成功，URL:', imageUrl);
+
+      toast.loading('正在发送图片消息...', { id: 'send-image' });
+
+      // 发送图片消息到对话
       const uuid = genUUID();
-
-      // 发送图片消息 这里需要的是 agentUid 不是 agentId
-      console.log('agentUid =======>:', agentUid);
+      console.log('发送图片消息，agentUid:', agentUid);
       await conversationalAPIRef.current.chat(agentUid, {
         messageType: EChatMessageType.IMAGE,
         uuid: uuid,
-        // base64: base64,
-        url: "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/test04%20(1).png"
+        url: imageUrl
+      });
+      
+      // 发送分析请求
+      await conversationalAPIRef.current.chat(agentUid, {
+        messageType: EChatMessageType.TEXT,
+        priority: EChatMessagePriority.INTERRUPTED,
+        responseInterruptable: true,
+        text: "照片上传了，请帮我分析一下"
       });
 
       toast.success('图片发送成功', { id: 'send-image' });
-      //  console.log(`图片发送成功，UUID: ${uuid}，最终大小: ${(processedFile.size / 1024 / 1024).toFixed(2)}MB`);
+      console.log(`图片上传并发送成功，最终大小: ${(processedFile.size / 1024 / 1024).toFixed(2)}MB`);
 
     } catch (error) {
       console.error('图片上传失败:', error);
-      toast.error('图片发送失败，请重试', { id: 'send-image' });
+      const errorMessage = error instanceof Error ? error.message : '图片上传失败，请重试';
+      toast.error(errorMessage, { id: 'send-image' });
     } finally {
       setIsUploadingImage(false);
     }
@@ -1177,43 +1162,6 @@ export default function CallLucyPlus() {
                   </p>
                 </motion.div>
               )}
-
-                            {/* 麦克风测试按钮 */}
-              {/* {isConfigValid && (
-                <motion.div
-                  className="mt-8 flex justify-center"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1.8 }}
-                >
-                  <Button
-                    variant="outline"
-                    onClick={() => checkMicrophoneStatus(true)}
-                    className="flex items-center gap-2"
-                  >
-                    <Mic className="w-4 h-4" />
-                    测试麦克风
-                  </Button>
-                </motion.div>
-              )} */}
-
-              {/* 网络故障排除提示 */}
-              {/* {isConfigValid && (
-                <motion.div
-                  className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 2.0 }}
-                >
-                  <h4 className="text-sm font-medium text-blue-800 mb-2">连接问题故障排除</h4>
-                  <ul className="text-xs text-blue-700 space-y-1">
-                    <li>• 如遇连接超时，请检查防火墙设置</li>
-                    <li>• 企业网络可能需要配置代理服务器</li>
-                    <li>• 建议使用稳定的 Wi-Fi 或有线网络</li>
-                    <li>• 确保浏览器允许麦克风访问权限</li>
-                  </ul>
-                </motion.div>
-              )} */}
             </motion.div>
           )}
 
