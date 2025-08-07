@@ -562,96 +562,96 @@ export default function CallLucyPlus() {
     setIsUploadingImage(true);
     
     try {
-      // 验证文件类型
-      if (!file.type.startsWith('image/')) {
-        toast.error('请选择图片文件');
-        return;
-      }
+      // // 验证文件类型
+      // if (!file.type.startsWith('image/')) {
+      //   toast.error('请选择图片文件');
+      //   return;
+      // }
 
-      let processedFile = file;
-      const maxSize = 5 * 1024 * 1024; // 5MB
+      // let processedFile = file;
+      // const maxSize = 5 * 1024 * 1024; // 5MB
       
-      // 如果文件大于5MB，进行压缩
-      if (file.size > maxSize) {
-        toast.loading('图片较大，正在压缩...', { id: 'send-image' });
-        console.log(`原始文件大小: ${(file.size / 1024 / 1024).toFixed(2)}MB，开始压缩...`);
+      // // 如果文件大于5MB，进行压缩
+      // if (file.size > maxSize) {
+      //   toast.loading('图片较大，正在压缩...', { id: 'send-image' });
+      //   console.log(`原始文件大小: ${(file.size / 1024 / 1024).toFixed(2)}MB，开始压缩...`);
         
-                 try {
-           // 压缩进度回调
-           const updateProgress = (progress: number) => {
-             const percentage = Math.round(progress * 100);
-             toast.loading(`压缩中... ${percentage}%`, { id: 'send-image' });
-           };
+      //            try {
+      //      // 压缩进度回调
+      //      const updateProgress = (progress: number) => {
+      //        const percentage = Math.round(progress * 100);
+      //        toast.loading(`压缩中... ${percentage}%`, { id: 'send-image' });
+      //      };
 
-           // 使用 browser-image-compression 进行压缩
-           let compressedFile = await compressImage(file, 5, updateProgress);
+      //      // 使用 browser-image-compression 进行压缩
+      //      let compressedFile = await compressImage(file, 5, updateProgress);
            
-           // 如果压缩后仍然过大，尝试更严格的压缩
-           if (compressedFile.size > maxSize) {
-             console.log('第一次压缩仍超过限制，尝试更严格的压缩...');
-             toast.loading('进一步压缩中...', { id: 'send-image' });
-             compressedFile = await compressImage(file, 3, updateProgress); // 降低到3MB目标
-           }
+      //      // 如果压缩后仍然过大，尝试更严格的压缩
+      //      if (compressedFile.size > maxSize) {
+      //        console.log('第一次压缩仍超过限制，尝试更严格的压缩...');
+      //        toast.loading('进一步压缩中...', { id: 'send-image' });
+      //        compressedFile = await compressImage(file, 3, updateProgress); // 降低到3MB目标
+      //      }
            
-           // 如果还是过大，尝试最严格的压缩
-           if (compressedFile.size > maxSize) {
-             console.log('第二次压缩仍超过限制，尝试最严格的压缩...');
-             toast.loading('最大程度压缩中...', { id: 'send-image' });
-             compressedFile = await compressImage(file, 2, updateProgress); // 降低到2MB目标
-           }
+      //      // 如果还是过大，尝试最严格的压缩
+      //      if (compressedFile.size > maxSize) {
+      //        console.log('第二次压缩仍超过限制，尝试最严格的压缩...');
+      //        toast.loading('最大程度压缩中...', { id: 'send-image' });
+      //        compressedFile = await compressImage(file, 2, updateProgress); // 降低到2MB目标
+      //      }
            
-           // 如果压缩后仍然过大，显示错误
-           if (compressedFile.size > maxSize) {
-             toast.error('图片过大，即使压缩后仍超过5MB限制，请尝试其他图片', { id: 'send-image' });
-             return;
-           }
+      //      // 如果压缩后仍然过大，显示错误
+      //      if (compressedFile.size > maxSize) {
+      //        toast.error('图片过大，即使压缩后仍超过5MB限制，请尝试其他图片', { id: 'send-image' });
+      //        return;
+      //      }
            
-           processedFile = compressedFile;
+      //      processedFile = compressedFile;
            
-           // 显示压缩结果
-           const compressionRatio = ((file.size - compressedFile.size) / file.size * 100).toFixed(1);
-           console.log(`压缩比例: ${compressionRatio}%`);
+      //      // 显示压缩结果
+      //      const compressionRatio = ((file.size - compressedFile.size) / file.size * 100).toFixed(1);
+      //      console.log(`压缩比例: ${compressionRatio}%`);
            
-           toast.loading(`压缩完成 (节省${compressionRatio}%)，正在发送图片...`, { id: 'send-image' });
-         } catch (compressionError) {
-           console.error('图片压缩失败:', compressionError);
-           toast.error(`图片压缩失败: ${compressionError instanceof Error ? compressionError.message : '请尝试选择较小的图片'}`, { id: 'send-image' });
-           return;
-         }
-             } else {
-         // 即使文件小于5MB，也可以适当压缩以提高传输速度和画质
-         if (file.size > 1024 * 1024) { // 如果大于1MB，进行轻量压缩
-           toast.loading('优化图片中...', { id: 'send-image' });
-           try {
-             const optimizedFile = await compressImage(file, 4, (progress) => {
-               const percentage = Math.round(progress * 100);
-               toast.loading(`优化中... ${percentage}%`, { id: 'send-image' });
-             });
+      //      toast.loading(`压缩完成 (节省${compressionRatio}%)，正在发送图片...`, { id: 'send-image' });
+      //    } catch (compressionError) {
+      //      console.error('图片压缩失败:', compressionError);
+      //      toast.error(`图片压缩失败: ${compressionError instanceof Error ? compressionError.message : '请尝试选择较小的图片'}`, { id: 'send-image' });
+      //      return;
+      //    }
+      //        } else {
+      //    // 即使文件小于5MB，也可以适当压缩以提高传输速度和画质
+      //    if (file.size > 1024 * 1024) { // 如果大于1MB，进行轻量压缩
+      //      toast.loading('优化图片中...', { id: 'send-image' });
+      //      try {
+      //        const optimizedFile = await compressImage(file, 4, (progress) => {
+      //          const percentage = Math.round(progress * 100);
+      //          toast.loading(`优化中... ${percentage}%`, { id: 'send-image' });
+      //        });
              
-             if (optimizedFile.size < file.size) {
-               processedFile = optimizedFile;
-               const reductionRatio = ((file.size - optimizedFile.size) / file.size * 100).toFixed(1);
-               console.log(`图片优化完成，减少了${reductionRatio}%的大小`);
-             }
-           } catch (error) {
-             console.warn('图片优化失败，使用原图片:', error);
-           }
-         }
-         toast.loading('正在发送图片...', { id: 'send-image' });
-       }
+      //        if (optimizedFile.size < file.size) {
+      //          processedFile = optimizedFile;
+      //          const reductionRatio = ((file.size - optimizedFile.size) / file.size * 100).toFixed(1);
+      //          console.log(`图片优化完成，减少了${reductionRatio}%的大小`);
+      //        }
+      //      } catch (error) {
+      //        console.warn('图片优化失败，使用原图片:', error);
+      //      }
+      //    }
+      //    toast.loading('正在发送图片...', { id: 'send-image' });
+      //  }
 
-      // 将处理后的文件转换为 base64
-      const base64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const result = reader.result as string;
-          // 移除 data:image/jpeg;base64, 前缀
-          const base64Data = result.split(',')[1];
-          resolve(base64Data);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(processedFile);
-      });
+      // // 将处理后的文件转换为 base64
+      // const base64 = await new Promise<string>((resolve, reject) => {
+      //   const reader = new FileReader();
+      //   reader.onload = () => {
+      //     const result = reader.result as string;
+      //     // 移除 data:image/jpeg;base64, 前缀
+      //     const base64Data = result.split(',')[1];
+      //     resolve(base64Data);
+      //   };
+      //   reader.onerror = reject;
+      //   reader.readAsDataURL(processedFile);
+      // });
 
       const uuid = genUUID();
 
@@ -660,11 +660,12 @@ export default function CallLucyPlus() {
       await conversationalAPIRef.current.chat(agentUid, {
         messageType: EChatMessageType.IMAGE,
         uuid: uuid,
-        url: "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2F3c648d61-f4d9-4954-abd3-6f10e033aabe%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1757089233&t=21f735709324a093faff0f3fc78e6492"
+        // base64: base64,
+        url: "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/test04%20(1).png"
       });
 
       toast.success('图片发送成功', { id: 'send-image' });
-       console.log(`图片发送成功，UUID: ${uuid}，最终大小: ${(processedFile.size / 1024 / 1024).toFixed(2)}MB`);
+      //  console.log(`图片发送成功，UUID: ${uuid}，最终大小: ${(processedFile.size / 1024 / 1024).toFixed(2)}MB`);
 
     } catch (error) {
       console.error('图片上传失败:', error);
@@ -794,7 +795,7 @@ export default function CallLucyPlus() {
          * 
          * 不指定则自动根据消息判断模式，或手动指定模式
          */
-        renderMode: ESubtitleHelperMode.WORD,
+        // renderMode: ESubtitleHelperMode.WORD,
         enableLog: true
       });
 
@@ -840,9 +841,22 @@ export default function CallLucyPlus() {
               console.error(`Failed to handle image error for agent ${agentUserId}:`, e);
           }
         }
-       })
-      
+      })
 
+      // 监听智能体状态变化
+      api.on(EConversationalAIAPIEvents.AGENT_STATE_CHANGED, (agentId, state) => {
+        console.log('智能体状态变化:', agentId, state);
+      })
+      // 监听智能体性能指标
+      api.on(EConversationalAIAPIEvents.AGENT_METRICS, (agentId, metrics) => {
+        console.log('智能体性能指标:', agentId, metrics);
+      })
+      // 监听智能体错误事件
+      api.on(EConversationalAIAPIEvents.AGENT_ERROR, (agentId, error) => {
+        console.error(`智能体错误: ${agentId}`, error);
+      })
+
+    
       // 订阅频道消息
       api.subscribeMessage(config.channel);
       
