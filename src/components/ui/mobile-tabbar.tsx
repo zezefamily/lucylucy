@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { Camera, MessageCircle } from "lucide-react";
+import { Camera, MessageCircle, Phone, PhoneCall } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -45,6 +45,13 @@ export default function MobileTabBar() {
       label: t('conversation_starter'),
       // 精确匹配conversation-starter路径
       isActive: pathWithoutLocale === '/conversation-starter' || pathWithoutLocale.startsWith('/conversation-starter/')
+    },
+    {
+      id: 'call_lucy_plus',
+      href: '/call-lucy-plus',
+      icon: PhoneCall,
+      label: t('call_lucy'),
+      isActive: pathWithoutLocale === '/call-lucy-plus' || pathWithoutLocale.startsWith('/call-lucy-plus/')
     }
   ];
 

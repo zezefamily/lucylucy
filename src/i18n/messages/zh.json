@@ -334,7 +334,9 @@
   },
   "tabbar": {
     "photo_analyzer": "照片分析",
-    "conversation_starter": "聊天开场白"
+    "conversation_starter": "聊天开场白",
+    "call_lucy_plus": "通话 Lucy+",
+    "call_lucy": "通话 Lucy"
   },
   "common": {
     "loading": "加载中...",

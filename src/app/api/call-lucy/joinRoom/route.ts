@@ -65,6 +65,14 @@ interface AgoraAIAgentRequest {
         audio_setting: {
           sample_rate: number;
         };
+        token: string;
+        app_id: string;
+        cluster: string;
+        voice_type: string;
+        speed_ratio: number;
+        volume_ratio: number;
+        pitch_ratio: number;
+        emotion: string;
       };
     };
   };
@@ -179,7 +187,7 @@ export async function POST(request: NextRequest) {
           ],
           params: {
             model: "gpt-4o-mini",
-            max_token: 2048
+            max_token: 1024
           },
           greeting_message: "Hi,我是Lucy,您的专属恋爱教练,有什么可以帮您？",
           failure_message: "我出错了，请稍等！"
@@ -189,7 +197,7 @@ export async function POST(request: NextRequest) {
           language: "zh-CN"
         },
         tts: {
-          vendor: "minimax",
+          vendor: "bytedance",
           params: {
             group_id: config.minimaxGroupId,
             key: config.minimaxKey,
@@ -202,11 +210,20 @@ export async function POST(request: NextRequest) {
             },
             audio_setting: {
               sample_rate: 32000
-            }
+            },
+            token: "3DKzkGzbao4onv9dsBamfvusei9oGQYT",
+            app_id: "8944225950",
+            cluster: "volcano_tts",
+            voice_type: "BV700_streaming",
+            speed_ratio: 1,
+            volume_ratio: 1,
+            pitch_ratio: 1,
+            emotion: ""
           }
         }
       }
     };
+
 
     // 调用声网对话式 AI 代理 API
     const agoraApiUrl = `https://api.agora.io/cn/api/conversational-ai-agent/v2/projects/${config.projectId}/join/`;

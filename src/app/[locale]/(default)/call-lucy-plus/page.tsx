@@ -77,6 +77,7 @@ export default function CallLucyPlus() {
   >([]);
   const [isConversationalAPIInitialized, setIsConversationalAPIInitialized] = useState(false);
   const conversationalAPIRef = useRef<ConversationalAIAPI | null>(null);
+  const chatScrollRef = useRef<HTMLDivElement>(null);
   
   // 麦克风状态监控
   const [microphoneLevel, setMicrophoneLevel] = useState(0);
@@ -93,6 +94,10 @@ export default function CallLucyPlus() {
   
   useEffect(() => {
     chatHistoryLatest.current = chatHistory;
+    // 自动滚动到最新消息
+    if (chatScrollRef.current) {
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+    }
   }, [chatHistory]);
   
   // 网络状态监控
@@ -292,7 +297,7 @@ export default function CallLucyPlus() {
           try {
             const subtitleRtm = new AgoraRTM.RTM(config.appId, `${config.uid}`);
             // if (config.token) {
-              await subtitleRtm.login({ token: "007eJxTYMi0aHlRMUFhqtHZ9VYpl/TfrK63+aR/+L6G1+zpF47wa9cqMBimGiYaWCSbm5oZWpqYmRkkWaQlmZmkGiQlWpgmJyaa6hpPzmgIZGQo6fzIysjAxMAIhCA+G4OhkbGJqRkAYOEfSA==" });
+              await subtitleRtm.login({ token: "007eJxTYPhwLpP9+Yb025U6S1ojiwKWFk7xiz0fMt1hzby/yyKeC/EpMBimGiYaWCSbm5oZWpqYmRkkWaQlmZmkGiQlWpgmJyaadkZMzWgIZGTIv3SdlZGBiYERCEF8NgZDI2MTUzMApYIgZQ==" });
               await subtitleRtm.subscribe(config.channel);
               setSubtitleRtmClient(subtitleRtm);
               console.log('字幕 RTM 客户端初始化成功');
@@ -621,7 +626,7 @@ export default function CallLucyPlus() {
       const uploadResult = await uploadResponse.json();
       console.log('上传结果:', uploadResult);
       
-      if (!uploadResult.success) {
+      if (uploadResult.message !== 'ok') {
         console.error('上传结果错误:', uploadResult);
         throw new Error(uploadResult.message || '上传失败');
       }
@@ -632,21 +637,22 @@ export default function CallLucyPlus() {
       toast.loading('正在发送图片消息...', { id: 'send-image' });
 
       // 发送图片消息到对话
-      const uuid = genUUID();
       console.log('发送图片消息，agentUid:', agentUid);
-      await conversationalAPIRef.current.chat(agentUid, {
+      await ConversationalAIAPI.getInstance().chat(agentUid, {
         messageType: EChatMessageType.IMAGE,
-        uuid: uuid,
-        url: imageUrl
+        url: imageUrl,
+        uuid: genUUID(),
+
       });
-      
-      // 发送分析请求
-      await conversationalAPIRef.current.chat(agentUid, {
-        messageType: EChatMessageType.TEXT,
-        priority: EChatMessagePriority.INTERRUPTED,
-        responseInterruptable: true,
-        text: "照片上传了，请帮我分析一下"
-      });
+
+      // 发送分析请求 延迟2秒执行
+      // await new Promise(resolve => setTimeout(resolve, 2000));
+      // await conversationalAPIRef.current.chat(agentUid, {
+      //   messageType: EChatMessageType.TEXT,
+      //   priority: EChatMessagePriority.INTERRUPTED,
+      //   responseInterruptable: true,
+      //   text: "照片上传了，请帮我分析一下"
+      // });
 
       toast.success('图片发送成功', { id: 'send-image' });
       console.log(`图片上传并发送成功，最终大小: ${(processedFile.size / 1024 / 1024).toFixed(2)}MB`);
@@ -674,12 +680,50 @@ export default function CallLucyPlus() {
 
   // 触发文件选择
   const triggerImageUpload = useCallback(() => {
-    if (!conversationalAPIRef.current || !agentId) {
-      toast.error('请先连接到 Lucy1111111');
+    console.log('=== triggerImageUpload 状态检查 ===');
+    console.log('conversationalAPIRef.current:', !!conversationalAPIRef.current);
+    console.log('agentId:', agentId);
+    console.log('agentUid:', agentUid);
+    console.log('callState:', callState);
+    console.log('isConversationalAPIInitialized:', isConversationalAPIInitialized);
+    console.log('rtcClient:', !!rtcClient);
+    console.log('subtitleRtmClient:', !!subtitleRtmClient);
+    console.log('state.isJoined:', state.isJoined);
+    
+    // 检查通话状态
+    if (callState !== 'connected') {
+      toast.error('请先连接到 Lucy');
       return;
     }
+    
+    // 检查Agent ID
+    if (!agentId) {
+      toast.error('Agent ID 不可用，请重新连接');
+      return;
+    }
+    
+    // 检查Agent UID
+    if (!agentUid) {
+      toast.error('Agent UID 不可用，请重新连接');
+      return;
+    }
+    
+    // 检查ConversationalAI API是否已初始化
+    if (!isConversationalAPIInitialized) {
+      toast.error('语音对话系统正在初始化中，请稍后再试');
+      return;
+    }
+    
+    // 检查ConversationalAI API实例
+    if (!conversationalAPIRef.current) {
+      toast.error('语音对话系统未就绪，请重新连接');
+      console.error('ConversationalAI API 实例为空，但状态显示已初始化');
+      return;
+    }
+    
+    console.log('✅ 所有检查通过，触发文件选择');
     fileInputRef.current?.click();
-  }, [agentId, agentUid]);
+  }, [agentId, agentUid, callState, isConversationalAPIInitialized, rtcClient, subtitleRtmClient, state.isJoined]);
 
   // 检查是否为图片消息的辅助函数
   const isImageMessage = useCallback((message: ISubtitleHelperItem<Partial<IUserTranscription | IAgentTranscription>>) => {
@@ -762,12 +806,21 @@ export default function CallLucyPlus() {
 
   // 初始化 ConversationalAIAPI
   const initializeConversationalAPI = useCallback(async () => {
+    console.log('=== ConversationalAI API 初始化检查 ===');
+    console.log('rtcClient:', !!rtcClient);
+    console.log('subtitleRtmClient:', !!subtitleRtmClient);
+    console.log('conversationalAPIRef.current:', !!conversationalAPIRef.current);
+    console.log('callState:', callState);
+    console.log('state.isJoined:', state.isJoined);
+    console.log('isConversationalAPIInitialized:', isConversationalAPIInitialized);
+    
     if (!rtcClient || !subtitleRtmClient || conversationalAPIRef.current) {
+      console.log('❌ 初始化条件不满足或已经初始化');
       return;
     }
 
     try {
-      console.log('开始初始化 ConversationalAIAPI...');
+      console.log('🚀 开始初始化 ConversationalAIAPI...');
       
       // 初始化组件
       const api = ConversationalAIAPI.init({
@@ -785,6 +838,7 @@ export default function CallLucyPlus() {
       });
 
       conversationalAPIRef.current = api;
+      console.log('✅ ConversationalAI API 实例创建成功');
 
       // 注册字幕回调
       // 监听转录内容更新，用于实时显示字幕转录内容
@@ -792,6 +846,7 @@ export default function CallLucyPlus() {
         console.log('字幕更新:', transcriptions);
         setChatHistory(transcriptions);
       });
+      
       // 监听消息回执更新
       api.on(EConversationalAIAPIEvents.MESSAGE_RECEIPT_UPDATED, (agentUserId: string,  messageReceipt: TMessageReceipt) => {
         // 第一步：检查消息类型是否为 Context
@@ -844,14 +899,19 @@ export default function CallLucyPlus() {
     
       // 订阅频道消息
       api.subscribeMessage(config.channel);
+      console.log('✅ 频道消息订阅成功:', config.channel);
       
       setIsConversationalAPIInitialized(true);
-      console.log('ConversationalAIAPI 初始化成功');
+      console.log('🎉 ConversationalAIAPI 初始化完成');
       
     } catch (error) {
-      console.error('ConversationalAIAPI 初始化失败:', error);
+      console.error('❌ ConversationalAIAPI 初始化失败:', error);
+      // 初始化失败时清理可能的部分状态
+      conversationalAPIRef.current = null;
+      setIsConversationalAPIInitialized(false);
+      toast.error('语音对话系统初始化失败，请重新连接');
     }
-  }, [rtcClient, subtitleRtmClient, config.channel]);
+  }, [rtcClient, subtitleRtmClient, config.channel, callState]);
 
     // 清理 ConversationalAIAPI
   const cleanupConversationalAPI = useCallback(() => {
@@ -879,10 +939,25 @@ export default function CallLucyPlus() {
 
   // 初始化 ConversationalAIAPI 当 RTC 和 RTM 都准备好时
   useEffect(() => {
+    console.log('=== ConversationalAI API 初始化 useEffect 触发 ===');
+    console.log('rtcClient:', !!rtcClient);
+    console.log('subtitleRtmClient:', !!subtitleRtmClient);
+    console.log('state.isJoined:', state.isJoined);
+    console.log('callState:', callState);
+    console.log('isConversationalAPIInitialized:', isConversationalAPIInitialized);
+    console.log('agentId:', agentId);
+    console.log('agentUid:', agentUid);
+    
     if (rtcClient && subtitleRtmClient && state.isJoined && callState === 'connected' && !isConversationalAPIInitialized) {
-      initializeConversationalAPI();
+      console.log('🎯 所有条件满足，开始初始化 ConversationalAI API');
+      // 添加短暂延迟确保所有状态都已稳定
+      setTimeout(() => {
+        initializeConversationalAPI();
+      }, 500);
+    } else {
+      console.log('⏳ 初始化条件未满足，等待状态变化');
     }
-  }, [rtcClient, subtitleRtmClient, state.isJoined, callState, isConversationalAPIInitialized, initializeConversationalAPI]);
+  }, [rtcClient, subtitleRtmClient, state.isJoined, callState, isConversationalAPIInitialized, initializeConversationalAPI, agentId, agentUid]);
 
   // 清理 ConversationalAIAPI 当通话结束时
   useEffect(() => {
@@ -1244,7 +1319,7 @@ export default function CallLucyPlus() {
                             fontFamily: 'var(--font-serif)'
                           }}
                         >
-                          L
+                          Lucy
                         </span>
                         
                         {/* 状态指示器 */}
@@ -1456,7 +1531,7 @@ export default function CallLucyPlus() {
                     )}
 
                     {/* AI 降噪按钮 */}
-                    {callState === 'connected' && (
+                    {/* {callState === 'connected' && (
                       <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                         <Button
                           onClick={toggleAIDenoise}
@@ -1475,26 +1550,36 @@ export default function CallLucyPlus() {
                           <Waves className="w-6 h-6" />
                         </Button>
                       </motion.div>
-                    )}
+                    )} */}
 
                     {/* 图片上传按钮 */}
                     {callState === 'connected' && (
                       <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                         <Button
                           onClick={triggerImageUpload}
-                          disabled={isUploadingImage}
+                          disabled={isUploadingImage || !isConversationalAPIInitialized || !agentId || !agentUid}
                           variant="outline"
                           size="lg"
                           className="rounded-full p-4"
                           style={{
-                            background: isUploadingImage 
-                              ? 'linear-gradient(135deg, #9174FF, #FDB7FD)' 
-                              : 'linear-gradient(135deg, #CCFF00, #9174FF)',
-                            borderColor: '#9174FF',
-                            color: 'white',
+                            background: (!isConversationalAPIInitialized || !agentId || !agentUid)
+                              ? 'linear-gradient(135deg, #e5e7eb, #f3f4f6)'
+                              : isUploadingImage 
+                              ? 'linear-gradient(135deg, #ff6b6b, #ff8e8e)' 
+                              : 'linear-gradient(135deg, #9174FF, #b69aff)',
+                            borderColor: (!isConversationalAPIInitialized || !agentId || !agentUid) ? '#e5e7eb' : '#9174FF',
+                            color: (!isConversationalAPIInitialized || !agentId || !agentUid) ? '#6b7280' : 'white',
                             opacity: isUploadingImage ? 0.7 : 1
                           }}
-                          title={isUploadingImage ? "正在处理图片..." : "发送图片 (支持自动压缩)"}
+                          title={
+                            !isConversationalAPIInitialized 
+                              ? "语音对话系统初始化中..." 
+                              : !agentId || !agentUid
+                              ? "等待 Agent 连接..."
+                              : isUploadingImage 
+                              ? "正在处理图片..." 
+                              : "发送图片 (支持自动压缩)"
+                          }
                         >
                           {isUploadingImage ? (
                             <motion.div
@@ -1560,7 +1645,7 @@ export default function CallLucyPlus() {
                     </Button>
                   </div>
 
-                                                        {/* 字幕内容 */}
+                  {/* 字幕内容 */}
                    <div className="h-80">
                                           {isConversationalAPIInitialized ? (
                        /* 自定义字幕显示组件 */
@@ -1580,7 +1665,7 @@ export default function CallLucyPlus() {
                          </div>
                          
                          {/* 字幕内容区域 */}
-                         <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                         <div className="flex-1 overflow-y-auto p-4 space-y-3" ref={chatScrollRef}>
                            {chatHistory.length === 0 ? (
                              <div className="flex items-center justify-center h-full text-gray-500">
                                等待对话开始...
@@ -1595,9 +1680,9 @@ export default function CallLucyPlus() {
                                >
                                  {/* 消息气泡 */}
                                  <div
-                                   className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
+                                   className={`max-w-[80%] rounded-lg px-3 py-2 text-sm shadow-sm ${
                                      message.uid === 'agent'
-                                       ? 'bg-gray-100 text-gray-800'
+                                       ? 'bg-white border text-gray-800'
                                        : 'bg-blue-500 text-white'
                                    }`}
                                  >
@@ -1649,6 +1734,12 @@ export default function CallLucyPlus() {
                                </div>
                              ))
                            )}
+                           {/* 滚动锚点 */}
+                           <div ref={(el) => {
+                             if (el && chatHistory.length > 0) {
+                               el.scrollIntoView({ behavior: 'smooth' });
+                             }
+                           }} />
                          </div>
                        </div>
                      ) : (

@@ -334,7 +334,9 @@
   },
   "tabbar": {
     "photo_analyzer": "Analizador de fotos",
-    "conversation_starter": "Iniciador de conversación"
+    "conversation_starter": "Iniciador de conversación",
+    "call_lucy_plus": "Llamar Lucy+",
+    "call_lucy": "Llamar Lucy"
   },
   "common": {
     "loading": "Cargando...",

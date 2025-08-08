@@ -203,19 +203,19 @@ export function RealTimeSubtitle({
               {/* 消息气泡 */}
               <div
                 className={cn(
-                  'max-w-[80%] rounded-lg px-3 py-2 text-sm',
+                  'max-w-[80%] rounded-lg px-3 py-2 text-sm shadow-sm',
                   message.type === 'user' 
                     ? 'bg-blue-500 text-white' 
-                    : 'bg-muted text-foreground',
+                    : 'bg-white border text-gray-800',
                   !message.isComplete && 'opacity-70 animate-pulse'
                 )}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 mb-1">
                   <Badge 
                     variant="secondary" 
                     className={cn(
                       'text-xs',
-                      message.type === 'user' ? 'bg-blue-600' : 'bg-background'
+                      message.type === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'
                     )}
                   >
                     {message.type === 'user' ? '用户' : 'AI'}
@@ -224,7 +224,7 @@ export function RealTimeSubtitle({
                     <span className="text-xs opacity-75">正在输入...</span>
                   )}
                 </div>
-                <p className="mt-1 leading-relaxed">{message.text}</p>
+                <p className="leading-relaxed">{message.text}</p>
               </div>
 
               {/* 时间戳 */}

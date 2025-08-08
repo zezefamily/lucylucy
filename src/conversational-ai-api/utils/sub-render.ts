@@ -617,16 +617,24 @@ export class CovSubRenderController {
       const messageStr = (message?.message as string) || ''
       const messageObj = JSON.parse(messageStr)
       const moduleType = message?.module as EModuleType
-      const turnId = message?.turn_id as number
+      const turnId = 2
+      // message?.turn_id as number
+      console.log('gyz= messageObj', messageObj)
+      console.log('gyz= message', message)
+      console.log('gyz= messageStr', messageStr)
+      console.log('gyz= moduleType', moduleType)
+      console.log('gyz= turnId', turnId)
       if (!messageStr || !messageObj || !moduleType || !turnId) {
+        console.log('gyz= messageStr1111111', messageStr)
         this.callMessagePrint(
           ELoggerType.error,
           'handleMessageInfo',
-          'Invalid message object',
+          'Invalid message object~~~~~~~',
           message
         )
         return
       }
+      console.log('gyz= messageObj.resource_type', messageObj.resource_type)
       const messageType =
         message?.resource_type === 'picture'
           ? EChatMessageType.IMAGE
