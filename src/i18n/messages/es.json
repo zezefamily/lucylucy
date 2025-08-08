@@ -43,6 +43,12 @@
     "personal_center": "Centro personal",
     "unlimited": "Ilimitado"
   },
+  "contact_modal": {
+    "title": "Contáctanos",
+    "description": "¡Nos encantaría saber de ti! Por favor contáctanos a través del correo oficial abajo:",
+    "official_email": "Correo Oficial: support@lucyai.app",
+    "close": "Cerrar"
+  },
   "profile_analyzer": {
     "page_title": "La Coach de Citas que Realmente Entiende a las Mujeres, perfecciona tu perfil de citas",
     "page_description": "La mejor coach de citas con IA, respaldada por expertos en citas: mejora tu perfil de citas con análisis profesional de fotos, abridores de alta respuesta y estrategias comprobadas para aumentar matches y atraer las conexiones correctas.",

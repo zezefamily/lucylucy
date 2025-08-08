@@ -336,6 +336,12 @@
     "photo_analyzer": "Photo Analyzer",
     "conversation_starter": "Conversation Starter"
   },
+  "contact_modal": {
+    "title": "Contact Us",
+    "description": "We'd love to hear from you! Please contact us via the official email below:",
+    "official_email": "Official Email: support@lucyai.app",
+    "close": "Close"
+  },
   "common": {
     "loading": "Loading...",
     "cancel": "Cancel",

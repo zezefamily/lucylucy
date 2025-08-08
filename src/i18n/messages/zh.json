@@ -336,6 +336,12 @@
     "photo_analyzer": "照片分析",
     "conversation_starter": "聊天开场白"
   },
+  "contact_modal": {
+    "title": "联系我们",
+    "description": "我们很乐意听到您的声音！请通过以下官方邮箱联系我们：",
+    "official_email": "官方邮箱：support@lucyai.app",
+    "close": "关闭"
+  },
   "common": {
     "loading": "加载中...",
     "cancel": "取消",
