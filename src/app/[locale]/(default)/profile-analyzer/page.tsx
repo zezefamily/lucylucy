@@ -6,6 +6,7 @@ import ProfileAnalyzer from "@/components/blocks/profile-analyzer";
 import { ModernFAQ } from "@/components/blocks/faq";
 import { Testimonial as TestimonialType, TestimonialItem } from "@/types/blocks/testimonial";
 import LucyFeature from "@/components/blocks/lucy-feature";
+import LucyFAQ from "@/components/blocks/lucy-faq";
 import { Section } from "@/types/blocks/section";
 
 type Props = {
@@ -401,6 +402,13 @@ export default async function ProfileAnalyzerPage({ params }: Props) {
           </div>
         </div>
       </div>
+
+      {/* 新增的Lucy风格FAQ模块 */}
+      <LucyFAQ 
+        title={homepageT("faq.title")}
+        subtitle={homepageT("faq.subtitle")}
+        items={faqData}
+      />
 
       {/* Feature */}
       <LucyFeature section={lucyFeatures} />

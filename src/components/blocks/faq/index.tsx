@@ -12,11 +12,46 @@ interface FAQItem {
 interface ModernFAQProps {
   title?: string;
   subtitle?: string;
-  items: FAQItem[];
+  items?: FAQItem[];
 }
 
-export function ModernFAQ({ title = "FAQ", subtitle = "Frequently Asked Questions", items }: ModernFAQProps) {
+export function ModernFAQ({ 
+  title = "常见问题", 
+  subtitle = "关于 Lucy AI 的一切你想知道的", 
+  items 
+}: ModernFAQProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  // 默认FAQ数据
+  const defaultFAQData: FAQItem[] = [
+    {
+      question: "Lucy AI 是如何工作的？",
+      answer: "Lucy AI 使用先进的人工智能技术分析你的约会档案，提供个性化的建议和优化方案。通过深度学习算法，Lucy 能够理解什么样的档案更容易获得匹配，并帮助你提升约会成功率。"
+    },
+    {
+      question: "我的个人信息安全吗？",
+      answer: "我们非常重视用户隐私和数据安全。所有上传的信息都经过加密处理，仅用于分析目的，不会与第三方分享。你可以随时删除你的数据。"
+    },
+    {
+      question: "Lucy AI 支持哪些约会平台？",
+      answer: "Lucy AI 支持主流的约会平台，包括 Tinder、Bumble、Hinge、Match 等。我们会根据不同平台的特点提供定制化的建议。"
+    },
+    {
+      question: "使用 Lucy AI 需要付费吗？",
+      answer: "我们提供免费的基础分析功能，让你体验 Lucy AI 的能力。高级功能和深度分析需要订阅我们的付费计划，价格非常合理。"
+    },
+    {
+      question: "多久能看到效果？",
+      answer: "大多数用户在按照 Lucy AI 的建议优化档案后，在 1-2 周内就能看到匹配数量的显著提升。持续使用我们的建议，效果会更加明显。"
+    },
+    {
+      question: "如果我不满意结果怎么办？",
+      answer: "我们对 Lucy AI 的效果充满信心。如果你在使用付费功能后不满意，我们提供 30 天退款保证。你的满意是我们最大的目标。"
+    }
+  ];
+
+  // 使用传入的items或默认数据
+  const faqItems = items || defaultFAQData;
 
   return (
     <section className="py-16 relative">
@@ -43,7 +78,7 @@ export function ModernFAQ({ title = "FAQ", subtitle = "Frequently Asked Question
 
           {/* FAQ 列表 */}
           <div className="space-y-4">
-            {items.map((item, index) => (
+            {faqItems.map((item, index) => (
               <div key={index} className="card-glass rounded-xl md:rounded-2xl overflow-hidden hover-lift group">
                 <button
                   className="w-full p-6 md:p-8 text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-300"
