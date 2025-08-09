@@ -148,7 +148,7 @@ export default function LucyHero() {
                     className="text-4xl"
                     style={{ color: '#C8FB75', fontWeight: '900' }}
                   >
-                    <AnimatedNumber targetValue={300} />%
+                    <AnimatedNumber targetValue={277} />%
                   </span>
                 </div>
                 <div 
@@ -159,7 +159,7 @@ export default function LucyHero() {
                     className="text-4xl"
                     style={{ color: '#C8FB75', fontWeight: '900' }}
                   >
-                    <AnimatedNumber targetValue={500} />%
+                    <AnimatedNumber targetValue={482} />%
                   </span>
                 </div>
               </motion.div>
