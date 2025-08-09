@@ -297,7 +297,7 @@ export default function CallLucyPlus() {
           try {
             const subtitleRtm = new AgoraRTM.RTM(config.appId, `${config.uid}`);
             // if (config.token) {
-              await subtitleRtm.login({ token: "007eJxTYPhwLpP9+Yb025U6S1ojiwKWFk7xiz0fMt1hzby/yyKeC/EpMBimGiYaWCSbm5oZWpqYmRkkWaQlmZmkGiQlWpgmJyaadkZMzWgIZGTIv3SdlZGBiYERCEF8NgZDI2MTUzMApYIgZQ==" });
+              await subtitleRtm.login({ token: "007eJxTYNDqU90QeWsqG1vqthlKrHlCE1azrvrdXfLF462bsvCm7CoFBsNUw0QDi2RzUzNDSxMzM4Mki7QkM5NUg6REC9PkxETTINfpGQ2BjAwlrv3MjAxMDIxACOKzMRgaGZuYmgEAlaEcmw==" });
               await subtitleRtm.subscribe(config.channel);
               setSubtitleRtmClient(subtitleRtm);
               console.log('字幕 RTM 客户端初始化成功');
