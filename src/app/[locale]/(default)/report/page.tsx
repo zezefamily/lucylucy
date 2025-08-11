@@ -385,9 +385,9 @@ export default function ReportPage() {
                 <ArrowLeft className="w-4 h-4" />
               </Button>
               <div className="h-6 w-px bg-border" />
-              <h1 className="text-2xl font-bold text-gradient-primary">
+              {/* <h1 className="text-2xl font-bold text-gradient-primary">
                 分析报告
-              </h1>
+              </h1> */}
             </div>
             
             {/* {filesCount > 0 && (
@@ -401,7 +401,7 @@ export default function ReportPage() {
       </div>
 
       {/* 主要内容区域 */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4">
         {/* 加载状态 */}
         {!files.length && !result && (
           <div className="flex flex-col items-center justify-center py-16">
