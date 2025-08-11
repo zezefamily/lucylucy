@@ -134,6 +134,16 @@ export default function ReportPage() {
     return new File([u8arr], filename, { type: mimeType });
   };
 
+  // 清空照片缓存
+  const clearPhotosCache = () => {
+    try {
+      localStorage.removeItem('profile_analyzer_photos');
+      console.log('已清空照片缓存');
+    } catch (error) {
+      console.warn('清空照片缓存失败:', error);
+    }
+  };
+
   // 页面加载时恢复缓存
   useEffect(() => {
     loadFilesFromCache();
@@ -319,6 +329,8 @@ export default function ReportPage() {
           setIsAnalyzing(false);
           toast.success(t("toast_analysis_complete"));
           refreshUserCredits?.();
+          // 分析完成后清空缓存
+          clearPhotosCache();
         } else {
           // 否则暂存结果，等待思考过程完成
           setPendingAnalysisResult(analysisData);
@@ -367,6 +379,8 @@ export default function ReportPage() {
       toast.success(t("toast_analysis_complete"));
       // 刷新用户积分余额
       refreshUserCredits?.();
+      // 分析完成后清空缓存
+      clearPhotosCache();
     }
   }, [thinkingComplete, analysisResultReady, pendingAnalysisResult, result, t, refreshUserCredits]);
 
