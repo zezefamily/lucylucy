@@ -918,98 +918,94 @@ export default function ProfileAnalyzer() {
           <div className="container mx-auto px-4 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
               
-              {/* 左侧内容 */}
-              <motion.div 
-                className="text-left space-y-6 relative order-2 lg:order-1"
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-              >
-                <div
-                  className={`relative ${
-                    dragActive ? 'bg-black/10 rounded-2xl p-4' : ''
-                  } ${isCompressing ? 'opacity-60 pointer-events-none' : ''} transition-all duration-300`}
-                  onDragEnter={handleDrag}
-                  onDragLeave={handleDrag}
-                  onDragOver={handleDrag}
-                  onDrop={handleDrop}
-                >
-                  {/* 压缩进度显示 */}
-                  {isCompressing && (
-                    <div className="w-full max-w-md bg-white/20 backdrop-blur-sm rounded-2xl p-6 mb-8">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-sm font-medium text-black">
-                          {t("compressing_images")}
-                        </span>
-                        <span className="text-sm text-black/80">
-                          {compressProgress}%
-                        </span>
-                      </div>
-                      <div className="w-full bg-black/20 rounded-full h-3">
-                        <div 
-                          className="bg-black h-3 rounded-full transition-all duration-300 ease-out"
-                          style={{ width: `${compressProgress}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-xs text-black/70 mt-2 text-center">
-                        {t("compress_tip")}
-                      </p>
-                    </div>
-                  )}
-                  
-                  {files.length === 0 && !isCompressing && (
-                    <div className="relative">
-                      {/* 主标题 */}
-                      <div className="mb-8">
-                        <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
-                          <span style={{ color: '#3D08FF', fontWeight: '900' }}>Your Personal AI</span>
-                          <br />
-                          <span 
-                            className="inline-block font-bold py-2 rounded-full"
-                            style={{ 
-                              color: '#C8FB75',
-                              fontWeight: '900'
-                            }}
-                          >
-                            Dating Coach
-                          </span>
-                        </h1>
-                        
-                        {/* 副标题 */}
-                        <p className="text-xl lg:text-2xl text-black font-medium max-w-lg mt-6">
-                          Upload your photos for professional analysis
-                        </p>
-                      </div>
+              {/* 内容区域 - 根据是否有图片调整布局 */}
+              {files.length === 0 ? (
+                <>
+                  {/* 左侧内容 - 无图片时 */}
+                  <motion.div 
+                    className="text-left space-y-6 relative order-2 lg:order-1"
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+                  >
+                    <div
+                      className={`relative ${
+                        dragActive ? 'bg-black/10 rounded-2xl p-4' : ''
+                      } ${isCompressing ? 'opacity-60 pointer-events-none' : ''} transition-all duration-300`}
+                      onDragEnter={handleDrag}
+                      onDragLeave={handleDrag}
+                      onDragOver={handleDrag}
+                      onDrop={handleDrop}
+                    >
+                      {/* 压缩进度显示 */}
+                      {isCompressing && (
+                        <div className="w-full max-w-md bg-white/20 backdrop-blur-sm rounded-2xl p-6 mb-8">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-sm font-medium text-black">
+                              {t("compressing_images")}
+                            </span>
+                            <span className="text-sm text-black/80">
+                              {compressProgress}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-black/20 rounded-full h-3">
+                            <div 
+                              className="bg-black h-3 rounded-full transition-all duration-300 ease-out"
+                              style={{ width: `${compressProgress}%` }}
+                            ></div>
+                          </div>
+                          <p className="text-xs text-black/70 mt-2 text-center">
+                            {t("compress_tip")}
+                          </p>
+                        </div>
+                      )}
                       
-                      {/* 上传按钮 */}
-                      <motion.div 
-                        className="pt-4 mb-8"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
-                      >
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                          className="group"
-                        >
-                          <Button 
-                            onClick={() => {
-                              const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-                              input?.click();
-                            }}
-                            disabled={isCompressing}
-                            size="lg" 
-                            className="bg-black text-white hover:bg-gray-800 font-semibold px-8 pl-2 pr-4 py-8 rounded-full text-lg group-hover:shadow-xl group-hover:shadow-black/20 transition-all duration-300"
+                      {!isCompressing && (
+                        <div className="relative">
+                          {/* 主标题 */}
+                          <div className="mb-8">
+                            <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
+                              <span style={{ color: '#3D08FF', fontWeight: '900' }}>Your Personal AI</span>
+                              <br />
+                              <span 
+                                className="inline-block font-bold py-2 rounded-full"
+                                style={{ 
+                                  color: '#C8FB75',
+                                  fontWeight: '900'
+                                }}
+                              >
+                                Dating Coach
+                              </span>
+                            </h1>
+                            
+                            {/* 副标题 */}
+                            <p className="text-xl lg:text-2xl text-black font-medium max-w-lg mt-6">
+                              Upload your photos for professional analysis
+                            </p>
+                          </div>
+                          
+                          {/* 上传按钮 */}
+                          <motion.div 
+                            className="pt-4 mb-8"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
                           >
-                            {isCompressing ? (
-                              <>
-                                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                {t("compressing_images")}
-                              </>
-                            ) : (
-                              <>
+                            <motion.div
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                              className="group"
+                            >
+                              <Button 
+                                onClick={() => {
+                                  const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+                                  input?.click();
+                                }}
+                                disabled={isCompressing}
+                                size="lg" 
+                                className="bg-black text-white hover:bg-gray-800 font-semibold px-8 pl-2 pr-4 py-8 rounded-full text-lg group-hover:shadow-xl group-hover:shadow-black/20 transition-all duration-300"
+                              >
                                 <img 
                                   src="/imgs/lucy/hero_add_img_icon.png" 
                                   alt="upload icon" 
@@ -1018,193 +1014,252 @@ export default function ProfileAnalyzer() {
                                 <span className="group-hover:tracking-wide transition-all duration-300">
                                   Upload your dating photos
                                 </span>
-                              </>
-                            )}
-                          </Button>
-                        </motion.div>
-                      </motion.div>
-                      
-                      {/* 统计数据 */}
-                      <motion.div 
-                        className="flex gap-8"
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 1, ease: "easeOut" }}
-                      >
-                        <div 
-                          className="text-black text-lg"
-                          style={{ fontWeight: '900' }}
-                        >
-                          Match rate <span 
-                            className="text-4xl"
-                            style={{ color: '#C8FB75', fontWeight: '900' }}
+                              </Button>
+                            </motion.div>
+                          </motion.div>
+                          
+                          {/* 统计数据 */}
+                          <motion.div 
+                            className="flex gap-8"
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6, delay: 1, ease: "easeOut" }}
                           >
-                            <AnimatedNumber targetValue={277} />%
-                          </span>
-                        </div>
-                        <div 
-                          className="text-black text-lg"
-                          style={{ fontWeight: '900' }}
-                        >
-                          Reply rate <span 
-                            className="text-4xl"
-                            style={{ color: '#C8FB75', fontWeight: '900' }}
-                          >
-                            <AnimatedNumber targetValue={482} />%
-                          </span>
-                        </div>
-                      </motion.div>
-                    </div>
-                  )}
-                  
-                  {/* 图片预览网格 */}
-                  {files.length > 0 && (
-                    <div className="mt-6 w-full relative z-20">
-                      <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-3 h-3 bg-black rounded-full"></div>
-                          <p className="text-sm font-medium text-black">
-                            {t("uploaded_count", { count: files.length, max: MAX_FILES })}
-                          </p>
-                        </div>
-                        <Button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            clearAllFiles();
-                          }}
-                          variant="ghost"
-                          size="sm"
-                          className="text-black hover:text-black/80 hover:bg-black/10 relative z-30 pointer-events-auto"
-                        >
-                          {t("clear_all")}
-                        </Button>
-                      </div>
-                      
-                      {/* 压缩统计显示 */}
-                      {compressionStats && compressionStats.filesCompressed > 0 && (
-                        <div className="mb-6 bg-white/20 backdrop-blur-sm rounded-2xl p-4 border border-white/40">
-                          <div className="flex items-center justify-between text-sm">
-                            <div className="flex items-center text-black">
-                              <div className="w-2 h-2 bg-green-500 rounded-full mr-2 shadow-sm"></div>
-                              {t("compression_stats")}
+                            <div 
+                              className="text-black text-lg"
+                              style={{ fontWeight: '900' }}
+                            >
+                              Match rate <span 
+                                className="text-4xl"
+                                style={{ color: '#C8FB75', fontWeight: '900' }}
+                              >
+                                <AnimatedNumber targetValue={277} />%
+                              </span>
                             </div>
-                            <div className="text-black font-medium">
-                              {t("saved_space", {
-                                saved: ((compressionStats.originalTotalSize - compressionStats.compressedTotalSize) / (1024 * 1024)).toFixed(1),
-                                percent: ((1 - compressionStats.compressedTotalSize / compressionStats.originalTotalSize) * 100).toFixed(0)
-                              })}
+                            <div 
+                              className="text-black text-lg"
+                              style={{ fontWeight: '900' }}
+                            >
+                              Reply rate <span 
+                                className="text-4xl"
+                                style={{ color: '#C8FB75', fontWeight: '900' }}
+                              >
+                                <AnimatedNumber targetValue={482} />%
+                              </span>
                             </div>
-                          </div>
-                          <div className="mt-2 text-xs text-black/70">
-                            {t("files_compressed", { compressed: compressionStats.filesCompressed, total: compressionStats.totalFiles })}
-                          </div>
+                          </motion.div>
                         </div>
                       )}
                       
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                        {previewUrls.map((url, index) => (
-                          <div key={index} className="relative group">
-                            {/* 图片容器 */}
-                            <div className="aspect-[3/4] bg-white/20 backdrop-blur-sm rounded-2xl hover-lift relative">
-                              <img
-                                src={url}
-                                alt={t("image_preview", { index: index + 1 })}
-                                className="w-full h-full object-cover rounded-2xl"
-                              />
-                              
-                              {/* 删除按钮 */}
-                              <button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  removeFile(index);
-                                }}
-                                className="absolute top-1 right-1 w-8 h-8 rounded-full bg-black/90 hover:bg-black text-white shadow-lg hover:shadow-xl z-[60] flex items-center justify-center border-2 border-white/80 hover:scale-110 transition-all duration-200 backdrop-blur-sm"
-                                type="button"
-                              >
-                                <X className="w-4 h-4" />
-                              </button>
-                              
-                              {/* 编号标签 */}
-                              <div className="absolute bottom-2 left-2 w-6 h-6 bg-black/90 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg z-[50] border-2 border-white/80 backdrop-blur-sm">
-                                {index + 1}
+                      {/* 文件上传input */}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        disabled={isCompressing}
+                        onChange={(e) => {
+                          if (isCompressing) return;
+                          if (e.target.files && e.target.files.length > 0) {
+                            const selectedFiles = Array.from(e.target.files);
+                            handleFilesUpload(selectedFiles);
+                          }
+                        }}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-[5]"
+                      />
+                    </div>
+                  </motion.div>
+                </>
+              ) : (
+                <>
+                  {/* 居中的图片预览区域 - 有图片时 */}
+                  <motion.div 
+                    className="col-span-full flex flex-col items-center justify-center text-center space-y-6 relative"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                  >
+                    <div
+                      className={`relative w-full max-w-5xl ${
+                        dragActive ? 'bg-black/10 rounded-2xl p-4' : ''
+                      } ${isCompressing ? 'opacity-60 pointer-events-none' : ''} transition-all duration-300`}
+                      onDragEnter={handleDrag}
+                      onDragLeave={handleDrag}
+                      onDragOver={handleDrag}
+                      onDrop={handleDrop}
+                    >
+                      {/* 压缩进度显示 */}
+                      {isCompressing && (
+                        <div className="w-full max-w-md mx-auto bg-white/20 backdrop-blur-sm rounded-2xl p-6 mb-8">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-sm font-medium text-black">
+                              {t("compressing_images")}
+                            </span>
+                            <span className="text-sm text-black/80">
+                              {compressProgress}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-black/20 rounded-full h-3">
+                            <div 
+                              className="bg-black h-3 rounded-full transition-all duration-300 ease-out"
+                              style={{ width: `${compressProgress}%` }}
+                            ></div>
+                          </div>
+                          <p className="text-xs text-black/70 mt-2 text-center">
+                            {t("compress_tip")}
+                          </p>
+                        </div>
+                      )}
+                      
+                      {/* 图片预览网格 */}
+                      <div className="w-full relative z-20">
+                        <div className="flex items-center justify-between mb-6">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-3 h-3 bg-black rounded-full"></div>
+                            <p className="text-sm font-medium text-black">
+                              {t("uploaded_count", { count: files.length, max: MAX_FILES })}
+                            </p>
+                          </div>
+                          <Button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              clearAllFiles();
+                            }}
+                            variant="ghost"
+                            size="sm"
+                            className="text-black hover:text-black/80 hover:bg-black/10 relative z-30 pointer-events-auto"
+                          >
+                            {t("clear_all")}
+                          </Button>
+                        </div>
+                        
+                        {/* 压缩统计显示 */}
+                        {compressionStats && compressionStats.filesCompressed > 0 && (
+                          <div className="mb-6 bg-white/20 backdrop-blur-sm rounded-2xl p-4 border border-white/40 max-w-md mx-auto">
+                            <div className="flex items-center justify-between text-sm">
+                              <div className="flex items-center text-black">
+                                <div className="w-2 h-2 bg-green-500 rounded-full mr-2 shadow-sm"></div>
+                                {t("compression_stats")}
+                              </div>
+                              <div className="text-black font-medium">
+                                {t("saved_space", {
+                                  saved: ((compressionStats.originalTotalSize - compressionStats.compressedTotalSize) / (1024 * 1024)).toFixed(1),
+                                  percent: ((1 - compressionStats.compressedTotalSize / compressionStats.originalTotalSize) * 100).toFixed(0)
+                                })}
                               </div>
                             </div>
-                          </div>
-                        ))}
-                        
-                        {/* 添加更多图片按钮 */}
-                        {files.length < MAX_FILES && (
-                          <div
-                            className="aspect-[3/4] border-2 border-dashed border-black/30 rounded-2xl flex items-center justify-center hover:border-black/60 hover:bg-black/5 transition-all duration-300 cursor-pointer group"
-                            onClick={() => {
-                              const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-                              input?.click();
-                            }}
-                          >
-                            <div className="text-center">
-                              <Plus className="w-8 h-8 text-black mx-auto mb-2 group-hover:scale-110 transition-transform duration-300" />
-                              <p className="text-xs text-black font-medium">{t("add_image")}</p>
+                            <div className="mt-2 text-xs text-black/70">
+                              {t("files_compressed", { compressed: compressionStats.filesCompressed, total: compressionStats.totalFiles })}
                             </div>
                           </div>
                         )}
-                      </div>
-
-                      {/* 分析按钮 - 直接放在图片列表下方 */}
-                      <div className="mt-8 flex justify-center">
-                        <Button
-                          onClick={analyzeProfileSmart}
-                          disabled={isAnalyzing || showThinkingProcess || isCompressing}
-                          size="lg"
-                          className="px-10 py-4 text-lg font-semibold min-w-[200px] bg-black text-white hover:bg-gray-800 rounded-full"
-                          variant="default"
-                        >
-                          {isCompressing ? (
-                            <>
-                              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                              {t("compressing_images")}
-                            </>
-                          ) : isAnalyzing ? (
-                            <>
-                              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                              {t("analyzing")}
-                            </>
-                          ) : (
-                            <>
-                              <Star className="w-5 h-5 mr-2" />
-                              {t("analyze_images", { count: files.length })}
-                            </>
+                        
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 justify-items-center">
+                          {previewUrls.map((url, index) => (
+                            <div key={index} className="relative group w-full max-w-[150px]">
+                              {/* 图片容器 */}
+                              <div className="aspect-[3/4] bg-white/20 backdrop-blur-sm rounded-2xl hover-lift relative w-full">
+                                <img
+                                  src={url}
+                                  alt={t("image_preview", { index: index + 1 })}
+                                  className="w-full h-full object-cover rounded-2xl"
+                                />
+                                
+                                {/* 删除按钮 */}
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    removeFile(index);
+                                  }}
+                                  className="absolute top-1 right-1 w-8 h-8 rounded-full bg-black/90 hover:bg-black text-white shadow-lg hover:shadow-xl z-[60] flex items-center justify-center border-2 border-white/80 hover:scale-110 transition-all duration-200 backdrop-blur-sm"
+                                  type="button"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                                
+                                {/* 编号标签 */}
+                                <div className="absolute bottom-2 left-2 w-6 h-6 bg-black/90 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg z-[50] border-2 border-white/80 backdrop-blur-sm">
+                                  {index + 1}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                          
+                          {/* 添加更多图片按钮 */}
+                          {files.length < MAX_FILES && (
+                            <div className="w-full max-w-[150px]">
+                              <div
+                                className="aspect-[3/4] border-2 border-dashed border-black/30 rounded-2xl flex items-center justify-center hover:border-black/60 hover:bg-black/5 transition-all duration-300 cursor-pointer group w-full"
+                                onClick={() => {
+                                  const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+                                  input?.click();
+                                }}
+                              >
+                                <div className="text-center">
+                                  <Plus className="w-6 h-6 sm:w-8 sm:h-8 text-black mx-auto mb-2 group-hover:scale-110 transition-transform duration-300" />
+                                  <p className="text-xs text-black font-medium">{t("add_image")}</p>
+                                </div>
+                              </div>
+                            </div>
                           )}
-                        </Button>
+                        </div>
+
+                        {/* 分析按钮 - 直接放在图片列表下方 */}
+                        <div className="mt-8 flex justify-center">
+                          <Button
+                            onClick={analyzeProfileSmart}
+                            disabled={isAnalyzing || showThinkingProcess || isCompressing}
+                            size="lg"
+                            className="px-10 py-4 text-lg font-semibold min-w-[200px] bg-black text-white hover:bg-gray-800 rounded-full"
+                            variant="default"
+                          >
+                            {isCompressing ? (
+                              <>
+                                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                {t("compressing_images")}
+                              </>
+                            ) : isAnalyzing ? (
+                              <>
+                                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                {t("analyzing")}
+                              </>
+                            ) : (
+                              <>
+                                <Star className="w-5 h-5 mr-2" />
+                                {t("analyze_images", { count: files.length })}
+                              </>
+                            )}
+                          </Button>
+                        </div>
                       </div>
+                      
+                      {/* 文件上传input */}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        disabled={isCompressing}
+                        onChange={(e) => {
+                          if (isCompressing) return;
+                          if (e.target.files && e.target.files.length > 0) {
+                            const selectedFiles = Array.from(e.target.files);
+                            handleFilesUpload(selectedFiles);
+                          }
+                        }}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-[5]"
+                        style={{ 
+                          pointerEvents: 'none',
+                          display: 'none'
+                        }}
+                      />
                     </div>
-                  )}
-                  
-                  {/* 文件上传input */}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    disabled={isCompressing}
-                    onChange={(e) => {
-                      if (isCompressing) return;
-                      if (e.target.files && e.target.files.length > 0) {
-                        const selectedFiles = Array.from(e.target.files);
-                        handleFilesUpload(selectedFiles);
-                      }
-                    }}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-[5]"
-                    style={{ 
-                      pointerEvents: files.length > 0 ? 'none' : 'auto',
-                      display: files.length > 0 ? 'none' : 'block'
-                    }}
-                  />
-                </div>
-              </motion.div>
+                  </motion.div>
+                </>
+              )}
               
               {/* 右侧图片内容 - 只在没有图片时显示 */}
-              {/* {files.length === 0 && ( */}
+              {files.length === 0 && (
                 <motion.div 
                   className="relative flex items-center justify-center mt-8 lg:mt-0 order-1 lg:order-2"
                   initial={{ opacity: 0, x: 50 }}
@@ -1219,7 +1274,7 @@ export default function ProfileAnalyzer() {
                     />
                   </div>
                 </motion.div>
-              {/* )} */}
+              )}
             </div>
           </div>
         </div>
