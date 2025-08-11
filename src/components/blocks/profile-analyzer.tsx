@@ -12,7 +12,46 @@ import AnalysisThinkingProcess from "./analysis-thinking-process";
 import AnalysisThinkingProcessStream from "./analysis-thinking-process-stream";
 import { useAppContext } from "@/contexts/app";
 import { SubscriptionTier } from "@/types/user";
+import { motion } from "framer-motion";
 
+// 数值动画组件
+const AnimatedNumber = ({ targetValue, duration = 2000 }: { targetValue: number; duration?: number }) => {
+  const [currentValue, setCurrentValue] = useState(0);
+
+  useEffect(() => {
+    let startTime: number;
+    let animationFrame: number;
+
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      
+      // 使用 easeOutCubic 缓动函数
+      const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+      const easedProgress = easeOutCubic(progress);
+      
+      setCurrentValue(Math.floor(targetValue * easedProgress));
+      
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animate);
+      }
+    };
+
+    // 延迟开始动画
+    const timer = setTimeout(() => {
+      animationFrame = requestAnimationFrame(animate);
+    }, 500);
+
+    return () => {
+      clearTimeout(timer);
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+      }
+    };
+  }, [targetValue, duration]);
+
+  return <span>{currentValue}</span>;
+};
 
 // 单张照片分析结果
 interface PhotoAnalysis {
@@ -439,7 +478,6 @@ export default function ProfileAnalyzer() {
         } else {
           // 压缩图片
           const fileName = file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name;
-          // toast.info(t("compressing_image", { name: fileName }));
           
           try {
             const compressedFile = await compressImage(file);
@@ -453,16 +491,6 @@ export default function ProfileAnalyzer() {
             
             console.log(`图片压缩完成: ${file.name}`);
             console.log(`原始大小: ${originalSize}MB -> 压缩后: ${compressedSize}MB (压缩率: ${compressionRatio}%)`);
-            
-            // 如果压缩效果显著，显示提示
-            // if (compressedFile.size < file.size * 0.7) {
-            //   toast.success(t("compress_success", { 
-            //     name: fileName,
-            //     original: originalSize,
-            //     compressed: compressedSize,
-            //     ratio: compressionRatio
-            //   }));
-            // }
           } catch (error) {
             console.error(`图片压缩失败: ${file.name}`, error);
             // 压缩失败时使用原图片
@@ -483,18 +511,6 @@ export default function ProfileAnalyzer() {
         filesCompressed,
         totalFiles: imageFiles.length
       });
-      
-      // 显示总体压缩效果
-      // if (filesCompressed > 0) {
-      //   const totalSavedMB = ((originalTotalSize - compressedTotalSize) / (1024 * 1024)).toFixed(1);
-      //   const totalSavedPercent = ((1 - compressedTotalSize / originalTotalSize) * 100).toFixed(0);
-      //   
-      //   toast.success(t("compression_complete", {
-      //     count: filesCompressed,
-      //     savedMB: totalSavedMB,
-      //     savedPercent: totalSavedPercent
-      //   }));
-      // }
       
       return compressedFiles;
     } catch (error) {
@@ -570,14 +586,6 @@ export default function ProfileAnalyzer() {
         
         // 重置压缩统计
         setCompressionStats(null);
-        
-        // 显示上传成功信息
-        const hasCompressed = compressedFiles.some((file, index) => file.size < validFiles[index].size);
-        // if (hasCompressed) {
-        //   toast.success(t("toast_upload_compressed_success", { count: compressedFiles.length }));
-        // } else {
-        //   toast.success(t("toast_upload_success", { count: compressedFiles.length }));
-        // }
       }
     } catch (error) {
       console.error('文件处理失败:', error);
@@ -680,7 +688,6 @@ export default function ProfileAnalyzer() {
 
     // 1. 检查用户登录状态
     if (!user) {
-      // toast.warning(locale === 'zh' ? "请先登录以使用分析功能" : "Please login to use analysis feature");
       setShowSignModal?.(true);
       return;
     }
@@ -699,28 +706,14 @@ export default function ProfileAnalyzer() {
 
     // 3. 权限检查逻辑
     if (userTier === SubscriptionTier.ELITE) {
-      // Elite 用户直接放行
       console.log('Elite 用户，直接放行');
     } else {
       // 非 Elite 用户检查积分
       const requiredCredits = 10;
       const availableCredits = userCredits?.left_credits || 0;
       if (availableCredits < requiredCredits) {
-        // 积分不足，弹出 Pricing 弹窗
-        // toast.warning(
-        //   locale === 'zh' 
-        //     ? `分析功能需要 ${requiredCredits} 积分，当前剩余 ${availableCredits} 积分，请充值后继续`
-        //     : `Analysis requires ${requiredCredits} credits, you have ${availableCredits} credits remaining, please top up to continue`
-        // );
         setShowPricingModal?.(true);
         return;
-      } else {
-        // 积分充足，放行并提示扣费
-        // toast.info(
-        //   locale === 'zh' 
-        //     ? `本次分析将消耗 ${requiredCredits} 积分，剩余 ${availableCredits - requiredCredits} 积分`
-        //     : `This analysis will consume ${requiredCredits} credits, ${availableCredits - requiredCredits} credits remaining`
-        // );
       }
     }
 
@@ -731,7 +724,6 @@ export default function ProfileAnalyzer() {
     setAnalysisResultReady(false);
     setPendingAnalysisResult(null);
     
-    // 调试信息：确保图片URLs仍然有效
     console.log('开始分析，当前图片信息：', {
       filesCount: files.length,
       previewUrlsCount: previewUrls.length,
@@ -833,7 +825,6 @@ export default function ProfileAnalyzer() {
       if (apiResult.code === 0) {
         const analysisData = apiResult.data;
         
-        // 调试信息：查看AI返回的照片分析数据
         console.log('AI分析结果：', {
           photoAnalyses: analysisData.photoAnalyses,
           currentPreviewUrls: previewUrls
@@ -846,7 +837,6 @@ export default function ProfileAnalyzer() {
           setResult(analysisData);
           setIsAnalyzing(false);
           toast.success(t("toast_analysis_complete"));
-          // 刷新用户积分余额
           refreshUserCredits?.();
         } else {
           // 否则暂存结果，等待思考过程完成
@@ -911,345 +901,371 @@ export default function ProfileAnalyzer() {
     return "from-red-500 to-red-600";
   };
 
-  // 模拟流式渲染效果
-  const simulateStreaming = (fullText: string) => {
-    // 清理之前的定时器
-    if (streamIntervalRef.current) {
-      clearInterval(streamIntervalRef.current);
-    }
-    
-    setIsFakeStreaming(true);
-    setFakeStreamText("");
-    
-    let currentIndex = 0;
-    const characters = fullText.split('');
-    
-    streamIntervalRef.current = setInterval(() => {
-      if (currentIndex < characters.length) {
-        setFakeStreamText(prev => prev + characters[currentIndex]);
-        currentIndex++;
-      } else {
-        if (streamIntervalRef.current) {
-          clearInterval(streamIntervalRef.current);
-          streamIntervalRef.current = null;
-        }
-        setIsFakeStreaming(false);
-        
-        // 假流式完成后显示最终结果
-        if (pendingAnalysisResult) {
-          setResult(pendingAnalysisResult);
-          setPendingAnalysisResult(null);
-          setIsAnalyzing(false);
-        }
-        
-        toast.success(t("toast_analysis_complete"));
-      }
-    }, 20); // 每20ms显示一个字符，可调整速度
-  };
-
-  // 将分析结果转换为可读文本
-  const formatAnalysisToText = (data: CoachAnalysisResult): string => {
-    // 安全的数组映射函数
-    const safeMapArray = (arr: string[] | undefined) => {
-      if (!arr || !Array.isArray(arr) || arr.length === 0) {
-        return t("no_data");
-      }
-      return arr
-        .filter(item => item && typeof item === 'string') // 过滤掉空值和非字符串
-        .map((item, index) => `${index + 1}. ${item}`)
-        .join('\n') || t("no_data");
-    };
-
-    const sections = [
-      `## 🎯 ${t("dating_coach_analysis_title", { count: files.length })}\n\n`,
-      
-      // 总体评分
-      `## 🏆 ${t("overall_evaluation")}\n**${t("overall_score_display", { score: data.overallScore || 0 })}** - ${data.overallCategory || t("no_data")}\n\n${data.overallComment || t("no_data")}\n\n---\n\n`,
-      
-      // 每张照片分析
-      `## 📸 ${t("individual_photo_analysis")}\n\n`,
-    ];
-
-    // 添加每张照片的分析
-    if (data.photoAnalyses && Array.isArray(data.photoAnalyses)) {
-      data.photoAnalyses.forEach((photo, index) => {
-        sections.push(
-          `### ${t("photo_number", { num: photo.photoIndex || index + 1 })} - ${t("score_colon")} ${photo.score || 0}/10\n\n`,
-          `**${t("photo_comment")}:** ${photo.comment || t("no_data")}\n\n`,
-          `**${t("photo_strengths")}:**\n${safeMapArray(photo.strengths)}\n\n`,
-          `**${t("photo_improvements")}:**\n${safeMapArray(photo.improvements)}\n\n---\n\n`
-        );
-      });
-    }
-
-    // 最终建议
-    sections.push(
-      `## 💡 ${t("final_suggestions_title")}\n\n${safeMapArray(data.finalSuggestions)}\n\n---\n\n`,
-      `**🎉 ${t("coach_analysis_complete", { count: files.length })}**`
-    );
-    
-    // 过滤掉空值并确保所有元素都是字符串
-    const validSections = sections.filter(section => 
-      section && typeof section === 'string' && section.trim() !== ''
-    );
-    
-    return validSections.join('');
-  };
-
   return (
-    <div className="space-y-8">
-      {/* 文件上传区域 */}
-      <Card className="card-glass border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 hover-lift">
-        <CardContent className="p-8">
-          <div
-            className={`relative flex flex-col items-center justify-center space-y-6 ${
-              dragActive ? 'bg-gradient-primary/10 rounded-2xl' : ''
-            } ${isCompressing ? 'opacity-60 pointer-events-none' : ''} transition-all duration-300`}
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-          >
-            {/* 压缩进度显示 */}
-            {isCompressing && (
-              <div className="w-full max-w-md card-glass rounded-2xl p-6">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-medium text-gradient-primary">
-                    {t("compressing_images")}
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    {compressProgress}%
-                  </span>
-                </div>
-                <div className="w-full bg-muted/50 rounded-full h-3 elevation-1">
-                  <div 
-                    className="bg-gradient-primary h-3 rounded-full transition-all duration-300 ease-out glow-primary"
-                    style={{ width: `${compressProgress}%` }}
-                  ></div>
-                </div>
-                <p className="text-xs text-muted-foreground mt-2 text-center">
-                  {t("compress_tip")}
-                </p>
-              </div>
-            )}
-            
-            {files.length === 0 && !isCompressing && (
-              <div className="text-center">
-                {/* 引导图片 */}
-                <div className="mb-8 flex justify-center">
-                  <div className="relative">
-                    <img
-                      src="/imgs/lucy/profile_analyzer_upload_icon.png"
-                      alt={t("upload_guide_image")}
-                      className="w-48 h-48 md:w-56 md:h-56 object-contain opacity-90 hover:opacity-100 transition-all duration-300 float-animation"
-                    />
-                    {/* 装饰性光环效果 */}
-                    <div className="absolute inset-0 bg-gradient-primary rounded-full blur-3xl opacity-20 animate-pulse"></div>
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <h3 className="text-2xl font-bold text-gradient-primary">
-                    {t("upload_placeholder")}
-                  </h3>
-                  <p className="text-base text-foreground/70 max-w-md mx-auto leading-relaxed">
-                    {t("upload_tip")}
-                  </p>
-                </div>
-              </div>
-            )}
-            
-            {/* 图片预览网格 */}
-            {files.length > 0 && (
-              <div className="mt-6 w-full relative z-20">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-3 h-3 bg-gradient-primary rounded-full glow-primary"></div>
-                    <p className="text-sm font-medium text-foreground">
-                      {t("uploaded_count", { count: files.length, max: MAX_FILES })}
-                    </p>
-                  </div>
-                  <Button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      clearAllFiles();
-                    }}
-                    variant="ghost"
-                    size="sm"
-                    className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 relative z-30 pointer-events-auto"
-                  >
-                    {t("clear_all")}
-                  </Button>
-                </div>
-                
-                {/* 压缩统计显示 */}
-                {compressionStats && compressionStats.filesCompressed > 0 && (
-                  <div className="mb-6 card-glass rounded-2xl p-4 border border-emerald-200/40 dark:border-emerald-800/40">
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center text-emerald-700 dark:text-emerald-400">
-                        <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2 shadow-sm"></div>
-                        {t("compression_stats")}
+    <>
+      {/* 文件上传区域 - 完全采用 Lucy Hero 风格，撑满屏幕 */}
+      <motion.section 
+        className="relative w-full min-h-screen lg:min-h-[80vh] xl:min-h-[70vh] overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      >
+        {/* 渐变背景 */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#FF64DC] to-[#FFA8F5]" />
+        
+        {/* 主要内容容器 */}
+        <div className="relative z-10 min-h-screen lg:min-h-[80vh] xl:min-h-[70vh] flex items-center py-8 lg:py-16 xl:py-20">
+          <div className="container mx-auto px-4 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+              
+              {/* 左侧内容 */}
+              <motion.div 
+                className="text-left space-y-6 relative order-2 lg:order-1"
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+              >
+                <div
+                  className={`relative ${
+                    dragActive ? 'bg-black/10 rounded-2xl p-4' : ''
+                  } ${isCompressing ? 'opacity-60 pointer-events-none' : ''} transition-all duration-300`}
+                  onDragEnter={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDragOver={handleDrag}
+                  onDrop={handleDrop}
+                >
+                  {/* 压缩进度显示 */}
+                  {isCompressing && (
+                    <div className="w-full max-w-md bg-white/20 backdrop-blur-sm rounded-2xl p-6 mb-8">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-medium text-black">
+                          {t("compressing_images")}
+                        </span>
+                        <span className="text-sm text-black/80">
+                          {compressProgress}%
+                        </span>
                       </div>
-                      <div className="text-emerald-700 dark:text-emerald-400 font-medium">
-                        {t("saved_space", {
-                          saved: ((compressionStats.originalTotalSize - compressionStats.compressedTotalSize) / (1024 * 1024)).toFixed(1),
-                          percent: ((1 - compressionStats.compressedTotalSize / compressionStats.originalTotalSize) * 100).toFixed(0)
-                        })}
+                      <div className="w-full bg-black/20 rounded-full h-3">
+                        <div 
+                          className="bg-black h-3 rounded-full transition-all duration-300 ease-out"
+                          style={{ width: `${compressProgress}%` }}
+                        ></div>
                       </div>
+                      <p className="text-xs text-black/70 mt-2 text-center">
+                        {t("compress_tip")}
+                      </p>
                     </div>
-                    <div className="mt-2 text-xs text-emerald-600/80 dark:text-emerald-500/80">
-                      {t("files_compressed", { compressed: compressionStats.filesCompressed, total: compressionStats.totalFiles })}
-                    </div>
-                  </div>
-                )}
-                
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                  {previewUrls.map((url, index) => (
-                    <div key={index} className="relative group">
-                      {/* 图片容器 - 移除overflow-hidden避免裁剪按钮 */}
-                      <div className="aspect-[3/4] card-glass rounded-2xl hover-lift relative">
-                        <img
-                          src={url}
-                          alt={t("image_preview", { index: index + 1 })}
-                          className="w-full h-full object-cover rounded-2xl"
-                        />
+                  )}
+                  
+                  {files.length === 0 && !isCompressing && (
+                    <div className="relative">
+                      {/* 主标题 */}
+                      <div className="mb-8">
+                        <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
+                          <span style={{ color: '#3D08FF', fontWeight: '900' }}>Your Personal AI</span>
+                          <br />
+                          <span 
+                            className="inline-block font-bold py-2 rounded-full"
+                            style={{ 
+                              color: '#C8FB75',
+                              fontWeight: '900'
+                            }}
+                          >
+                            Dating Coach
+                          </span>
+                        </h1>
                         
-                        {/* 删除按钮 - 确保在最高层级 */}
-                        <button
+                        {/* 副标题 */}
+                        <p className="text-xl lg:text-2xl text-black font-medium max-w-lg mt-6">
+                          Upload your photos for professional analysis
+                        </p>
+                      </div>
+                      
+                      {/* 上传按钮 */}
+                      <motion.div 
+                        className="pt-4 mb-8"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
+                      >
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                          className="group"
+                        >
+                          <Button 
+                            onClick={() => {
+                              const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+                              input?.click();
+                            }}
+                            disabled={isCompressing}
+                            size="lg" 
+                            className="bg-black text-white hover:bg-gray-800 font-semibold px-8 pl-2 pr-4 py-8 rounded-full text-lg group-hover:shadow-xl group-hover:shadow-black/20 transition-all duration-300"
+                          >
+                            {isCompressing ? (
+                              <>
+                                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                {t("compressing_images")}
+                              </>
+                            ) : (
+                              <>
+                                <img 
+                                  src="/imgs/lucy/hero_add_img_icon.png" 
+                                  alt="upload icon" 
+                                  className="mr-1 w-10 h-10 group-hover:scale-110 transition-transform duration-300"
+                                />
+                                <span className="group-hover:tracking-wide transition-all duration-300">
+                                  Upload your dating photos
+                                </span>
+                              </>
+                            )}
+                          </Button>
+                        </motion.div>
+                      </motion.div>
+                      
+                      {/* 统计数据 */}
+                      <motion.div 
+                        className="flex gap-8"
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 1, ease: "easeOut" }}
+                      >
+                        <div 
+                          className="text-black text-lg"
+                          style={{ fontWeight: '900' }}
+                        >
+                          Match rate <span 
+                            className="text-4xl"
+                            style={{ color: '#C8FB75', fontWeight: '900' }}
+                          >
+                            <AnimatedNumber targetValue={277} />%
+                          </span>
+                        </div>
+                        <div 
+                          className="text-black text-lg"
+                          style={{ fontWeight: '900' }}
+                        >
+                          Reply rate <span 
+                            className="text-4xl"
+                            style={{ color: '#C8FB75', fontWeight: '900' }}
+                          >
+                            <AnimatedNumber targetValue={482} />%
+                          </span>
+                        </div>
+                      </motion.div>
+                    </div>
+                  )}
+                  
+                  {/* 图片预览网格 */}
+                  {files.length > 0 && (
+                    <div className="mt-6 w-full relative z-20">
+                      <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-3 h-3 bg-black rounded-full"></div>
+                          <p className="text-sm font-medium text-black">
+                            {t("uploaded_count", { count: files.length, max: MAX_FILES })}
+                          </p>
+                        </div>
+                        <Button
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            removeFile(index);
+                            clearAllFiles();
                           }}
-                          className="absolute top-1 right-1 w-8 h-8 rounded-full bg-primary/90 hover:bg-primary text-white shadow-lg hover:shadow-xl z-[60] flex items-center justify-center border-2 border-white/80 hover:scale-110 transition-all duration-200 backdrop-blur-sm"
-                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="text-black hover:text-black/80 hover:bg-black/10 relative z-30 pointer-events-auto"
                         >
-                          <X className="w-4 h-4" />
-                        </button>
-                        
-                        {/* 编号标签 - 左下角，优化颜色显示 */}
-                        <div className="absolute bottom-2 left-2 w-6 h-6 bg-primary/90 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg z-[50] border-2 border-white/80 backdrop-blur-sm">
-                          {index + 1}
-                        </div>
+                          {t("clear_all")}
+                        </Button>
                       </div>
-                    </div>
-                  ))}
-                  
-                  {/* 添加更多图片按钮 */}
-                  {files.length < MAX_FILES && (
-                    <div
-                      className="aspect-[3/4] border-2 border-dashed border-primary/30 rounded-2xl flex items-center justify-center hover:border-primary/60 hover:bg-primary/5 transition-all duration-300 cursor-pointer group"
-                      onClick={() => {
-                        const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-                        input?.click();
-                      }}
-                    >
-                      <div className="text-center">
-                        <Plus className="w-8 h-8 text-primary mx-auto mb-2 group-hover:scale-110 transition-transform duration-300" />
-                        <p className="text-xs text-primary font-medium">{t("add_image")}</p>
+                      
+                      {/* 压缩统计显示 */}
+                      {compressionStats && compressionStats.filesCompressed > 0 && (
+                        <div className="mb-6 bg-white/20 backdrop-blur-sm rounded-2xl p-4 border border-white/40">
+                          <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center text-black">
+                              <div className="w-2 h-2 bg-green-500 rounded-full mr-2 shadow-sm"></div>
+                              {t("compression_stats")}
+                            </div>
+                            <div className="text-black font-medium">
+                              {t("saved_space", {
+                                saved: ((compressionStats.originalTotalSize - compressionStats.compressedTotalSize) / (1024 * 1024)).toFixed(1),
+                                percent: ((1 - compressionStats.compressedTotalSize / compressionStats.originalTotalSize) * 100).toFixed(0)
+                              })}
+                            </div>
+                          </div>
+                          <div className="mt-2 text-xs text-black/70">
+                            {t("files_compressed", { compressed: compressionStats.filesCompressed, total: compressionStats.totalFiles })}
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        {previewUrls.map((url, index) => (
+                          <div key={index} className="relative group">
+                            {/* 图片容器 */}
+                            <div className="aspect-[3/4] bg-white/20 backdrop-blur-sm rounded-2xl hover-lift relative">
+                              <img
+                                src={url}
+                                alt={t("image_preview", { index: index + 1 })}
+                                className="w-full h-full object-cover rounded-2xl"
+                              />
+                              
+                              {/* 删除按钮 */}
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  removeFile(index);
+                                }}
+                                className="absolute top-1 right-1 w-8 h-8 rounded-full bg-black/90 hover:bg-black text-white shadow-lg hover:shadow-xl z-[60] flex items-center justify-center border-2 border-white/80 hover:scale-110 transition-all duration-200 backdrop-blur-sm"
+                                type="button"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                              
+                              {/* 编号标签 */}
+                              <div className="absolute bottom-2 left-2 w-6 h-6 bg-black/90 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg z-[50] border-2 border-white/80 backdrop-blur-sm">
+                                {index + 1}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        
+                        {/* 添加更多图片按钮 */}
+                        {files.length < MAX_FILES && (
+                          <div
+                            className="aspect-[3/4] border-2 border-dashed border-black/30 rounded-2xl flex items-center justify-center hover:border-black/60 hover:bg-black/5 transition-all duration-300 cursor-pointer group"
+                            onClick={() => {
+                              const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+                              input?.click();
+                            }}
+                          >
+                            <div className="text-center">
+                              <Plus className="w-8 h-8 text-black mx-auto mb-2 group-hover:scale-110 transition-transform duration-300" />
+                              <p className="text-xs text-black font-medium">{t("add_image")}</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 分析按钮 - 直接放在图片列表下方 */}
+                      <div className="mt-8 flex justify-center">
+                        <Button
+                          onClick={analyzeProfileSmart}
+                          disabled={isAnalyzing || showThinkingProcess || isCompressing}
+                          size="lg"
+                          className="px-10 py-4 text-lg font-semibold min-w-[200px] bg-black text-white hover:bg-gray-800 rounded-full"
+                          variant="default"
+                        >
+                          {isCompressing ? (
+                            <>
+                              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                              {t("compressing_images")}
+                            </>
+                          ) : isAnalyzing ? (
+                            <>
+                              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                              {t("analyzing")}
+                            </>
+                          ) : (
+                            <>
+                              <Star className="w-5 h-5 mr-2" />
+                              {t("analyze_images", { count: files.length })}
+                            </>
+                          )}
+                        </Button>
                       </div>
                     </div>
                   )}
+                  
+                  {/* 文件上传input */}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    disabled={isCompressing}
+                    onChange={(e) => {
+                      if (isCompressing) return;
+                      if (e.target.files && e.target.files.length > 0) {
+                        const selectedFiles = Array.from(e.target.files);
+                        handleFilesUpload(selectedFiles);
+                      }
+                    }}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-[5]"
+                    style={{ 
+                      pointerEvents: files.length > 0 ? 'none' : 'auto',
+                      display: files.length > 0 ? 'none' : 'block'
+                    }}
+                  />
                 </div>
-              </div>
-            )}
-            
-            {/* 文件上传input - 只在没有图片时激活 */}
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              disabled={isCompressing}
-              onChange={(e) => {
-                if (isCompressing) return;
-                if (e.target.files && e.target.files.length > 0) {
-                  const selectedFiles = Array.from(e.target.files);
-                  handleFilesUpload(selectedFiles);
-                }
-              }}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-[5]"
-              style={{ 
-                pointerEvents: files.length > 0 ? 'none' : 'auto',
-                display: files.length > 0 ? 'none' : 'block'
-              }}
-            />
-            
-            {/* 只在没有图片时显示select_image按钮 */}
-            {files.length === 0 && !isCompressing && (
-              <Button 
-                onClick={() => {
-                  const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-                  input?.click();
-                }}
-                disabled={isCompressing}
-                size="lg"
-                className={`px-8 py-4 text-lg font-semibold ${
-                  !isCompressing ? 'animate-wiggle-interval' : ''
-                }`}
-              >
-                {isCompressing ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    {t("compressing_images")}
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-5 h-5 mr-2" />
-                    {t("select_image")}
-                  </>
-                )}
-              </Button>
-            )}
+              </motion.div>
+              
+              {/* 右侧图片内容 - 只在没有图片时显示 */}
+              {/* {files.length === 0 && ( */}
+                <motion.div 
+                  className="relative flex items-center justify-center mt-8 lg:mt-0 order-1 lg:order-2"
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
+                >
+                  <div className="w-full max-w-sm lg:max-w-lg">
+                    <img 
+                      src="/imgs/lucy/banner_hero_img.png"
+                      alt="Dating Profile Analysis"
+                      className="w-full h-auto object-contain"
+                    />
+                  </div>
+                </motion.div>
+              {/* )} */}
+            </div>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* 分析按钮 */}
-      {files.length > 0 && (
-        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-          <Button
-            onClick={analyzeProfileSmart}
-            disabled={isAnalyzing || showThinkingProcess || isCompressing}
-            size="lg"
-            className="px-10 py-4 text-lg font-semibold min-w-[200px]"
-            variant="default"
-          >
-            {isCompressing ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                {t("compressing_images")}
-              </>
-            ) : isAnalyzing ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                {t("analyzing")}
-              </>
-            ) : (
-              <>
-                <Star className="w-5 h-5 mr-2" />
-                {t("analyze_images", { count: files.length })}
-              </>
-            )}
-          </Button>
         </div>
-      )}
+
+        {/* 底部文字装饰 */}
+        <div className="absolute bottom-4 left-0 right-0">
+          <div className="container mx-auto px-4">
+            <div 
+              className="text-center text-xs lg:text-sm tracking-[0.3em] font-light"
+              style={{ color: '#3D08FF' }}
+            >
+              D &nbsp;&nbsp;&nbsp;A &nbsp;&nbsp;&nbsp;T &nbsp;&nbsp;&nbsp;I &nbsp;&nbsp;&nbsp;N &nbsp;&nbsp;&nbsp;G &nbsp;&nbsp;&nbsp; P&nbsp;&nbsp;&nbsp; H&nbsp;&nbsp;&nbsp; O&nbsp;&nbsp;&nbsp; T&nbsp;&nbsp;&nbsp; O &nbsp;&nbsp;&nbsp;A &nbsp;&nbsp;&nbsp;N &nbsp;&nbsp;&nbsp;A &nbsp;&nbsp;&nbsp;L &nbsp;&nbsp;&nbsp;Y &nbsp;&nbsp;&nbsp;Z &nbsp;&nbsp;&nbsp;E &nbsp;&nbsp;&nbsp;R
+            </div>
+          </div>
+        </div>
+      </motion.section>
 
       {/* 分析思考过程组件 */}
       {showThinkingProcess && (
-        <div className="space-y-6">
-          <AnalysisThinkingProcessStream 
-              files={files}
-              locale={locale}
-              onStreamComplete={handleThinkingComplete}
-              isVisible={showThinkingProcess}
-          />
-        </div>
+        <motion.section 
+          className="w-full py-8 lg:py-16 bg-background"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
+          <div className="container mx-auto px-4 lg:px-8">
+            <AnalysisThinkingProcessStream 
+                files={files}
+                locale={locale}
+                onStreamComplete={handleThinkingComplete}
+                isVisible={showThinkingProcess}
+            />
+          </div>
+        </motion.section>
       )}
 
       {/* 分析结果 */}
       {result && (
-        <div className="space-y-8">
+        <motion.section 
+          className="w-full py-8 lg:py-16 bg-background"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        >
+          <div className="container mx-auto px-4 lg:px-8">
+            <div className="space-y-8">
           {/* 评分卡片 */}
           <Card className="pt-0 pb-6 card-glass border-2 border-primary/20 elevation-3">
             <CardHeader className="pt-6 text-center pb-6 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-t-2xl">
@@ -1280,9 +1296,6 @@ export default function ProfileAnalyzer() {
                     style={{ width: `${result.overallScore * 10}%` }}
                   ></div>
                 </div>
-                {/* <div className="text-sm text-muted-foreground mt-2 text-center font-medium">
-                  {t("match_rate", { rate: result.overallScore * 10 })}
-                </div> */}
               </div>
             </CardContent>
           </Card>
@@ -1467,8 +1480,10 @@ export default function ProfileAnalyzer() {
               </div>
             </CardContent>
           </Card>
-        </div>
+            </div>
+          </div>
+        </motion.section>
       )}
-    </div>
+    </>
   );
 } 

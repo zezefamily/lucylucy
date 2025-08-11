@@ -21,6 +21,8 @@ import Testimonial from "@/components/blocks/testimonial";
 import { getLandingPage } from "@/services/page";
 import { getTranslations } from "next-intl/server";
 
+import ProfileAnalyzer from "@/components/blocks/profile-analyzer";
+
 export async function generateMetadata({
   params,
 }: {
@@ -95,7 +97,8 @@ export default async function HomePage({
   return (
     <>
       {/* Lucy Hero */}
-      <LucyHero />
+      {/* <LucyHero /> */}
+      <ProfileAnalyzer />
       {/* Lucy Compatible */}
       <LucyCompatible />
       {/* Why Choose Lucy AI ？ */}

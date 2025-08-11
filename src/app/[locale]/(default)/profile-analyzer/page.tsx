@@ -331,32 +331,9 @@ export default async function ProfileAnalyzerPage({ params }: Props) {
           </div>
         </div>
       </div>
-
-  
-
-      {/* 新增的Lucy风格FAQ模块 */}
-      {/* <LucyFAQ 
-        title={homepageT("faq.title")}
-        subtitle={homepageT("faq.subtitle")}
-        items={faqData}
-      /> */}
-
-      {/* Feature */}
-      {/* <LucyFeature section={lucyFeatures} />
-      <LucyFeature section={targetAudience} /> */}
-
-      {/* Testimonials */}
-      
-
-      {/* FAQ 组件 */}
-      {/* <ModernFAQ 
-        title={homepageT("faq.title")}
-        subtitle={homepageT("faq.subtitle")}
-        items={faqData}
-      /> */}
       
       {/* 底部装饰 */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+      {/* <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div> */}
     </div>
   );
 } 

@@ -1,5 +1,4 @@
 "use client";
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Icon from "@/components/icon";
@@ -184,7 +183,7 @@ export default function LucyHero() {
           </div>
         </div>
       </div>
-      
+
       {/* 底部文字装饰 */}
       <div className="absolute bottom-4 left-0 right-0">
         <div className="container mx-auto px-4">
