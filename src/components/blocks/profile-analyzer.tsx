@@ -1073,7 +1073,7 @@ export default function ProfileAnalyzer() {
                 >
                   <div className="w-full max-w-sm lg:max-w-lg">
                     <img 
-                      src="/imgs/lucy/banner_hero_img.png"
+                      src="/imgs/lucy/banner_hero_img_new.png"
                       alt="Dating Profile Analysis"
                       className="w-full h-auto object-contain"
                     />

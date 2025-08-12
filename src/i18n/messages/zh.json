@@ -11,7 +11,7 @@
     "subtitle": "获得更多积分和功能"
   },
   "metadata": {
-    "title": "LucyAI - The Dating Coach Who Truly Understands Women, perfects your dating profile",
+    "title": "Lucy AI - The Dating Coach Who Truly Understands Women, perfects your dating profile",
     "description": "The best AI-powered dating coach, backed by dating experts—enhancing your dating profile with professional photo analysis, high-response openers, and proven strategies to boost matches and attract the right connections.",
     "keywords": ""
   },
@@ -44,13 +44,13 @@
     "unlimited": "无限制"
   },
   "profile_analyzer": {
-    "page_title": "LucyAI - The Dating Coach Who Truly Understands Women, perfects your dating profile",
+    "page_title": "Lucy AI - The Dating Coach Who Truly Understands Women, perfects your dating profile",
     "page_description": "The best AI-powered dating coach, backed by dating experts—enhancing your dating profile with professional photo analysis, high-response openers, and proven strategies to boost matches and attract the right connections.",
     "title": "约会照片分析师",
     "subtitle": "档案照片的AI约会教练",
     "description": "上传您的照片，获得专业的约会教练分析",
     "feature_ai_score_title": "AI评分",
-    "feature_ai_score_desc": "LucyAI驱动的1-10魅力评分系统",
+    "feature_ai_score_desc": "Lucy AI 驱动的1-10魅力评分系统",
     "feature_advice_title": "专业建议",
     "feature_advice_desc": "针对照片、风格和表情的具体优化建议",
     "feature_privacy_title": "隐私安全",
@@ -150,10 +150,10 @@
     "faq": {
       "title": "常见问题",
       "subtitle": "常见问题解答",
-      "q1_question": "什么是约会教练？LucyAI如何帮助我？",
+      "q1_question": "什么是约会教练？Lucy AI 如何帮助我？",
       "q1_answer": "约会教练是提供个性化策略来驾驭约会世界的专业人士。这位专家致力于增强沟通和提升信心，使他们对吸引合适的匹配对象非常有价值。如果您需要帮助改善约会档案或第一条消息，约会教练会提供逐步指导。虽然AI工具可以优化档案，但约会教练提供对您行为和策略的深入见解，以改善您的整体约会方法。",
       "q2_question": "我如何使用Lucy AI改善我的约会档案？",
-      "q2_answer": "LucyAI使用人工智能帮助您优化约会档案。我们的系统评估您的照片和描述，提供使您的页面更具吸引力的建议。与提供主观反馈的约会教练不同，Lucy AI提供数据驱动的提示。这种优化确保您的页面留下强烈的第一印象，就像约会教练在约会世界中可能指导您的那样。",
+      "q2_answer": "Lucy AI 使用人工智能帮助您优化约会档案。我们的系统评估您的照片和描述，提供使您的页面更具吸引力的建议。与提供主观反馈的约会教练不同，Lucy AI提供数据驱动的提示。这种优化确保您的页面留下强烈的第一印象，就像约会教练在约会世界中可能指导您的那样。",
       "q3_question": "我需要约会教练来创建强大的约会档案吗？",
       "q3_answer": "虽然个人约会教练提供量身定制的建议，但像Lucy AI这样的工具可以显著改善您自己的约会档案。我们的AI平台通过专业建议帮助优化您的简历和照片，增强您留下好印象的机会。Lucy AI提供类似于您从约会教练那里获得的见解和优化，但没有成本或承诺。",
       "q4_question": "我应该在约会档案中包含什么？",
@@ -253,16 +253,16 @@
     "files_compressed": "{compressed} / {total} 文件已压缩"
   },
   "about": {
-    "page_title": "关于我们 - LucyAI",
+    "page_title": "关于我们 - Lucy AI",
     "page_description": "遇见对的人，有Lucy陪伴在身边",
     "title": "关于我们",
     "subtitle": "遇见对的人，有Lucy陪伴在身边",
     "mission_title": "我们的使命",
-    "mission_content": "Lucy AI由BLUE BOX AI LIMITED开发，她诞生于我们对人与人之间连接的长期关注和信念。",
+    "mission_content": "Lucy AI 由 BLUE BOX AI LIMITED 开发，她的诞生，源自我们对人与人关系的长期关注和信念。",
     "values_title": "我们的价值观",
-    "values_content": "Lucy AI的使命是利用人工智能帮助每个人展现更真实、更有吸引力的自己，带来轻松自信的社交体验，陪伴用户找到那个对的人。无论您是在寻找爱情、友谊还是伙伴，Lucy AI都想成为您值得信赖的伙伴。",
+    "values_content": "Lucy AI 的使命是让天下没有难交的朋友。我们希望用人工智能帮助每个人展现更真实、有魅力的自我，让社交变得简单而高效。无论是在寻找爱情、友谊还是合作伙伴，Lucy 都希望成为你值得信赖的伙伴。",
     "commitment_title": "我们的承诺",
-    "commitment_content": "BLUE BOX AI LIMITED是一家专注于开发对人类有益的AI产品的科技公司。我们重视真诚、尊重、创造力和同理心。我们始终相信技术应该是善良的，技术不应该取代人类情感，而应该成为人们彼此更亲近的桥梁。",
+    "commitment_content": "BLUE BOX AI LIMITED 是一家专注于开发对人类有益的 AI 产品的公司。我们重视真诚、尊重、创造力和同理心。我们始终相信技术不应替代人类的情感，而应成为人与人彼此沟通的桥梁。",
     "team_section_title": "关于我们的团队",
     "company_title": "BLUE BOX AI LIMITED",
     "company_description": "BLUE BOX AI LIMITED是一家专注于开发对人类有益的AI产品的科技公司。",
