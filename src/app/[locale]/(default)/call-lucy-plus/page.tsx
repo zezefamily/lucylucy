@@ -43,6 +43,8 @@ import { genUUID } from '@/lib/utils';
 import { progressiveImageCompression, validateImageFile, formatFileSize } from '@/lib/image-utils';
 import imageCompression from 'browser-image-compression';
 
+const A_TOKEN = "007eJxTYFhxcApbpHnKVN+GmwESaV+/3uhb9cfFyu9Po9nXJ/3Fq6YpMBimGiYaWCSbm5oZWpqYmRkkWaQlmZmkGiQlWpgmJyaaXpg9K6MhkJGhYvtSVkYGJgZGIATx2RgMjYxNTM0A51shtQ==";
+
 export default function CallLucyPlus() {
   // 声网配置
   const [config] = useState<AgoraConfig>({
@@ -297,7 +299,7 @@ export default function CallLucyPlus() {
           try {
             const subtitleRtm = new AgoraRTM.RTM(config.appId, `${config.uid}`);
             // if (config.token) {
-              await subtitleRtm.login({ token: "007eJxTYNDqU90QeWsqG1vqthlKrHlCE1azrvrdXfLF462bsvCm7CoFBsNUw0QDi2RzUzNDSxMzM4Mki7QkM5NUg6REC9PkxETTINfpGQ2BjAwlrv3MjAxMDIxACOKzMRgaGZuYmgEAlaEcmw==" });
+              await subtitleRtm.login({ token: A_TOKEN });
               await subtitleRtm.subscribe(config.channel);
               setSubtitleRtmClient(subtitleRtm);
               console.log('字幕 RTM 客户端初始化成功');
