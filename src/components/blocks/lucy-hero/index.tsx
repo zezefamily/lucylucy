@@ -1,5 +1,4 @@
 "use client";
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Icon from "@/components/icon";
@@ -148,7 +147,7 @@ export default function LucyHero() {
                     className="text-4xl"
                     style={{ color: '#C8FB75', fontWeight: '900' }}
                   >
-                    <AnimatedNumber targetValue={300} />%
+                    <AnimatedNumber targetValue={277} />%
                   </span>
                 </div>
                 <div 
@@ -159,7 +158,7 @@ export default function LucyHero() {
                     className="text-4xl"
                     style={{ color: '#C8FB75', fontWeight: '900' }}
                   >
-                    <AnimatedNumber targetValue={500} />%
+                    <AnimatedNumber targetValue={482} />%
                   </span>
                 </div>
               </motion.div>
@@ -174,7 +173,7 @@ export default function LucyHero() {
             >
               <div className="w-full max-w-sm lg:max-w-lg">
                 <img 
-                  src="/imgs/lucy/banner_hero_img.png"
+                  src="/imgs/lucy/banner_hero_img_new.png"
                   alt="Dating Profile Analysis"
                   className="w-full h-auto object-contain"
                 />
@@ -184,7 +183,7 @@ export default function LucyHero() {
           </div>
         </div>
       </div>
-      
+
       {/* 底部文字装饰 */}
       <div className="absolute bottom-4 left-0 right-0">
         <div className="container mx-auto px-4">

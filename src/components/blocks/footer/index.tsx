@@ -69,13 +69,21 @@ export default function Footer({ footer }: { footer: FooterType }) {
                   <ul className="flex flex-wrap gap-4 md:space-y-4 md:flex-col md:gap-0 text-sm text-muted-foreground">
                     {item.children?.map((iitem, ii) => (
                       <li key={ii} className="font-medium hover:text-primary">
-                        <a 
-                          href={iitem.url} 
-                          target={iitem.target}
-                          onClick={iitem.title === "联系我们" || iitem.title === "Contact Us" ? handleContactClick : undefined}
-                        >
-                          {iitem.title}
-                        </a>
+                        {iitem.title === "联系我们" || iitem.title === "Contact Us" ? (
+                          <button 
+                            onClick={handleContactClick}
+                            className="cursor-pointer"
+                          >
+                            {iitem.title}
+                          </button>
+                        ) : (
+                          <a 
+                            href={iitem.url} 
+                            target={iitem.target}
+                          >
+                            {iitem.title}
+                          </a>
+                        )}
                       </li>
                     ))}
                   </ul>

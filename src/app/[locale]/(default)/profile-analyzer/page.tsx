@@ -6,6 +6,7 @@ import ProfileAnalyzer from "@/components/blocks/profile-analyzer";
 import { ModernFAQ } from "@/components/blocks/faq";
 import { Testimonial as TestimonialType, TestimonialItem } from "@/types/blocks/testimonial";
 import LucyFeature from "@/components/blocks/lucy-feature";
+import LucyFAQ from "@/components/blocks/lucy-faq";
 import { Section } from "@/types/blocks/section";
 
 type Props = {
@@ -330,124 +331,9 @@ export default async function ProfileAnalyzerPage({ params }: Props) {
           </div>
         </div>
       </div>
-
-      {/* FAQ 组件 */}
-      <div className="relative py-20">
-        {/* 背景装饰 */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-10 left-20 w-40 h-40 bg-gradient-secondary rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-blob"></div>
-          <div className="absolute bottom-10 right-20 w-40 h-40 bg-gradient-accent rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-blob animation-delay-4000"></div>
-        </div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-5xl mx-auto">
-            {/* 主标题 */}
-            <div className="text-center mb-16">
-              <div className="relative inline-block">
-                <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-gradient-primary mb-8 float-animation leading-tight">
-                  {homepageT("ai_dating_coach_title")}
-                </h2>
-                <div className="absolute -inset-6 bg-gradient-primary rounded-full blur-3xl opacity-15 animate-pulse"></div>
-              </div>
-            </div>
-
-            {/* 功能特色卡片 */}
-            <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-              {/* 个性化AI指导 */}
-              <div className="card-glass rounded-2xl p-6 lg:p-8 text-center hover-lift group">
-                <div className="w-16 h-16 lg:w-20 lg:h-20 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 glow-primary group-hover:pulse-glow transition-all duration-300">
-                  <svg className="w-8 h-8 lg:w-10 lg:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                </div>
-                <h2 className="text-xl lg:text-2xl font-bold text-foreground mb-4 leading-tight">
-                  {homepageT("personalized_coaching_title")}
-                </h2>
-                <p className="text-foreground/70 leading-relaxed">
-                  {homepageT("personalized_coaching_desc")}
-                </p>
-              </div>
-              
-              {/* 聊天开场白 */}
-              <div className="card-glass rounded-2xl p-6 lg:p-8 text-center hover-lift group">
-                <div className="w-16 h-16 lg:w-20 lg:h-20 bg-gradient-secondary rounded-2xl flex items-center justify-center mx-auto mb-6 glow-secondary group-hover:pulse-glow transition-all duration-300">
-                  <svg className="w-8 h-8 lg:w-10 lg:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                </div>
-                <h2 className="text-xl lg:text-2xl font-bold text-foreground mb-4 leading-tight">
-                  {homepageT("chat_openers_title")}
-                </h2>
-                <p className="text-foreground/70 leading-relaxed">
-                  {homepageT("chat_openers_desc")}
-                </p>
-              </div>
-              
-              {/* 照片优化 */}
-              <div className="card-glass rounded-2xl p-6 lg:p-8 text-center hover-lift group">
-                <div className="w-16 h-16 lg:w-20 lg:h-20 bg-gradient-accent rounded-2xl flex items-center justify-center mx-auto mb-6 glow-accent group-hover:pulse-glow transition-all duration-300">
-                  <svg className="w-8 h-8 lg:w-10 lg:h-10 text-accent-green-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <h2 className="text-xl lg:text-2xl font-bold text-foreground mb-4 leading-tight">
-                  {homepageT("photo_optimization_title")}
-                </h2>
-                <p className="text-foreground/70 leading-relaxed">
-                  {homepageT("photo_optimization_desc")}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Feature */}
-      <LucyFeature section={lucyFeatures} />
-      <LucyFeature section={targetAudience} />
-
-      {/* Testimonials */}
-      {!testimonials.disabled && (
-        <div className="relative py-20">
-          {/* 背景装饰 */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-20 right-10 w-60 h-60 bg-gradient-primary rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob"></div>
-            <div className="absolute bottom-20 left-10 w-60 h-60 bg-gradient-secondary rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob animation-delay-2000"></div>
-          </div>
-          
-          <div className="container mx-auto px-4 relative z-10">
-            <div className="max-w-6xl mx-auto">
-              {/* 标题 */}
-              <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-5xl font-bold text-gradient-primary mb-6">
-                  {testimonials.title}
-                </h2>
-                {testimonials.description && (
-                  <p className="text-lg text-foreground/70 mb-8">
-                    {testimonials.description}
-                  </p>
-                )}
-                <div className="w-32 h-1 bg-gradient-primary mx-auto mb-8 rounded-full"></div>
-              </div>
-
-              {/* 用户评价网格 */}
-              <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
-                {testimonials.items?.map((item, index) => renderTestimonialItem(item, index))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* FAQ 组件 */}
-      <ModernFAQ 
-        title={homepageT("faq.title")}
-        subtitle={homepageT("faq.subtitle")}
-        items={faqData}
-      />
       
       {/* 底部装饰 */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+      {/* <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div> */}
     </div>
   );
 } 

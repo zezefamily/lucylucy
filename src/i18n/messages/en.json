@@ -11,7 +11,7 @@
     "subtitle": "Get more credits and features"
   },
   "metadata": {
-    "title": "LucyAI - The Dating Coach Who Truly Understands Women, perfects your dating profile",
+    "title": "Lucy AI - The Dating Coach Who Truly Understands Women, perfects your dating profile",
     "description": "The best AI-powered dating coach, backed by dating experts—enhancing your dating profile with professional photo analysis, high-response openers, and proven strategies to boost matches and attract the right connections.",
     "keywords": ""
   },
@@ -50,7 +50,7 @@
     "subtitle": "AI Dating Coach for Your Profile Photos",
     "description": "Upload your photos for professional dating coach analysis",
     "feature_ai_score_title": "AI Rating",
-    "feature_ai_score_desc": "LucyAI-powered 1-10 charm rating system",
+    "feature_ai_score_desc": "Lucy AI-powered 1-10 charm rating system",
     "feature_advice_title": "Professional Advice",
     "feature_advice_desc": "Specific optimization tips for photos, style, and expression",
     "feature_privacy_title": "Privacy & Security",
@@ -150,10 +150,10 @@
     "faq": {
       "title": "FAQ",
       "subtitle": "Frequently Asked Questions",
-      "q1_question": "What is a Dating Coach and How Can LucyAI Help Me?",
+      "q1_question": "What is a Dating Coach and How Can Lucy AI Help Me?",
       "q1_answer": "A dating coach is a professional offering personalized strategies to navigate the dating world. This expert works to enhance communication and boost confidence, making them invaluable for attracting the right matches. If you need help with your dating profile or first messages, a dating coach provides step-by-step guidance. While AI tools can optimize profiles, a dating coach offers in-depth insights into your behaviors and strategies to improve your overall dating approach.",
       "q2_question": "How Can I Improve My Dating Profile with Lucy AI?",
-      "q2_answer": "LucyAI uses artificial intelligence to help you optimize your dating profile. Our system evaluates your photos and descriptions to provide suggestions that make your page more engaging. Unlike a dating coach who offers subjective feedback, Lucy AI provides data-driven tips. This optimization ensures your page makes a strong first impression, much like what a dating coach might guide you toward in the dating world.",
+      "q2_answer": "Lucy AI uses artificial intelligence to help you optimize your dating profile. Our system evaluates your photos and descriptions to provide suggestions that make your page more engaging. Unlike a dating coach who offers subjective feedback, Lucy AI provides data-driven tips. This optimization ensures your page makes a strong first impression, much like what a dating coach might guide you toward in the dating world.",
       "q3_question": "Do I Need a Dating Coach to Create a Strong Dating Profile?",
       "q3_answer": "While a personal dating coach provides tailored advice, tools like Lucy AI can significantly improve your dating profile on your own. Our AI platform helps optimize your bio and photos with professional suggestions, enhancing your chances of making a great impression. Lucy AI offers similar insights and optimizations that you would receive from a dating coach, but without the cost or commitment.",
       "q4_question": "What Should I Include in My Dating Profile?",
@@ -253,7 +253,7 @@
     "files_compressed": "{compressed} of {total} files compressed"
   },
   "about": {
-    "page_title": "About Us - LucyAI",
+    "page_title": "About Us - Lucy AI",
     "page_description": "Meet the right one, with Lucy by your side",
     "title": "About Us",
     "subtitle": "Meet the right one, with Lucy by your side",
@@ -337,6 +337,12 @@
     "conversation_starter": "Conversation Starter",
     "call_lucy_plus": "Call Lucy+",
     "call_lucy": "Call Lucy"
+  },
+  "contact_modal": {
+    "title": "Contact Us",
+    "description": "We'd love to hear from you! Please contact us via the official email below:",
+    "official_email": "Official Email: support@lucyai.app",
+    "close": "Close"
   },
   "common": {
     "loading": "Loading...",
