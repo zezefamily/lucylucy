@@ -770,9 +770,7 @@ export default function ProfileAnalyzer() {
                           {/* 主标题 */}
                           <div className="mb-8">
                             <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
-                              <span style={{ color: '#3D08FF', fontWeight: '900' }}>Your Personal AI</span>
-                              <br />
-                              <span 
+                              <span style={{ color: '#3D08FF', fontWeight: '900' }}>Your <span 
                                 className="inline-block font-bold py-2 rounded-full"
                                 style={{ 
                                   color: '#C8FB75',
@@ -780,6 +778,17 @@ export default function ProfileAnalyzer() {
                                 }}
                               >
                                 Dating Coach
+                              </span>
+                              </span>
+                              <br />
+                              <span 
+                                className="inline-block font-bold py-2 rounded-full"
+                                style={{ 
+                                  color: '#3D08FF',
+                                  fontWeight: '900'
+                                }}
+                              >
+                                in your pocket
                               </span>
                             </h1>
                             
