@@ -1094,7 +1094,7 @@ export default function ProfileAnalyzer() {
         </div>
 
         {/* 底部文字装饰 */}
-        <div className="absolute bottom-4 left-0 right-0">
+        <div className="absolute bottom-4 left-0 right-0 hidden lg:block">
           <div className="container mx-auto px-4">
             <div 
               className="text-center text-xs lg:text-sm tracking-[0.3em] font-light"
