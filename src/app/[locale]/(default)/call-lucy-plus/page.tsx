@@ -43,7 +43,7 @@ import { genUUID } from '@/lib/utils';
 import { progressiveImageCompression, validateImageFile, formatFileSize } from '@/lib/image-utils';
 import imageCompression from 'browser-image-compression';
 
-const A_TOKEN = "007eJxTYFhxcApbpHnKVN+GmwESaV+/3uhb9cfFyu9Po9nXJ/3Fq6YpMBimGiYaWCSbm5oZWpqYmRkkWaQlmZmkGiQlWpgmJyaaXpg9K6MhkJGhYvtSVkYGJgZGIATx2RgMjYxNTM0A51shtQ==";
+const A_TOKEN = "007eJxTYHB73J0/W6u2qCcjw3e/FvfytdsFxGWNanVyCxOEu0127FJgMEw1TDSwSDY3NTO0NDEzM0iySEsyM0k1SEq0ME1OTDSVVlqa0RDIyLCz/woLIwMTAyMQgvhsDIZGxiamZgB2Mxxp";
 
 export default function CallLucyPlus() {
   // 声网配置
@@ -1314,11 +1314,13 @@ export default function CallLucyPlus() {
                       {/* Lucy 标识 */}
                       <div className="relative flex items-center justify-center w-full h-full">
                         <span 
-                          className="text-6xl font-bold select-none"
+                          className="text-6xl font-thin select-none"
                           style={{ 
                             color: 'white',
                             textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-                            fontFamily: 'var(--font-serif)'
+                            fontFamily: 'system-ui, -apple-system, sans-serif',
+                            fontWeight: '100',
+                            letterSpacing: '0.02em'
                           }}
                         >
                           Lucy
@@ -1409,17 +1411,17 @@ export default function CallLucyPlus() {
                   {callState === 'connected' && (
                     <div className="mb-6">
                       <div className="flex items-center justify-center gap-3">
-                        <Mic className={`w-5 h-5 ${
+                        {/* <Mic className={`w-5 h-5 ${
                           state.isMuted ? 'text-red-500' : 'text-green-500'
-                        }`} />
+                        }`} /> */}
                         <div className="flex flex-col items-center">
                           <span className="text-xs text-gray-600 mb-1">
-                            {state.isMuted ? '麦克风已静音' : '麦克风音量'}
+                            {/* {state.isMuted ? '麦克风已静音' : '麦克风音量'} */}
                           </span>
                           {!state.isMuted && (
                             <div className="flex items-center gap-1">
                               {/* 音量级别可视化 */}
-                              {[...Array(10)].map((_, i) => (
+                              {/* {[...Array(10)].map((_, i) => (
                                 <div
                                   key={i}
                                   className={`w-1 h-4 rounded-full ${
@@ -1431,7 +1433,7 @@ export default function CallLucyPlus() {
                               ))}
                               <span className="text-xs text-gray-500 ml-2">
                                 {Math.round(microphoneLevel * 100)}%
-                              </span>
+                              </span> */}
                             </div>
                           )}
                         </div>
@@ -1444,14 +1446,14 @@ export default function CallLucyPlus() {
                     <div className="mb-6">
                       <div className="flex items-center justify-center gap-4">
                         <div className="flex items-center gap-2">
-                          <Signal className="w-4 h-4 text-blue-500" />
+                          {/* <Signal className="w-4 h-4 text-blue-500" />
                           <span className="text-xs text-gray-600">
                             连接: {connectionState}
-                          </span>
+                          </span> */}
                         </div>
                         {networkQuality && (
                           <div className="flex items-center gap-2">
-                            <div className="flex flex-col items-center">
+                            {/* <div className="flex flex-col items-center">
                               <span className="text-xs text-gray-500">上行</span>
                               <div className="flex gap-1">
                                 {[...Array(6)].map((_, i) => (
@@ -1465,8 +1467,8 @@ export default function CallLucyPlus() {
                                   />
                                 ))}
                               </div>
-                            </div>
-                            <div className="flex flex-col items-center">
+                            </div> */}
+                            {/* <div className="flex flex-col items-center">
                               <span className="text-xs text-gray-500">下行</span>
                               <div className="flex gap-1">
                                 {[...Array(6)].map((_, i) => (
@@ -1479,8 +1481,8 @@ export default function CallLucyPlus() {
                                     }`}
                                   />
                                 ))}
-                              </div>
-                            </div>
+                              </div> */}
+                            {/* </div> */}
                           </div>
                         )}
                       </div>
