@@ -147,6 +147,11 @@
       "serious_daters_title": "Serious Daters",
       "serious_daters_desc": "Serious daters who value their time and want better results"
     },
+    "blog": {
+      "title": "Latest Blog",
+      "subtitle": "Explore our latest articles and insights",
+      "readMore": "Read More"
+    },
     "faq": {
       "title": "FAQ",
       "subtitle": "Frequently Asked Questions",
@@ -350,6 +355,7 @@
     "edit": "Edit",
     "delete": "Delete",
     "back": "Back",
+    "back_to_blog_list": "Back to Blog List",
     "month": "month",
     "year": "year"
   }

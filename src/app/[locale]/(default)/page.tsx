@@ -22,6 +22,8 @@ import { getLandingPage } from "@/services/page";
 import { getTranslations } from "next-intl/server";
 
 import ProfileAnalyzer from "@/components/blocks/profile-analyzer";
+import BlogList from "@/components/blocks/blog-list";
+import { getFeaturedBlogPosts } from "@/services/blog";
 
 export async function generateMetadata({
   params,
@@ -50,6 +52,10 @@ export default async function HomePage({
   const { locale } = await params;
   const page = await getLandingPage(locale);
   const homepageT = await getTranslations("homepage");
+  
+  // 获取博客文章
+  const blogPosts = await getFeaturedBlogPosts(locale);
+  console.log("首页获取到的博客数据:", { blogPostsLength: blogPosts.length, locale });
 
   const faqData = [
     {
@@ -117,6 +123,13 @@ export default async function HomePage({
         title={homepageT("faq.title")}
         subtitle={homepageT("faq.subtitle")}
         items={faqData}
+      />
+      {/* 博客列表模块 */}
+      <BlogList 
+        title={homepageT("blog.title")}
+        subtitle={homepageT("blog.subtitle")}
+        posts={blogPosts}
+        readMoreText={homepageT("blog.readMore")}
       />
     </>
   );

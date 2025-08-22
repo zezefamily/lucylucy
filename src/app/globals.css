@@ -27,6 +27,21 @@ button {
   @apply cursor-pointer border-border outline-ring/50;
 }
 
+/* Line clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* iOS 安全区域支持 */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .safe-area-pb {

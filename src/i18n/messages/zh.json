@@ -147,6 +147,11 @@
       "serious_daters_title": "认真的约会者",
       "serious_daters_desc": "珍惜时间并想要更好结果的认真约会者"
     },
+    "blog": {
+      "title": "最新博客",
+      "subtitle": "探索我们的最新文章和见解",
+      "readMore": "阅读更多"
+    },
     "faq": {
       "title": "常见问题",
       "subtitle": "常见问题解答",
@@ -350,6 +355,7 @@
     "edit": "编辑",
     "delete": "删除",
     "back": "返回",
+    "back_to_blog_list": "返回博客列表",
     "month": "月",
     "year": "年"
   }

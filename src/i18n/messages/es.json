@@ -349,7 +349,8 @@
     "save": "Guardar",
     "edit": "Editar",
     "delete": "Eliminar",
-    "back": "Atrás",
+    "back": "Volver",
+    "back_to_blog_list": "Volver a la Lista de Blogs",
     "month": "mes",
     "year": "año"
   }
