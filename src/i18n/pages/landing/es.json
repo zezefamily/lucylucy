@@ -23,6 +23,11 @@
           "icon": "RiChatSmile3Line"
         },
         {
+          "title": "Test de compatibilidad",
+          "url": "/fit-test",
+          "icon": "RiHeartPulseLine"
+        },
+        {
           "title": "Acerca de",
           "url": "/about",
           "icon": "RiInformationLine"
