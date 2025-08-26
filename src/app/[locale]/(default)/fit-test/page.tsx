@@ -2,8 +2,271 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useState } from "react";
+
+// 上传组件
+function UploadProfiles({ onBack }: { onBack: () => void }) {
+  const [yourBioImages, setYourBioImages] = useState<File[]>([]);
+  const [theirBioImages, setTheirBioImages] = useState<File[]>([]);
+
+  const handleImageUpload = (files: FileList | null, type: 'your' | 'their') => {
+    if (!files) return;
+    
+    const newFiles = Array.from(files);
+    const currentImages = type === 'your' ? yourBioImages : theirBioImages;
+    const setImages = type === 'your' ? setYourBioImages : setTheirBioImages;
+    
+    // 限制最多8张图片
+    const remainingSlots = 8 - currentImages.length;
+    const filesToAdd = newFiles.slice(0, remainingSlots);
+    
+    setImages([...currentImages, ...filesToAdd]);
+  };
+
+  const removeImage = (index: number, type: 'your' | 'their') => {
+    const currentImages = type === 'your' ? yourBioImages : theirBioImages;
+    const setImages = type === 'your' ? setYourBioImages : setTheirBioImages;
+    
+    const newImages = currentImages.filter((_, i) => i !== index);
+    setImages(newImages);
+  };
+
+  const handleAnalyze = () => {
+    console.log('Analyze Compatibility clicked!');
+    console.log('Your Bio Images:', yourBioImages);
+    console.log('Their Bio Images:', theirBioImages);
+  };
+
+  return (
+    <motion.div 
+      className="relative z-10 flex flex-col items-center justify-start h-full px-4 lg:px-8"
+      style={{ paddingTop: '80px' }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+    >
+      <div className="text-center space-y-6 max-w-4xl mx-auto w-full">
+        
+        {/* 标题 */}
+        <motion.h1 
+          className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#3D08FF] mb-4"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          style={{ 
+              fontWeight: '900'
+          }}
+        >
+          Upload Profiles
+        </motion.h1>
+
+        {/* 副标题 */}
+        <motion.p 
+          className="text-base md:text-lg text-white font-medium px-4 mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+        >
+          Please upload photos containing both people's avatars, <br />
+          optionally add chat records for deeper analysis ✨
+        </motion.p>
+
+                 {/* 上传区域 */}
+         <motion.div 
+           className="bg-white/20 backdrop-blur-sm rounded-3xl p-6 md:p-8 border-2 border-[#3D08FF]/50"
+           initial={{ opacity: 0, scale: 0.9 }}
+           animate={{ opacity: 1, scale: 1 }}
+           transition={{ duration: 0.8, delay: 0.6 }}
+         >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            {/* Your Bio */}
+            <div>
+                             <div className="flex items-center mb-4">
+                 <div className="w-8 h-8 bg-[#D3FD51] rounded-full flex items-center justify-center mr-3">
+                   <span className="text-black font-bold text-sm">👤</span>
+                 </div>
+                 <h3 className="text-lg font-semibold text-white">Your Bio</h3>
+               </div>
+              
+                             {/* 图片网格 - 只在有图片时显示 */}
+               {yourBioImages.length > 0 && (
+                 <div className="grid grid-cols-4 gap-2 mb-4">
+                   {yourBioImages.map((image, index) => (
+                     <div key={index} className="aspect-square relative">
+                       <div className="relative w-full h-full">
+                         <img
+                           src={URL.createObjectURL(image)}
+                           alt={`Your bio ${index + 1}`}
+                           className="w-full h-full object-cover rounded-lg"
+                         />
+                         <button
+                           onClick={() => removeImage(index, 'your')}
+                           className="absolute -top-1 -right-1 w-5 h-5 bg-black rounded-full flex items-center justify-center text-white text-xs"
+                         >
+                           ×
+                         </button>
+                       </div>
+                     </div>
+                   ))}
+                 </div>
+               )}
+              
+                             {/* 上传按钮 */}
+               {yourBioImages.length < 8 && (
+                 <label className="block">
+                   <input
+                     type="file"
+                     multiple
+                     accept="image/*"
+                     className="hidden"
+                     onChange={(e) => handleImageUpload(e.target.files, 'your')}
+                   />
+                   <div className="w-full bg-white rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-[#FF64DC] transition-colors" style={{ height: yourBioImages.length > 0 ? '80px' : '264px' }}>
+                    <div className="text-center">
+                      <div className="w-8 h-8 bg-[#FF64DC] rounded-full flex items-center justify-center mx-auto mb-2">
+                        <span className="text-white text-lg">+</span>
+                      </div>
+                      <span className="text-gray-600 text-sm">
+                        {yourBioImages.length === 0 ? 'Upload first image' : 'Add another image'}
+                      </span>
+                    </div>
+                  </div>
+                </label>
+              )}
+              
+                             <p className="text-center text-white/80 text-sm mt-2">
+                 {yourBioImages.length}/8 images
+               </p>
+            </div>
+
+            {/* Their Bio */}
+            <div>
+                             <div className="flex items-center mb-4">
+                 <div className="w-8 h-8 bg-[#D3FD51] rounded-full flex items-center justify-center mr-3">
+                   <span className="text-black font-bold text-sm">👥</span>
+                 </div>
+                 <h3 className="text-lg font-semibold text-white">Their Bio</h3>
+               </div>
+              
+                             {/* 图片网格 - 只在有图片时显示 */}
+               {theirBioImages.length > 0 && (
+                 <div className="grid grid-cols-4 gap-2 mb-4">
+                   {theirBioImages.map((image, index) => (
+                     <div key={index} className="aspect-square relative">
+                       <div className="relative w-full h-full">
+                         <img
+                           src={URL.createObjectURL(image)}
+                           alt={`Their bio ${index + 1}`}
+                           className="w-full h-full object-cover rounded-lg"
+                         />
+                         <button
+                           onClick={() => removeImage(index, 'their')}
+                           className="absolute -top-1 -right-1 w-5 h-5 bg-black rounded-full flex items-center justify-center text-white text-xs"
+                         >
+                           ×
+                         </button>
+                       </div>
+                     </div>
+                   ))}
+                 </div>
+               )}
+              
+                             {/* 上传按钮 */}
+               {theirBioImages.length < 8 && (
+                 <label className="block">
+                   <input
+                     type="file"
+                     multiple
+                     accept="image/*"
+                     className="hidden"
+                     onChange={(e) => handleImageUpload(e.target.files, 'their')}
+                   />
+                   <div className="w-full bg-white rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-[#FF64DC] transition-colors" style={{ height: theirBioImages.length > 0 ? '80px' : '264px' }}>
+                    <div className="text-center">
+                      <div className="w-8 h-8 bg-[#FF64DC] rounded-full flex items-center justify-center mx-auto mb-2">
+                        <span className="text-white text-lg">+</span>
+                      </div>
+                      <span className="text-gray-600 text-sm">
+                        {theirBioImages.length === 0 ? 'Upload first image' : 'Add another image'}
+                      </span>
+                    </div>
+                  </div>
+                </label>
+              )}
+              
+                             <p className="text-center text-white/80 text-sm mt-2">
+                 {theirBioImages.length}/8 images
+               </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Analyze 按钮 */}
+        <motion.div
+          className="pt-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+        >
+          <div className="mx-auto flex justify-center">
+            <div className="w-[320px] md:w-[400px] h-[70px] md:h-[80px]">
+              <button 
+                onClick={handleAnalyze}
+                className="group bg-black hover:bg-gray-800 text-white rounded-full font-semibold text-lg md:text-xl transition-all duration-300 flex items-center w-full h-full relative"
+              >
+                <div className="absolute left-4 flex items-center justify-center bg-gradient-to-r from-[#FF64DC] to-[#FFA8F5] rounded-full w-12 h-12">
+                  <span className="text-2xl">💕</span>
+                </div>
+                <span className="flex-1 text-center pl-8">Analyze Compatibility</span>
+              </button>
+            </div>
+          </div>
+        </motion.div>
+
+      </div>
+    </motion.div>
+  );
+}
 
 export default function FitTest() {
+  const [showUpload, setShowUpload] = useState(false);
+
+  if (showUpload) {
+    return (
+      <motion.section 
+        className="relative w-full min-h-screen h-screen max-h-[900px] overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      >
+        {/* 渐变背景 */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#FFA8F5] to-[#FF64DC]" />
+        
+        {/* 中央旋转背景图片 */}
+        <motion.div 
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-1"
+          animate={{ rotate: 360 }}
+          transition={{ 
+            duration: 15,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        >
+          <Image
+            src="/imgs/lucy/fit-test_bg_effect_Img.png"
+            alt="Background Effect"
+            width={1200}
+            height={1200}
+            className="opacity-50 w-[600px] sm:w-[700px] md:w-[900px] lg:w-[1000px] xl:w-[1200px] h-auto"
+          />
+        </motion.div>
+
+        <UploadProfiles onBack={() => setShowUpload(false)} />
+      </motion.section>
+    );
+  }
+
   return (
     <motion.section 
       className="relative w-full min-h-screen h-screen max-h-[900px] overflow-hidden"
@@ -230,20 +493,23 @@ export default function FitTest() {
             transition={{ duration: 0.8, delay: 0.8 }}
           >
                         <div className="mx-auto flex justify-center pt-4">
-              <div className="w-[280px] md:w-[320px] lg:w-[298px] h-[70px] md:h-[80px]">
-                <button className="group bg-black hover:bg-gray-800 text-white rounded-full font-semibold text-lg md:text-xl lg:text-lg transition-all duration-300 flex items-center w-full h-full relative">
-                  <div className="absolute left-4 flex items-center justify-center bg-gradient-to-r from-[#FF64DC] to-[#FFA8F5] rounded-full">
-                    <Image
-                      src="/imgs/lucy/hero_add_img_icon.png"
-                      alt="Upload Icon"
-                      width={60}
-                      height={60}
-                      className="group-hover:scale-110 transition-transform duration-300"
-                    />
-                  </div>
-                  <span className="flex-1 text-center pl-8">Find out now</span>
-                </button>
-              </div>
+                              <div className="w-[280px] md:w-[320px] lg:w-[298px] h-[70px] md:h-[80px]">
+                  <button 
+                    onClick={() => setShowUpload(true)}
+                    className="group bg-black hover:bg-gray-800 text-white rounded-full font-semibold text-lg md:text-xl lg:text-lg transition-all duration-300 flex items-center w-full h-full relative"
+                  >
+                   <div className="absolute left-4 flex items-center justify-center bg-gradient-to-r from-[#FF64DC] to-[#FFA8F5] rounded-full">
+                      <Image
+                        src="/imgs/lucy/hero_add_img_icon.png"
+                        alt="Upload Icon"
+                        width={60}
+                        height={60}
+                        className="group-hover:scale-110 transition-transform duration-300"
+                      />
+                   </div>
+                   <span className="flex-1 text-center pl-8">Find out now</span>
+                  </button>
+                </div>
               </div>
             <p className="text-black/80 text md:text-base lg:text-sm text-center px-4">
               Results in 10 seconds
