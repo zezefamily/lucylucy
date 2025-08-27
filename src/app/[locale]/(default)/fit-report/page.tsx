@@ -165,38 +165,74 @@ function SuggestionItem({ title, description }: SuggestionItemProps) {
 }
 
 export default function FitReport() {
-  // 模拟数据
-  const compatibilityScore = 88
-  const userAvatarUrl = "/imgs/lucy/banner_hero_img_new.png"
-  const partnerAvatarUrl = "/imgs/lucy/banner_hero_img_new.png"
+  // 从localStorage读取分析结果
+  const [analysisData, setAnalysisData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('fitTestResult');
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        setAnalysisData(data);
+      } catch (error) {
+        console.error('Failed to parse stored result:', error);
+      }
+    }
+    setIsLoading(false);
+  }, []);
+
+  // 如果没有数据，显示默认数据或错误信息
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#FF64DC] to-[#FFA8F5] flex items-center justify-center">
+        <div className="text-white text-xl">Loading analysis result...</div>
+      </div>
+    );
+  }
+
+  if (!analysisData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#FF64DC] to-[#FFA8F5] flex items-center justify-center">
+        <div className="text-white text-center">
+          <div className="text-xl mb-4">No analysis result found</div>
+          <button 
+            onClick={() => window.location.href = '/fit-test'}
+            className="bg-black text-white px-6 py-3 rounded-full"
+          >
+            Take the test again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 使用分析结果数据
+  const compatibilityScore = analysisData.overallScore || 88;
+  const userAvatarUrl = "/imgs/lucy/banner_hero_img_new.png";
+  const partnerAvatarUrl = "/imgs/lucy/banner_hero_img_new.png";
   
   const metrics = [
-    { label: "Vibes", percentage: 90, color: "#8B5CF6" },
-    { label: "Interests", percentage: 90, color: "#A855F7" },
-    { label: "Personality", percentage: 90, color: "#84CC16" },
-    { label: "Relationship Intent", percentage: 60, color: "#EC4899" }
-  ]
+    { label: "Vibes", percentage: analysisData.fourDimensions?.vibes || 0, color: "#8B5CF6" },
+    { label: "Interests", percentage: analysisData.fourDimensions?.interests || 0, color: "#A855F7" },
+    { label: "Personality", percentage: analysisData.fourDimensions?.personality || 0, color: "#84CC16" },
+    { label: "Intent", percentage: analysisData.fourDimensions?.intent || 0, color: "#EC4899" }
+  ];
 
-  const greenFlags = [
-    "Similar values and future visions align beautifully",
-    "你们都喜欢于行旅摄影，有共同的探索精神。",
-    "你们都喜欢于行旅摄影，有共同的探索精神。",
-    "你们都喜欢于行旅摄影，有共同的探索精神。",
-    "你们都喜欢于行旅摄影，有共同的探索精神。",
-    "你们都喜欢于行旅摄影，有共同的探索精神。"
-  ]
+  const greenFlags = analysisData.greenFlags || [
+    "Similar values and future visions align beautifully"
+  ];
 
-  const redFlags = [
-    "你们都喜欢于行旅摄影，有共同的探索精神。",
-    "你们都喜欢于行旅摄影，有共同的探索精神。",
-    "你们都喜欢于行旅摄影，有共同的探索精神。"
-  ]
+  const redFlags = analysisData.redFlags || [
+    "Need more communication about expectations"
+  ];
 
-  const suggestions = [
-    { title: "建议 1 深度对话", description: "多进行深度对话，分享彼此的心境感悟和想法" },
-    { title: "建议 1 深度对话", description: "多进行深度对话，分享彼此的心境感悟和想法" },
-    { title: "建议 1 深度对话", description: "多进行深度对话，分享彼此的心境感悟和想法" }
-  ]
+  const suggestions = analysisData.finalAdvice?.map((advice: string, index: number) => ({
+    title: `Suggestion ${index + 1}`,
+    description: advice
+  })) || [
+    { title: "Suggestion 1", description: "Continue building your connection" }
+  ];
 
   return (
     <motion.div 
@@ -366,7 +402,7 @@ export default function FitReport() {
                   </motion.span>
                 </div>
                 <p className="text-gray-600 text-sm lg:text-base">
-                  Like Dali and Gala, art and passion ignite sparks between you
+                  {analysisData.oneSentenceSummary || "Like Dali and Gala, art and passion ignite sparks between you"}
                 </p>
               </motion.div>
             
@@ -419,7 +455,7 @@ export default function FitReport() {
           >
             <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-lg">
               <CardContent className="p-4 space-y-3">
-                {greenFlags.map((flag, index) => (
+                {greenFlags.map((flag: string, index: number) => (
                   <motion.div
                     key={index}
                     initial={{ x: -50, opacity: 0 }}
@@ -468,7 +504,7 @@ export default function FitReport() {
           >
             <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-lg">
               <CardContent className="p-4 space-y-3">
-                {redFlags.map((flag, index) => (
+                {redFlags.map((flag: string, index: number) => (
                   <motion.div
                     key={index}
                     initial={{ x: -50, opacity: 0 }}
@@ -523,7 +559,7 @@ export default function FitReport() {
           >
             <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-lg">
               <CardContent className="p-4 space-y-3">
-                {suggestions.map((suggestion, index) => (
+                {suggestions.map((suggestion: any, index: number) => (
                   <motion.div
                     key={index}
                     initial={{ x: -50, opacity: 0 }}

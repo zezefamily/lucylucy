@@ -3,11 +3,16 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import imageCompression from 'browser-image-compression';
+import { toast } from "sonner";
 
 // 上传组件
 function UploadProfiles({ onBack }: { onBack: () => void }) {
   const [yourBioImages, setYourBioImages] = useState<File[]>([]);
   const [theirBioImages, setTheirBioImages] = useState<File[]>([]);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const router = useRouter();
 
   const handleImageUpload = (files: FileList | null, type: 'your' | 'their') => {
     if (!files) return;
@@ -31,10 +36,219 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
     setImages(newImages);
   };
 
-  const handleAnalyze = () => {
-    console.log('Analyze Compatibility clicked!');
-    console.log('Your Bio Images:', yourBioImages);
-    console.log('Their Bio Images:', theirBioImages);
+  const handleAnalyze = async () => {
+    // 验证是否有上传图片
+    if (yourBioImages.length === 0 || theirBioImages.length === 0) {
+      toast.error("Please upload at least one image for both profiles");
+      return;
+    }
+
+    setIsAnalyzing(true);
+    
+    try {
+      console.log('Starting analysis process...', {
+        yourImagesCount: yourBioImages.length,
+        theirImagesCount: theirBioImages.length
+      });
+
+      toast.info("Compressing images...");
+      
+      // 图片压缩配置
+      const compressionOptions = {
+        maxSizeMB: 1, // 最大1MB
+        maxWidthOrHeight: 1920, // 最大宽高
+        useWebWorker: true,
+        initialQuality: 0.8
+      };
+
+      // 压缩所有图片
+      const compressedYourImages = await Promise.all(
+        yourBioImages.map(async (file, index) => {
+          try {
+            console.log(`Compressing your image ${index + 1}/${yourBioImages.length}`);
+            return await imageCompression(file, compressionOptions);
+          } catch (error) {
+            console.error(`Image compression failed for your image ${index + 1}:`, error);
+            return file; // 如果压缩失败，使用原图
+          }
+        })
+      );
+
+      const compressedTheirImages = await Promise.all(
+        theirBioImages.map(async (file, index) => {
+          try {
+            console.log(`Compressing their image ${index + 1}/${theirBioImages.length}`);
+            return await imageCompression(file, compressionOptions);
+          } catch (error) {
+            console.error(`Image compression failed for their image ${index + 1}:`, error);
+            return file; // 如果压缩失败，使用原图
+          }
+        })
+      );
+
+      console.log('Compression completed:', {
+        yourImagesCompressed: compressedYourImages.length,
+        theirImagesCompressed: compressedTheirImages.length
+      });
+
+      toast.info("Uploading images...");
+
+      // 上传您的图片
+      const uploadYourImages = async (files: File[]) => {
+        const formData = new FormData();
+        files.forEach(file => {
+          formData.append('files', file);
+        });
+        formData.append('prefix', 'fit-test-profile1');
+
+        const response = await fetch('/api/upload-image', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Upload failed:', errorText);
+          throw new Error('Failed to upload your images');
+        }
+
+        const result = await response.json();
+        console.log('Upload result for profile1:', result);
+        
+        // API返回格式：{ code: 0, message: "ok", data: ... }
+        // 成功：code === 0，失败：code === -1
+        if (result.code !== 0) {
+          throw new Error(result.message || 'Upload failed');
+        }
+
+        if (!result.data) {
+          throw new Error('No data in upload response');
+        }
+
+        // 单文件上传格式：data: { url: "...", ... }
+        if (result.data.url) {
+          return [result.data.url];
+        }
+        
+        // 多文件上传格式：data: { results: [{ url: "..." }, ...] }
+        if (result.data.results && Array.isArray(result.data.results)) {
+          return result.data.results.map((item: any) => item.url);
+        }
+        
+        throw new Error(`Unexpected upload response format: ${JSON.stringify(result)}`);
+      };
+
+      // 上传对方的图片
+      const uploadTheirImages = async (files: File[]) => {
+        const formData = new FormData();
+        files.forEach(file => {
+          formData.append('files', file);
+        });
+        formData.append('prefix', 'fit-test-profile2');
+
+        const response = await fetch('/api/upload-image', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Upload failed:', errorText);
+          throw new Error('Failed to upload their images');
+        }
+
+        const result = await response.json();
+        console.log('Upload result for profile2:', result);
+        
+        // API返回格式：{ code: 0, message: "ok", data: ... }
+        // 成功：code === 0，失败：code === -1
+        if (result.code !== 0) {
+          throw new Error(result.message || 'Upload failed');
+        }
+
+        if (!result.data) {
+          throw new Error('No data in upload response');
+        }
+
+        // 单文件上传格式：data: { url: "...", ... }
+        if (result.data.url) {
+          return [result.data.url];
+        }
+        
+        // 多文件上传格式：data: { results: [{ url: "..." }, ...] }
+        if (result.data.results && Array.isArray(result.data.results)) {
+          return result.data.results.map((item: any) => item.url);
+        }
+        
+        throw new Error(`Unexpected upload response format: ${JSON.stringify(result)}`);
+      };
+
+      // 并行上传两组图片
+      const [yourImageUrls, theirImageUrls] = await Promise.all([
+        uploadYourImages(compressedYourImages),
+        uploadTheirImages(compressedTheirImages)
+      ]);
+
+      toast.info("Analyzing compatibility...");
+
+      console.log('Starting analysis with URLs:', {
+        profile1: yourImageUrls,
+        profile2: theirImageUrls
+      });
+
+      // 调用契合度分析API
+      const analysisResponse = await fetch('/api/fit-test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          profile1: yourImageUrls,
+          profile2: theirImageUrls,
+          locale: 'en', // 可以根据需要修改
+          chatHistory: undefined // 如果需要可以添加聊天记录输入
+        }),
+      });
+
+      if (!analysisResponse.ok) {
+        const errorText = await analysisResponse.text();
+        console.error('Analysis failed with status:', analysisResponse.status, errorText);
+        
+        try {
+          const errorData = JSON.parse(errorText);
+          throw new Error(errorData.message || 'Analysis failed');
+        } catch {
+          throw new Error(`Analysis failed with status ${analysisResponse.status}`);
+        }
+      }
+
+      const analysisResult = await analysisResponse.json();
+      console.log('Analysis result:', analysisResult);
+      
+      toast.success("Analysis complete!");
+
+      // 验证分析结果格式 - API返回格式：{ code: 0, message: "ok", data: ... }
+      if (analysisResult.code !== 0) {
+        throw new Error(analysisResult.message || 'Analysis failed');
+      }
+
+      if (!analysisResult.data) {
+        throw new Error('No analysis data in response');
+      }
+
+      // 将结果保存到localStorage并跳转到结果页面
+      localStorage.setItem('fitTestResult', JSON.stringify(analysisResult.data));
+      console.log('Saved analysis result to localStorage');
+      
+      // 跳转到结果页面
+      router.push('/fit-report');
+
+    } catch (error) {
+      console.error('Analysis failed:', error);
+      toast.error(error instanceof Error ? error.message : 'Analysis failed. Please try again.');
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   return (
@@ -225,12 +439,19 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
             <div className="w-[320px] md:w-[400px] h-[70px] md:h-[80px]">
               <button 
                 onClick={handleAnalyze}
-                className="group bg-black hover:bg-gray-800 text-white rounded-full font-semibold text-lg md:text-xl transition-all duration-300 flex items-center w-full h-full relative"
+                disabled={isAnalyzing || yourBioImages.length === 0 || theirBioImages.length === 0}
+                className="group bg-black hover:bg-gray-800 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-full font-semibold text-lg md:text-xl transition-all duration-300 flex items-center w-full h-full relative"
               >
                 <div className="absolute left-4 flex items-center justify-center bg-gradient-to-r from-[#FF64DC] to-[#FFA8F5] rounded-full w-12 h-12">
-                  <span className="text-2xl">💕</span>
+                  {isAnalyzing ? (
+                    <div className="animate-spin text-xl">⏳</div>
+                  ) : (
+                    <span className="text-2xl">💕</span>
+                  )}
                 </div>
-                <span className="flex-1 text-center pl-8">Analyze Compatibility</span>
+                <span className="flex-1 text-center pl-8">
+                  {isAnalyzing ? 'Analyzing...' : 'Analyze Compatibility'}
+                </span>
               </button>
             </div>
           </div>
