@@ -83,8 +83,14 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
             {/* Your Bio */}
             <div>
                              <div className="flex items-center mb-4">
-                 <div className="w-8 h-8 bg-[#D3FD51] rounded-full flex items-center justify-center mr-3">
-                   <span className="text-black font-bold text-sm">👤</span>
+                 <div className="rounded-full flex items-center justify-center mr-3">
+                   <Image
+                     src="/imgs/lucy/your_bio_icon.png"
+                     alt="Your Bio Icon"
+                     width={40}
+                     height={40}
+                     className="w-full h-full object-contain"
+                   />
                  </div>
                  <h3 className="text-lg font-semibold text-white">Your Bio</h3>
                </div>
@@ -142,9 +148,15 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
 
             {/* Their Bio */}
             <div>
-                             <div className="flex items-center mb-4">
-                 <div className="w-8 h-8 bg-[#D3FD51] rounded-full flex items-center justify-center mr-3">
-                   <span className="text-black font-bold text-sm">👥</span>
+                <div className="flex items-center mb-4">
+                 <div className="rounded-full flex items-center justify-center mr-3">
+                   <Image
+                     src="/imgs/lucy/their_bio_icon.png"
+                     alt="Their Bio Icon"
+                     width={40}
+                     height={40}
+                     className="w-full h-full object-contain"
+                   />
                  </div>
                  <h3 className="text-lg font-semibold text-white">Their Bio</h3>
                </div>
