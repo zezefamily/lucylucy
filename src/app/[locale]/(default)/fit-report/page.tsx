@@ -312,11 +312,11 @@ export default function FitReport() {
           <div className="relative">
             <div className="flex items-center space-x-2 lg:space-x-4">
               <Avatar className="w-40 h-40 lg:w-40 lg:h-40 border-4 border-white shadow-lg">
-                <AvatarImage src={userAvatarUrl} alt="User" />
+                <AvatarImage src={userAvatarUrl} alt="User" className="object-cover" />
                 <AvatarFallback>U</AvatarFallback>
               </Avatar>
               <Avatar className="w-40 h-40 lg:w-40 lg:h-40 border-4 border-white shadow-lg">
-                <AvatarImage src={partnerAvatarUrl} alt="Partner" />
+                <AvatarImage src={partnerAvatarUrl} alt="Partner" className="object-cover" />
                 <AvatarFallback>P</AvatarFallback>
               </Avatar>
             </div>
