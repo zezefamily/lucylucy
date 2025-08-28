@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { Camera, MessageCircle } from "lucide-react";
+import { Camera, MessageCircle, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -37,6 +37,14 @@ export default function MobileTabBar() {
       icon: Camera,
       label: t('photo_analyzer'),
       isActive: pathWithoutLocale === '/'
+    },
+    {
+      id: 'fit_test',
+      href: '/fit-test',
+      icon: Heart,
+      label: t('fit_test'),
+      // 匹配fit-test路径和相关页面（如fit-report）
+      isActive: pathWithoutLocale === '/fit-test' || pathWithoutLocale.startsWith('/fit-test/') || pathWithoutLocale === '/fit-report' || pathWithoutLocale.startsWith('/fit-report/')
     },
     {
       id: 'conversation_starter',

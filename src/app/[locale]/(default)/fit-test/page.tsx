@@ -2,17 +2,106 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import imageCompression from 'browser-image-compression';
 import { toast } from "sonner";
+
+// 存储键名
+const STORAGE_KEYS = {
+  YOUR_BIO_IMAGES: 'fitTest_yourBioImages',
+  THEIR_BIO_IMAGES: 'fitTest_theirBioImages'
+};
+
+// 将File对象转换为可存储的格式
+const fileToStorageFormat = async (file: File) => {
+  return new Promise<{name: string, size: number, type: string, dataUrl: string}>((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      resolve({
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        dataUrl: reader.result as string
+      });
+    };
+    reader.readAsDataURL(file);
+  });
+};
+
+// 从存储格式恢复为File对象
+const storageFormatToFile = (stored: {name: string, size: number, type: string, dataUrl: string}): File => {
+  const byteString = atob(stored.dataUrl.split(',')[1]);
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  return new File([ab], stored.name, { type: stored.type });
+};
 
 // 上传组件
 function UploadProfiles({ onBack }: { onBack: () => void }) {
   const [yourBioImages, setYourBioImages] = useState<File[]>([]);
   const [theirBioImages, setTheirBioImages] = useState<File[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [processStatus, setProcessStatus] = useState<string>('');
   const router = useRouter();
+
+  // 从localStorage恢复图片状态
+  useEffect(() => {
+    const loadSavedImages = async () => {
+      try {
+        const savedYourImages = localStorage.getItem(STORAGE_KEYS.YOUR_BIO_IMAGES);
+        const savedTheirImages = localStorage.getItem(STORAGE_KEYS.THEIR_BIO_IMAGES);
+
+        if (savedYourImages) {
+          const parsedYourImages = JSON.parse(savedYourImages);
+          const restoredYourFiles = parsedYourImages.map(storageFormatToFile);
+          setYourBioImages(restoredYourFiles);
+        }
+
+        if (savedTheirImages) {
+          const parsedTheirImages = JSON.parse(savedTheirImages);
+          const restoredTheirFiles = parsedTheirImages.map(storageFormatToFile);
+          setTheirBioImages(restoredTheirFiles);
+        }
+      } catch (error) {
+        console.error('Error loading saved images:', error);
+        // 如果恢复失败，清理localStorage
+        localStorage.removeItem(STORAGE_KEYS.YOUR_BIO_IMAGES);
+        localStorage.removeItem(STORAGE_KEYS.THEIR_BIO_IMAGES);
+      }
+    };
+
+    loadSavedImages();
+  }, []);
+
+  // 保存图片到localStorage
+  const saveImagesToStorage = async (images: File[], key: string) => {
+    try {
+      if (images.length === 0) {
+        localStorage.removeItem(key);
+        return;
+      }
+      
+      const storageFormat = await Promise.all(
+        images.map(fileToStorageFormat)
+      );
+      localStorage.setItem(key, JSON.stringify(storageFormat));
+    } catch (error) {
+      console.error('Error saving images to storage:', error);
+    }
+  };
+
+  // 监听图片状态变化并保存
+  useEffect(() => {
+    saveImagesToStorage(yourBioImages, STORAGE_KEYS.YOUR_BIO_IMAGES);
+  }, [yourBioImages]);
+
+  useEffect(() => {
+    saveImagesToStorage(theirBioImages, STORAGE_KEYS.THEIR_BIO_IMAGES);
+  }, [theirBioImages]);
 
   const handleImageUpload = (files: FileList | null, type: 'your' | 'their') => {
     if (!files) return;
@@ -44,6 +133,7 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
     }
 
     setIsAnalyzing(true);
+    setProcessStatus('Preparing...');
     
     try {
       console.log('Starting analysis process...', {
@@ -51,6 +141,7 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
         theirImagesCount: theirBioImages.length
       });
 
+      setProcessStatus('Compressing images...');
       toast.info("Compressing images...");
       
       // 图片压缩配置
@@ -62,9 +153,11 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
       };
 
       // 压缩所有图片
+      setProcessStatus('Compressing your photos...');
       const compressedYourImages = await Promise.all(
         yourBioImages.map(async (file, index) => {
           try {
+            setProcessStatus(`Compressing your photos... (${index + 1}/${yourBioImages.length})`);
             console.log(`Compressing your image ${index + 1}/${yourBioImages.length}`);
             return await imageCompression(file, compressionOptions);
           } catch (error) {
@@ -74,9 +167,11 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
         })
       );
 
+      setProcessStatus('Compressing their photos...');
       const compressedTheirImages = await Promise.all(
         theirBioImages.map(async (file, index) => {
           try {
+            setProcessStatus(`Compressing their photos... (${index + 1}/${theirBioImages.length})`);
             console.log(`Compressing their image ${index + 1}/${theirBioImages.length}`);
             return await imageCompression(file, compressionOptions);
           } catch (error) {
@@ -91,6 +186,7 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
         theirImagesCompressed: compressedTheirImages.length
       });
 
+      setProcessStatus('Uploading images...');
       toast.info("Uploading images...");
 
       // 上传您的图片
@@ -184,11 +280,15 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
       };
 
       // 并行上传两组图片
+      setProcessStatus('Uploading your photos...');
       const [yourImageUrls, theirImageUrls] = await Promise.all([
         uploadYourImages(compressedYourImages),
         uploadTheirImages(compressedTheirImages)
       ]);
+      
+      setProcessStatus('Upload completed...');
 
+      setProcessStatus('Analyzing compatibility...');
       toast.info("Analyzing compatibility...");
 
       console.log('Starting analysis with URLs:', {
@@ -245,6 +345,13 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
       localStorage.setItem('fitTestResult', JSON.stringify(resultWithImages));
       console.log('Saved analysis result and image URLs to localStorage');
       
+      setProcessStatus('Analysis complete!');
+      await new Promise(resolve => setTimeout(resolve, 1000)); // 显示完成状态1秒
+      
+      // 清理保存的图片（分析完成）
+      localStorage.removeItem(STORAGE_KEYS.YOUR_BIO_IMAGES);
+      localStorage.removeItem(STORAGE_KEYS.THEIR_BIO_IMAGES);
+      
       // 跳转到结果页面
       router.push('/fit-report');
 
@@ -253,22 +360,32 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
       toast.error(error instanceof Error ? error.message : 'Analysis failed. Please try again.');
     } finally {
       setIsAnalyzing(false);
+      setProcessStatus('');
     }
+  };
+
+  // 清理所有数据并重新开始
+  const handleClearAll = () => {
+    setYourBioImages([]);
+    setTheirBioImages([]);
+    localStorage.removeItem(STORAGE_KEYS.YOUR_BIO_IMAGES);
+    localStorage.removeItem(STORAGE_KEYS.THEIR_BIO_IMAGES);
+    onBack();
   };
 
   return (
     <motion.div 
-      className="relative z-10 flex flex-col items-center justify-start h-full px-4 lg:px-8"
-      style={{ paddingTop: '80px' }}
+      className="relative z-10 flex flex-col items-center justify-start h-full px-3 sm:px-4 lg:px-8 pb-6"
+      style={{ paddingTop: '60px' }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
     >
-      <div className="text-center space-y-6 max-w-4xl mx-auto w-full">
+      <div className="text-center space-y-4 sm:space-y-6 max-w-4xl mx-auto w-full">
         
         {/* 标题 */}
         <motion.h1 
-          className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#3D08FF] mb-4"
+          className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#3D08FF] mb-2 sm:mb-4 text-center"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
@@ -281,42 +398,59 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
 
         {/* 副标题 */}
         <motion.p 
-          className="text-base md:text-lg text-white font-medium px-4 mb-8"
+          className="text-sm sm:text-base md:text-lg text-white font-medium px-2 sm:px-4 mb-4 sm:mb-8 leading-relaxed"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
         >
-          Please upload photos containing both people's avatars, <br />
-          optionally add chat records for deeper analysis ✨
+          Please upload photos containing both people's avatars, <br className="hidden sm:block" />
+          <span className="sm:hidden"> </span>optionally add chat records for deeper analysis ✨
         </motion.p>
+
+        {/* 重新开始按钮 - 当有图片时显示 */}
+        {(yourBioImages.length > 0 || theirBioImages.length > 0) && (
+          <motion.div 
+            className="flex justify-end mb-3"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <button
+              onClick={handleClearAll}
+              className="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-colors border border-white/30"
+            >
+              Start Over
+            </button>
+          </motion.div>
+        )}
 
                  {/* 上传区域 */}
          <motion.div 
-           className="bg-white/20 backdrop-blur-sm rounded-3xl p-6 md:p-8 border-2 border-[#3D08FF]/50"
+           className="bg-white/20 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-3 sm:p-6 md:p-8 border-2 border-[#3D08FF]/50"
            initial={{ opacity: 0, scale: 0.9 }}
            animate={{ opacity: 1, scale: 1 }}
            transition={{ duration: 0.8, delay: 0.6 }}
          >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
             
             {/* Your Bio */}
             <div>
-                             <div className="flex items-center mb-4">
-                 <div className="rounded-full flex items-center justify-center mr-3">
+                             <div className="flex items-center mb-3 sm:mb-4">
+                 <div className="rounded-full flex items-center justify-center mr-2 sm:mr-3">
                    <Image
                      src="/imgs/lucy/your_bio_icon.png"
                      alt="Your Bio Icon"
                      width={40}
                      height={40}
-                     className="w-full h-full object-contain"
+                     className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
                    />
                  </div>
-                 <h3 className="text-lg font-semibold text-white">Your Bio</h3>
+                 <h3 className="text-base sm:text-lg font-semibold text-white">Your Bio</h3>
                </div>
               
                              {/* 图片网格 - 只在有图片时显示 */}
                {yourBioImages.length > 0 && (
-                 <div className="grid grid-cols-4 gap-2 mb-4">
+                 <div className="grid grid-cols-4 gap-1 sm:gap-2 mb-3 sm:mb-4">
                    {yourBioImages.map((image, index) => (
                      <div key={index} className="aspect-square relative">
                        <div className="relative w-full h-full">
@@ -327,7 +461,7 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
                          />
                          <button
                            onClick={() => removeImage(index, 'your')}
-                           className="absolute -top-1 -right-1 w-5 h-5 bg-black rounded-full flex items-center justify-center text-white text-xs"
+                           className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-black rounded-full flex items-center justify-center text-white text-xs"
                          >
                            ×
                          </button>
@@ -347,12 +481,15 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
                      className="hidden"
                      onChange={(e) => handleImageUpload(e.target.files, 'your')}
                    />
-                   <div className="w-full bg-white rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-[#FF64DC] transition-colors" style={{ height: yourBioImages.length > 0 ? '80px' : '264px' }}>
+                   <div 
+                     className="w-full bg-white rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-[#FF64DC] transition-colors" 
+                     style={{ height: yourBioImages.length > 0 ? '60px' : '180px' }}
+                   >
                     <div className="text-center">
-                      <div className="w-8 h-8 bg-[#FF64DC] rounded-full flex items-center justify-center mx-auto mb-2">
-                        <span className="text-white text-lg">+</span>
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-[#FF64DC] rounded-full flex items-center justify-center mx-auto mb-1 sm:mb-2">
+                        <span className="text-white text-sm sm:text-lg">+</span>
                       </div>
-                      <span className="text-gray-600 text-sm">
+                      <span className="text-gray-600 text-xs sm:text-sm">
                         {yourBioImages.length === 0 ? 'Upload first image' : 'Add another image'}
                       </span>
                     </div>
@@ -360,29 +497,29 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
                 </label>
               )}
               
-                             <p className="text-center text-white/80 text-sm mt-2">
+                             <p className="text-center text-white/80 text-xs sm:text-sm mt-2">
                  {yourBioImages.length}/8 images
                </p>
             </div>
 
             {/* Their Bio */}
             <div>
-                <div className="flex items-center mb-4">
-                 <div className="rounded-full flex items-center justify-center mr-3">
+                <div className="flex items-center mb-3 sm:mb-4">
+                 <div className="rounded-full flex items-center justify-center mr-2 sm:mr-3">
                    <Image
                      src="/imgs/lucy/their_bio_icon.png"
                      alt="Their Bio Icon"
                      width={40}
                      height={40}
-                     className="w-full h-full object-contain"
+                     className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
                    />
                  </div>
-                 <h3 className="text-lg font-semibold text-white">Their Bio</h3>
+                 <h3 className="text-base sm:text-lg font-semibold text-white">Their Bio</h3>
                </div>
               
                              {/* 图片网格 - 只在有图片时显示 */}
                {theirBioImages.length > 0 && (
-                 <div className="grid grid-cols-4 gap-2 mb-4">
+                 <div className="grid grid-cols-4 gap-1 sm:gap-2 mb-3 sm:mb-4">
                    {theirBioImages.map((image, index) => (
                      <div key={index} className="aspect-square relative">
                        <div className="relative w-full h-full">
@@ -393,7 +530,7 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
                          />
                          <button
                            onClick={() => removeImage(index, 'their')}
-                           className="absolute -top-1 -right-1 w-5 h-5 bg-black rounded-full flex items-center justify-center text-white text-xs"
+                           className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-black rounded-full flex items-center justify-center text-white text-xs"
                          >
                            ×
                          </button>
@@ -413,12 +550,15 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
                      className="hidden"
                      onChange={(e) => handleImageUpload(e.target.files, 'their')}
                    />
-                   <div className="w-full bg-white rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-[#FF64DC] transition-colors" style={{ height: theirBioImages.length > 0 ? '80px' : '264px' }}>
+                   <div 
+                     className="w-full bg-white rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-[#FF64DC] transition-colors" 
+                     style={{ height: theirBioImages.length > 0 ? '60px' : '180px' }}
+                   >
                     <div className="text-center">
-                      <div className="w-8 h-8 bg-[#FF64DC] rounded-full flex items-center justify-center mx-auto mb-2">
-                        <span className="text-white text-lg">+</span>
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-[#FF64DC] rounded-full flex items-center justify-center mx-auto mb-1 sm:mb-2">
+                        <span className="text-white text-sm sm:text-lg">+</span>
                       </div>
-                      <span className="text-gray-600 text-sm">
+                      <span className="text-gray-600 text-xs sm:text-sm">
                         {theirBioImages.length === 0 ? 'Upload first image' : 'Add another image'}
                       </span>
                     </div>
@@ -426,7 +566,7 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
                 </label>
               )}
               
-                             <p className="text-center text-white/80 text-sm mt-2">
+                             <p className="text-center text-white/80 text-xs sm:text-sm mt-2">
                  {theirBioImages.length}/8 images
                </p>
             </div>
@@ -435,27 +575,33 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
 
         {/* Analyze 按钮 */}
         <motion.div
-          className="pt-8"
+          className="pt-4 sm:pt-6 md:pt-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
         >
-          <div className="mx-auto flex justify-center">
-            <div className="w-[320px] md:w-[400px] h-[70px] md:h-[80px]">
+          <div className="mx-auto flex justify-center px-4">
+            <div className="w-full max-w-[280px] sm:max-w-[320px] md:max-w-[400px] h-[60px] sm:h-[70px] md:h-[80px]">
               <button 
                 onClick={handleAnalyze}
                 disabled={isAnalyzing || yourBioImages.length === 0 || theirBioImages.length === 0}
-                className="group bg-black hover:bg-gray-800 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-full font-semibold text-lg md:text-xl transition-all duration-300 flex items-center w-full h-full relative"
+                className="group bg-black hover:bg-gray-800 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-full font-semibold text-base sm:text-lg md:text-xl transition-all duration-300 flex items-center w-full h-full relative"
               >
-                <div className="absolute left-4 flex items-center justify-center bg-gradient-to-r from-[#FF64DC] to-[#FFA8F5] rounded-full w-12 h-12">
+                <div className="absolute left-3 sm:left-4 flex items-center justify-center rounded-full w-10 h-10 sm:w-12 sm:h-12">
                   {isAnalyzing ? (
-                    <div className="animate-spin text-xl">⏳</div>
+                    <div className="animate-spin text-lg sm:text-xl">⏳</div>
                   ) : (
-                    <span className="text-2xl">💕</span>
+                    <Image
+                      src="/imgs/lucy/button_heart_icon.png"
+                      alt="Heart Icon"
+                      width={55}
+                      height={34}
+                      className="w-6 h-auto sm:w-7 sm:h-auto"
+                    />
                   )}
                 </div>
-                <span className="flex-1 text-center pl-8">
-                  {isAnalyzing ? 'Analyzing...' : 'Analyze Compatibility'}
+                <span className="flex-1 text-center pl-6 sm:pl-8 px-2">
+                  {isAnalyzing ? processStatus || 'Processing...' : 'Analyze Compatibility'}
                 </span>
               </button>
             </div>
@@ -467,8 +613,31 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
   );
 }
 
+// 检查是否有保存的图片
+const checkHasSavedImages = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  
+  try {
+    const savedYourImages = localStorage.getItem(STORAGE_KEYS.YOUR_BIO_IMAGES);
+    const savedTheirImages = localStorage.getItem(STORAGE_KEYS.THEIR_BIO_IMAGES);
+    
+    return !!(savedYourImages || savedTheirImages);
+  } catch (error) {
+    console.error('Error checking saved images:', error);
+    return false;
+  }
+};
+
 export default function FitTest() {
   const [showUpload, setShowUpload] = useState(false);
+
+  // 在客户端初始化时检查是否有保存的图片
+  useEffect(() => {
+    const hasSavedImages = checkHasSavedImages();
+    if (hasSavedImages) {
+      setShowUpload(true);
+    }
+  }, []);
 
   if (showUpload) {
     return (

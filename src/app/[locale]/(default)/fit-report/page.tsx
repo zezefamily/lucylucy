@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
@@ -139,6 +140,8 @@ function SuggestionItem({ title, description }: SuggestionItemProps) {
 }
 
 export default function FitReport() {
+  const router = useRouter();
+  
   // 从localStorage读取分析结果
   const [analysisData, setAnalysisData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -401,47 +404,52 @@ export default function FitReport() {
       </div>
 
       <motion.div 
-        className="relative z-10 px-2 sm:px-4 lg:px-6 py-6 w-full max-w-sm sm:max-w-md lg:max-w-[750px] mx-auto"
+        className="relative z-10 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 w-full max-w-md sm:max-w-lg lg:max-w-[750px] mx-auto"
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.2 }}
       >
         {/* 头部 */}
         <motion.div 
-          className="flex items-center space-x-3 mb-8"
+          className="flex items-center space-x-3 mb-6 sm:mb-8"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, ease: "easeIn" }}
         >
-          <Button variant="ghost" size="icon" className="text-white bg-black/10 hover:bg-black/20">
-            <ArrowLeft className="w-6 h-6" />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-white bg-black/10 hover:bg-black/20 flex-shrink-0"
+            onClick={() => router.push('/fit-test')}
+          >
+            <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
           </Button>
-          <div className="text-left">
-            <h1 className="text-black text-lg font-semibold">Compatibility Report</h1>
-            <p className="text-black/80 text-sm">AI has decoded your connection</p>
+          <div className="text-left min-w-0 flex-1">
+            <h1 className="text-black text-base sm:text-lg font-semibold leading-tight">Compatibility Report</h1>
+            <p className="text-black/80 text-xs sm:text-sm leading-tight">AI has decoded your connection</p>
           </div>
         </motion.div>
 
         {/* 截图区域开始 */}
         <div 
           ref={reportRef}
-          className="py-6 px-6"
+          className="py-4 px-3 sm:py-6 sm:px-6"
         >
 
         {/* 用户头像 */}
         <motion.div 
-          className="flex justify-center mb-8 pt-6"
+          className="flex justify-center mb-6 sm:mb-8 pt-2 sm:pt-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, ease: "easeIn", delay: 0.2 }}
         >
           <div className="relative">
-            <div className="flex items-center space-x-2 lg:space-x-4">
-              <Avatar className="w-40 h-40 lg:w-40 lg:h-40 border-4 border-white shadow-lg">
+            <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-4">
+              <Avatar className="w-32 h-32 sm:w-36 sm:h-36 lg:w-40 lg:h-40 border-3 sm:border-4 border-white shadow-lg">
                 <AvatarImage src={userAvatarUrl} alt="User" className="object-cover" />
                 <AvatarFallback>U</AvatarFallback>
               </Avatar>
-              <Avatar className="w-40 h-40 lg:w-40 lg:h-40 border-4 border-white shadow-lg">
+              <Avatar className="w-32 h-32 sm:w-36 sm:h-36 lg:w-40 lg:h-40 border-3 sm:border-4 border-white shadow-lg">
                 <AvatarImage src={partnerAvatarUrl} alt="Partner" className="object-cover" />
                 <AvatarFallback>P</AvatarFallback>
               </Avatar>
@@ -453,7 +461,7 @@ export default function FitReport() {
                 alt="Heart Connection"
                 width={109}
                 height={95}
-                className="w-[109px] h-[95px]"
+                className="w-20 h-[70px] sm:w-24 sm:h-[84px] lg:w-[109px] lg:h-[95px]"
               />
             </div>
           </div>
@@ -466,47 +474,47 @@ export default function FitReport() {
           transition={{ duration: 0.4, ease: "easeIn", delay: 0.4 }}
         >
           <Card className=" bg-white/95 backdrop-blur-sm border-0 shadow-xl">
-            <CardContent className="p-6 lg:p-8">
-              <div className="text-center mb-8">
-                <div className="text-5xl lg:text-6xl font-bold text-gray-800 mb-2 flex items-center justify-center">
-                  <div className="mr-2 lg:mr-3">
+            <CardContent className="p-4 sm:p-6 lg:p-8">
+              <div className="text-center mb-6 sm:mb-8">
+                <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-800 mb-3 sm:mb-2 flex items-center justify-center">
+                  <div className="mr-1 sm:mr-2 lg:mr-3">
                     <Image
                       src="/imgs/lucy/fit_zhuangshi_left.png"
                       alt="Left Decoration"
                       width={33}
                       height={54}
-                      className="w-[33px] h-[54px]"
+                      className="w-6 h-10 sm:w-7 sm:h-12 lg:w-[33px] lg:h-[54px]"
                     />
                   </div>
                   <div className="flex items-end">
                     <AnimatedNumber targetValue={compatibilityScore} duration={1500} />
-                    <span className="text-2xl lg:text-3xl text-gray-600 ml-1">%</span>
+                    <span className="text-xl sm:text-2xl lg:text-3xl text-gray-600 ml-1">%</span>
                   </div>
-                  <div className="ml-2 lg:ml-3">
+                  <div className="ml-1 sm:ml-2 lg:ml-3">
                     <Image
                       src="/imgs/lucy/fit_zhuangshi_right.png"
                       alt="Right Decoration"
                       width={33}
                       height={54}
-                      className="w-[33px] h-[54px]"
+                      className="w-6 h-10 sm:w-7 sm:h-12 lg:w-[33px] lg:h-[54px]"
                     />
                   </div>
                 </div>
-                <p className="text-gray-600 text-sm lg:text-base">
+                <p className="text-gray-600 text-xs sm:text-sm lg:text-base px-2 sm:px-0 leading-relaxed">
                   {analysisData.oneSentenceSummary || "Like Dali and Gala, art and passion ignite sparks between you"}
                 </p>
               </div>
             
             {/* 四个维度的圆形进度条 */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-16 px-4 lg:px-8 py-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-16 px-2 sm:px-4 lg:px-8 py-4 sm:py-6">
               {metrics.map((metric, index) => (
-                <div className="flex justify-center py-4">
+                <div className="flex justify-center py-2 sm:py-4">
                   <CircularProgress
                     key={index}
                     percentage={metric.percentage}
                     color={metric.color}
                     label={metric.label}
-                    size={80}
+                    size={70}
                   />
                 </div>
               ))}
@@ -517,25 +525,25 @@ export default function FitReport() {
 
         {/* Green Flags */}
         <motion.div 
-          className="pt-6 mb-6"
+          className="pt-4 sm:pt-6 mb-4 sm:mb-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, ease: "easeIn", delay: 0.6 }}
         >
-          <div className="flex items-center space-x-2 mb-4">
+          <div className="flex items-center space-x-2 mb-3 sm:mb-4">
             <div className="flex items-center justify-center">
               <Image
                 src="/imgs/lucy/fit_green_flags_icon.png"
                 alt="Green Flags"
                 width={36}
                 height={36}
-                className=""
+                className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9"
               />
             </div>
-            <h2 className="text-white text-lg font-semibold">Green Flags</h2>
+            <h2 className="text-white text-base sm:text-lg font-semibold">Green Flags</h2>
           </div>
           <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-4 space-y-3">
+            <CardContent className="p-3 sm:p-4 space-y-2 sm:space-y-3">
               {greenFlags.map((flag: string, index: number) => (
                 <FlagItem key={index} text={`${index + 1}. ${flag}`} type="green" />
               ))}
@@ -545,25 +553,25 @@ export default function FitReport() {
 
         {/* Red Flags */}
         <motion.div 
-          className="mb-6"
+          className="mb-4 sm:mb-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, ease: "easeIn", delay: 0.8 }}
         >
-          <div className="flex items-center space-x-2 mb-4">
+          <div className="flex items-center space-x-2 mb-3 sm:mb-4">
             <div className="flex items-center justify-center">
               <Image
                 src="/imgs/lucy/fit_red_flags_icon.png"
                 alt="Red Flags"
                 width={36}
                 height={36}
-                className=""
+                className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9"
               />
             </div>
-            <h2 className="text-white text-lg font-semibold">Red Flags</h2>
+            <h2 className="text-white text-base sm:text-lg font-semibold">Red Flags</h2>
           </div>
           <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-4 space-y-3">
+            <CardContent className="p-3 sm:p-4 space-y-2 sm:space-y-3">
               {redFlags.map((flag: string, index: number) => (
                 <FlagItem key={index} text={`${index + 1}. ${flag}`} type="red" />
               ))}
@@ -573,25 +581,25 @@ export default function FitReport() {
 
         {/* Suggestions */}
         <motion.div 
-          className="mb-8"
+          className="mb-6 sm:mb-8"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, ease: "easeIn", delay: 1.0 }}
         >
-          <div className="flex items-center space-x-2 mb-4">
+          <div className="flex items-center space-x-2 mb-3 sm:mb-4">
             <div className="flex items-center justify-center">
               <Image
                 src="/imgs/lucy/fit_suggestions_icon.png"
                 alt="Suggestions"
                 width={36}
                 height={36}
-                className=""
+                className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9"
               />
             </div>
-            <h2 className="text-white text-lg font-semibold">Suggestions</h2>
+            <h2 className="text-white text-base sm:text-lg font-semibold">Suggestions</h2>
           </div>
           <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-4 space-y-3">
+            <CardContent className="p-3 sm:p-4 space-y-2 sm:space-y-3">
               {suggestions.map((suggestion: any, index: number) => (
                 <SuggestionItem 
                   key={index}
@@ -608,7 +616,7 @@ export default function FitReport() {
 
         {/* 分享按钮 */}
         <motion.div 
-          className="text-center"
+          className="text-center px-2 sm:px-0 py-4 sm:py-0"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, ease: "easeIn", delay: 1.2 }}
@@ -616,21 +624,21 @@ export default function FitReport() {
           <Button 
             onClick={handleShareScreenshot}
             disabled={isGeneratingScreenshot}
-            className="w-full bg-black hover:bg-gray-800 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 rounded-full font-semibold shadow-lg flex items-center justify-center gap-2"
+            className="w-full max-w-sm mx-auto bg-black hover:bg-gray-800 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 sm:py-4 rounded-full font-semibold shadow-lg flex items-center justify-center gap-2 text-sm sm:text-base"
           >
             {isGeneratingScreenshot ? (
               <>
                 <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
-                {cachedScreenshot ? 'Preparing...' : 'Generating...'}
+                <span className="truncate">{cachedScreenshot ? 'Preparing...' : 'Generating...'}</span>
               </>
             ) : (
               <>
-                <Download className="w-4 h-4" />
-                {cachedScreenshot ? 'Download Compatibility Card' : 'Share Compatibility Card'}
+                {/* <Download className="w-4 h-4 flex-shrink-0" /> */}
+                <span className="truncate">Share Compatibility Card</span>
               </>
             )}
           </Button>
-          <p className="text-white/70 text-xs mt-2">
+          <p className="text-white/70 text-xs sm:text-sm mt-2 px-4 sm:px-0 leading-relaxed">
             {cachedScreenshot 
               ? 'Download the saved compatibility card' 
               : 'Generate a beautiful card to share your connection'

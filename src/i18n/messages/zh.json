@@ -339,6 +339,7 @@
   },
   "tabbar": {
     "photo_analyzer": "照片分析",
+    "fit_test": "匹配测试",
     "conversation_starter": "聊天开场白"
   },
   "contact_modal": {

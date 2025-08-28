@@ -340,6 +340,7 @@
   },
   "tabbar": {
     "photo_analyzer": "Analizador de fotos",
+    "fit_test": "Prueba de Compatibilidad",
     "conversation_starter": "Iniciador de conversación"
   },
   "common": {
