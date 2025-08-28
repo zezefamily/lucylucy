@@ -185,8 +185,8 @@ export default function FitReport() {
 
   // 使用分析结果数据
   const compatibilityScore = analysisData.overallScore || 88;
-  const userAvatarUrl = "/imgs/lucy/banner_hero_img_new.png";
-  const partnerAvatarUrl = "/imgs/lucy/banner_hero_img_new.png";
+  const userAvatarUrl = analysisData.profile1Images?.[0] || "/imgs/lucy/banner_hero_img_new.png";
+  const partnerAvatarUrl = analysisData.profile2Images?.[0] || "/imgs/lucy/banner_hero_img_new.png";
   
   const metrics = [
     { label: "Vibes", percentage: analysisData.fourDimensions?.vibes || 0, color: "#8B5CF6" },
@@ -299,7 +299,7 @@ export default function FitReport() {
         {/* 截图区域开始 */}
         <div 
           ref={reportRef}
-          className="bg-gradient-to-br from-[#FF64DC] to-[#FFA8F5] p-4 rounded-2xl"
+          className=""
         >
 
         {/* 用户头像 */}

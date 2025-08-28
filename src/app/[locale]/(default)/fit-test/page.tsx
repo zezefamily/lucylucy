@@ -236,9 +236,14 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
         throw new Error('No analysis data in response');
       }
 
-      // 将结果保存到localStorage并跳转到结果页面
-      localStorage.setItem('fitTestResult', JSON.stringify(analysisResult.data));
-      console.log('Saved analysis result to localStorage');
+      // 将结果和图片URLs保存到localStorage并跳转到结果页面
+      const resultWithImages = {
+        ...analysisResult.data,
+        profile1Images: yourImageUrls,
+        profile2Images: theirImageUrls
+      };
+      localStorage.setItem('fitTestResult', JSON.stringify(resultWithImages));
+      console.log('Saved analysis result and image URLs to localStorage');
       
       // 跳转到结果页面
       router.push('/fit-report');
