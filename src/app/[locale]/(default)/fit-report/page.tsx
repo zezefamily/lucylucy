@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { ArrowLeft, Check, X, Lightbulb, Download } from "lucide-react"
 import { motion } from "framer-motion"
-import html2canvas from "html2canvas"
+import { toPng } from "html-to-image"
 import { toast } from "sonner"
 import Image from "next/image"
 
@@ -57,7 +57,7 @@ function CircularProgress({
   }, [percentage]);
 
   return (
-    <div className="flex flex-col items-center space-y-2">
+    <div className="flex flex-col items-center space-y-3">
       <div className="relative" style={{ width: size, height: size }}>
         <svg
           className="transform -rotate-90"
@@ -221,28 +221,89 @@ export default function FitReport() {
     toast.info("Generating compatibility card...");
 
     try {
-      // 生成截图
-      const canvas = await html2canvas(reportRef.current, {
-        scale: 2, // 提高分辨率
-        useCORS: true,
-        allowTaint: true,
+      // 将外部图片URL替换为代理URL
+      const images = reportRef.current.querySelectorAll('img');
+      const imageReplacements: Array<{img: HTMLImageElement, originalSrc: string}> = [];
+      
+      // 替换图片为代理URL（包括外部图片和本地静态资源）
+      Array.from(images).forEach((img) => {
+        const currentSrc = img.getAttribute('src') || img.src;
+        let needsProxy = false;
+        let targetUrl = currentSrc;
+        
+        // 处理外部图片
+        if (currentSrc && currentSrc.startsWith('http') && !currentSrc.includes(window.location.host)) {
+          needsProxy = true;
+          targetUrl = currentSrc;
+        }
+        // 处理本地静态资源（相对路径）
+        else if (currentSrc && (currentSrc.startsWith('/') || currentSrc.startsWith('./') || currentSrc.includes('/imgs/'))) {
+          needsProxy = true;
+          // 将相对路径转换为完整URL
+          targetUrl = currentSrc.startsWith('http') ? currentSrc : `${window.location.origin}${currentSrc.startsWith('/') ? currentSrc : '/' + currentSrc}`;
+        }
+        
+        if (needsProxy) {
+          const proxySrc = `${window.location.origin}/api/proxy-image?url=${encodeURIComponent(targetUrl)}`;
+          img.src = proxySrc;
+          imageReplacements.push({ img, originalSrc: currentSrc });
+        }
+      });
+
+      // 等待代理图片加载完成
+      await Promise.all(imageReplacements.map(({img}) => {
+        if (img.complete) return Promise.resolve();
+        return new Promise((resolve) => {
+          const timeout = setTimeout(resolve, 3000); // 3秒超时
+          img.onload = () => {
+            clearTimeout(timeout);
+            resolve(void 0);
+          };
+          img.onerror = () => {
+            clearTimeout(timeout);
+            resolve(void 0);
+          };
+        });
+      }));
+
+      // 使用 html-to-image 生成截图
+      const dataUrl = await toPng(reportRef.current, {
+        pixelRatio: 2, // 提高分辨率
         backgroundColor: '#FF64DC', // 设置渐变起始色作为背景
         width: reportRef.current.offsetWidth,
         height: reportRef.current.offsetHeight,
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: window.innerWidth,
-        windowHeight: window.innerHeight
+        cacheBust: true, // 避免缓存问题
+        quality: 1.0, // 最高质量
+        // 跳过字体嵌入以避免CORS问题
+        skipAutoScale: false,
+        // 使用空的字体嵌入CSS来避免外部字体请求
+        fontEmbedCSS: '',
+        filter: (node: HTMLElement) => {
+          // 过滤掉可能导致问题的元素
+          if (node.classList?.contains('ignore-screenshot')) {
+            return false;
+          }
+          // 过滤掉外部样式表，特别是Google字体
+          if (node.tagName === 'STYLE' || node.tagName === 'LINK') {
+            const href = (node as HTMLLinkElement).href;
+            if (href && (href.includes('fonts.googleapis.com') || href.includes('google.com'))) {
+              return false;
+            }
+          }
+          return true;
+        }
       });
 
-      // 转换为图片
-      const imgData = canvas.toDataURL('image/png', 1.0);
+      // 恢复原始图片URL
+      imageReplacements.forEach(({img, originalSrc}) => {
+        img.src = originalSrc;
+      });
       
       // 创建下载链接
       const link = document.createElement('a');
       const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
       link.download = `soul-compatibility-report-${timestamp}.png`;
-      link.href = imgData;
+      link.href = dataUrl;
       
       // 触发下载
       document.body.appendChild(link);
@@ -253,7 +314,7 @@ export default function FitReport() {
       
     } catch (error) {
       console.error('Screenshot generation failed:', error);
-      toast.error("Failed to generate compatibility card");
+      toast.error("Failed to generate compatibility card. Please try again.");
     } finally {
       setIsGeneratingScreenshot(false);
     }
@@ -299,12 +360,12 @@ export default function FitReport() {
         {/* 截图区域开始 */}
         <div 
           ref={reportRef}
-          className=""
+          className="py-6 px-6"
         >
 
         {/* 用户头像 */}
         <motion.div 
-          className="flex justify-center mb-8"
+          className="flex justify-center mb-8 pt-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, ease: "easeIn", delay: 0.2 }}
@@ -339,9 +400,9 @@ export default function FitReport() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, ease: "easeIn", delay: 0.4 }}
         >
-          <Card className="mb-6 bg-white/95 backdrop-blur-sm border-0 shadow-xl">
-            <CardContent className="p-6">
-              <div className="text-center mb-6">
+          <Card className=" bg-white/95 backdrop-blur-sm border-0 shadow-xl">
+            <CardContent className="p-6 lg:p-8">
+              <div className="text-center mb-8">
                 <div className="text-5xl lg:text-6xl font-bold text-gray-800 mb-2 flex items-center justify-center">
                   <div className="mr-2 lg:mr-3">
                     <Image
@@ -372,15 +433,17 @@ export default function FitReport() {
               </div>
             
             {/* 四个维度的圆形进度条 */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-16 px-4 lg:px-8 py-6">
               {metrics.map((metric, index) => (
-                <CircularProgress
-                  key={index}
-                  percentage={metric.percentage}
-                  color={metric.color}
-                  label={metric.label}
-                  size={80}
-                />
+                <div className="flex justify-center py-4">
+                  <CircularProgress
+                    key={index}
+                    percentage={metric.percentage}
+                    color={metric.color}
+                    label={metric.label}
+                    size={80}
+                  />
+                </div>
               ))}
             </div>
           </CardContent>
@@ -389,7 +452,7 @@ export default function FitReport() {
 
         {/* Green Flags */}
         <motion.div 
-          className="mb-6"
+          className="pt-6 mb-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, ease: "easeIn", delay: 0.6 }}
