@@ -143,6 +143,7 @@ export default function FitReport() {
   const [analysisData, setAnalysisData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isGeneratingScreenshot, setIsGeneratingScreenshot] = useState(false);
+  const [cachedScreenshot, setCachedScreenshot] = useState<string | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -218,86 +219,149 @@ export default function FitReport() {
     }
 
     setIsGeneratingScreenshot(true);
-    toast.info("Generating compatibility card...");
 
     try {
-      // 将外部图片URL替换为代理URL
-      const images = reportRef.current.querySelectorAll('img');
-      const imageReplacements: Array<{img: HTMLImageElement, originalSrc: string}> = [];
-      
-      // 替换图片为代理URL（包括外部图片和本地静态资源）
-      Array.from(images).forEach((img) => {
-        const currentSrc = img.getAttribute('src') || img.src;
-        let needsProxy = false;
-        let targetUrl = currentSrc;
-        
-        // 处理外部图片
-        if (currentSrc && currentSrc.startsWith('http') && !currentSrc.includes(window.location.host)) {
-          needsProxy = true;
-          targetUrl = currentSrc;
-        }
-        // 处理本地静态资源（相对路径）
-        else if (currentSrc && (currentSrc.startsWith('/') || currentSrc.startsWith('./') || currentSrc.includes('/imgs/'))) {
-          needsProxy = true;
-          // 将相对路径转换为完整URL
-          targetUrl = currentSrc.startsWith('http') ? currentSrc : `${window.location.origin}${currentSrc.startsWith('/') ? currentSrc : '/' + currentSrc}`;
-        }
-        
-        if (needsProxy) {
-          const proxySrc = `${window.location.origin}/api/proxy-image?url=${encodeURIComponent(targetUrl)}`;
-          img.src = proxySrc;
-          imageReplacements.push({ img, originalSrc: currentSrc });
-        }
-      });
+      let dataUrl: string;
 
-      // 等待代理图片加载完成
-      await Promise.all(imageReplacements.map(({img}) => {
-        if (img.complete) return Promise.resolve();
-        return new Promise((resolve) => {
-          const timeout = setTimeout(resolve, 3000); // 3秒超时
-          img.onload = () => {
-            clearTimeout(timeout);
-            resolve(void 0);
-          };
-          img.onerror = () => {
-            clearTimeout(timeout);
-            resolve(void 0);
-          };
-        });
-      }));
-
-      // 使用 html-to-image 生成截图
-      const dataUrl = await toPng(reportRef.current, {
-        pixelRatio: 2, // 提高分辨率
-        backgroundColor: '#FF64DC', // 设置渐变起始色作为背景
-        width: reportRef.current.offsetWidth,
-        height: reportRef.current.offsetHeight,
-        cacheBust: true, // 避免缓存问题
-        quality: 1.0, // 最高质量
-        // 跳过字体嵌入以避免CORS问题
-        skipAutoScale: false,
-        // 使用空的字体嵌入CSS来避免外部字体请求
-        fontEmbedCSS: '',
-        filter: (node: HTMLElement) => {
-          // 过滤掉可能导致问题的元素
-          if (node.classList?.contains('ignore-screenshot')) {
-            return false;
+      // 检查是否有缓存的截图
+      if (cachedScreenshot) {
+        console.log('Using cached screenshot');
+        toast.info("Using saved compatibility card...");
+        dataUrl = cachedScreenshot;
+      } else {
+        console.log('Generating new screenshot');
+        toast.info("Generating compatibility card...");
+        
+        // 为第一次截图创建唯一会话ID
+        const sessionId = `screenshot_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        console.log(`Starting first screenshot session: ${sessionId}`);
+        
+        // 获取所有图片并准备代理
+        const images = reportRef.current.querySelectorAll('img');
+        const imageData: Array<{
+          img: HTMLImageElement;
+          originalSrc: string;
+          proxySrc: string;
+        }> = [];
+        
+        // 预先生成所有代理URL
+        Array.from(images).forEach((img, index) => {
+          const currentSrc = img.getAttribute('src') || img.src;
+          let needsProxy = false;
+          let targetUrl = currentSrc;
+          
+          // 处理外部图片
+          if (currentSrc && currentSrc.startsWith('http') && !currentSrc.includes(window.location.host)) {
+            needsProxy = true;
+            targetUrl = currentSrc;
           }
-          // 过滤掉外部样式表，特别是Google字体
-          if (node.tagName === 'STYLE' || node.tagName === 'LINK') {
-            const href = (node as HTMLLinkElement).href;
-            if (href && (href.includes('fonts.googleapis.com') || href.includes('google.com'))) {
+          // 处理本地静态资源（相对路径）
+          else if (currentSrc && (currentSrc.startsWith('/') || currentSrc.startsWith('./') || currentSrc.includes('/imgs/'))) {
+            needsProxy = true;
+            // 将相对路径转换为完整URL
+            targetUrl = currentSrc.startsWith('http') ? currentSrc : `${window.location.origin}${currentSrc.startsWith('/') ? currentSrc : '/' + currentSrc}`;
+          }
+          
+          if (needsProxy) {
+            const uniqueId = `${sessionId}_${index}`;
+            const proxySrc = `${window.location.origin}/api/proxy-image?url=${encodeURIComponent(targetUrl)}&id=${uniqueId}`;
+            imageData.push({
+              img,
+              originalSrc: currentSrc,
+              proxySrc
+            });
+          }
+        });
+        
+        console.log(`Found ${imageData.length} images that need proxy`);
+        
+        // 如果有图片需要代理，先替换并等待加载
+        if (imageData.length > 0) {
+          // 替换图片源
+          imageData.forEach(({img, proxySrc}) => {
+            img.src = proxySrc;
+          });
+          
+          // 等待所有图片加载完成
+          await new Promise<void>((resolve) => {
+            let loadedCount = 0;
+            const totalImages = imageData.length;
+            const timeout = setTimeout(() => {
+              console.warn('Image loading timeout, proceeding with screenshot');
+              resolve();
+            }, 5000);
+            
+            const checkComplete = () => {
+              loadedCount++;
+              if (loadedCount >= totalImages) {
+                clearTimeout(timeout);
+                console.log('All proxy images loaded');
+                resolve();
+              }
+            };
+            
+            imageData.forEach(({img}, index) => {
+              if (img.complete && img.naturalWidth > 0) {
+                checkComplete();
+              } else {
+                const onLoad = () => {
+                  img.removeEventListener('load', onLoad);
+                  img.removeEventListener('error', onError);
+                  console.log(`Image ${index} loaded`);
+                  checkComplete();
+                };
+                
+                const onError = () => {
+                  img.removeEventListener('load', onLoad);
+                  img.removeEventListener('error', onError);
+                  console.warn(`Image ${index} failed to load`);
+                  checkComplete();
+                };
+                
+                img.addEventListener('load', onLoad);
+                img.addEventListener('error', onError);
+              }
+            });
+          });
+        }
+        
+        // 生成截图
+        console.log('Generating screenshot...');
+        dataUrl = await toPng(reportRef.current, {
+          pixelRatio: 2,
+          backgroundColor: '#FF64DC',
+          width: reportRef.current.offsetWidth,
+          height: reportRef.current.offsetHeight,
+          cacheBust: true,
+          quality: 1.0,
+          skipAutoScale: false,
+          fontEmbedCSS: '',
+          filter: (node: HTMLElement) => {
+            if (node.classList?.contains('ignore-screenshot')) {
               return false;
             }
+            if (node.tagName === 'STYLE' || node.tagName === 'LINK') {
+              const href = (node as HTMLLinkElement).href;
+              if (href && (href.includes('fonts.googleapis.com') || href.includes('google.com'))) {
+                return false;
+              }
+            }
+            return true;
           }
-          return true;
-        }
-      });
-
-      // 恢复原始图片URL
-      imageReplacements.forEach(({img, originalSrc}) => {
-        img.src = originalSrc;
-      });
+        });
+        
+        // 缓存生成的截图
+        setCachedScreenshot(dataUrl);
+        console.log('Screenshot cached for future use');
+        
+        // 恢复原始图片源（异步进行，不阻塞下载）
+        setTimeout(() => {
+          imageData.forEach(({img, originalSrc}) => {
+            img.src = originalSrc;
+          });
+          console.log(`Session ${sessionId} completed, images restored`);
+        }, 100);
+      }
       
       // 创建下载链接
       const link = document.createElement('a');
@@ -315,6 +379,8 @@ export default function FitReport() {
     } catch (error) {
       console.error('Screenshot generation failed:', error);
       toast.error("Failed to generate compatibility card. Please try again.");
+      // 如果失败，清除缓存以便下次重试
+      setCachedScreenshot(null);
     } finally {
       setIsGeneratingScreenshot(false);
     }
@@ -342,19 +408,18 @@ export default function FitReport() {
       >
         {/* 头部 */}
         <motion.div 
-          className="flex items-center justify-between mb-8"
+          className="flex items-center space-x-3 mb-8"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, ease: "easeIn" }}
         >
-          <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
+          <Button variant="ghost" size="icon" className="text-white bg-black/10 hover:bg-black/20">
             <ArrowLeft className="w-6 h-6" />
           </Button>
-          <div className="text-center">
-            <h1 className="text-white text-lg font-semibold">Compatibility Report</h1>
-            <p className="text-white/80 text-sm">AI has decoded your connection</p>
+          <div className="text-left">
+            <h1 className="text-black text-lg font-semibold">Compatibility Report</h1>
+            <p className="text-black/80 text-sm">AI has decoded your connection</p>
           </div>
-          <div className="w-10"></div> {/* 占位符保持居中 */}
         </motion.div>
 
         {/* 截图区域开始 */}
@@ -556,17 +621,20 @@ export default function FitReport() {
             {isGeneratingScreenshot ? (
               <>
                 <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
-                Generating...
+                {cachedScreenshot ? 'Preparing...' : 'Generating...'}
               </>
             ) : (
               <>
                 <Download className="w-4 h-4" />
-                Share Compatibility Card
+                {cachedScreenshot ? 'Download Compatibility Card' : 'Share Compatibility Card'}
               </>
             )}
           </Button>
           <p className="text-white/70 text-xs mt-2">
-            Generate a beautiful card to share your connection
+            {cachedScreenshot 
+              ? 'Download the saved compatibility card' 
+              : 'Generate a beautiful card to share your connection'
+            }
           </p>
         </motion.div>
       </motion.div>
