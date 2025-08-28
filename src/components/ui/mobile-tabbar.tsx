@@ -39,20 +39,20 @@ export default function MobileTabBar() {
       isActive: pathWithoutLocale === '/'
     },
     {
-      id: 'fit_test',
-      href: '/fit-test',
-      icon: Heart,
-      label: t('fit_test'),
-      // 匹配fit-test路径和相关页面（如fit-report）
-      isActive: pathWithoutLocale === '/fit-test' || pathWithoutLocale.startsWith('/fit-test/') || pathWithoutLocale === '/fit-report' || pathWithoutLocale.startsWith('/fit-report/')
-    },
-    {
       id: 'conversation_starter',
       href: '/conversation-starter',
       icon: MessageCircle,
       label: t('conversation_starter'),
       // 精确匹配conversation-starter路径
       isActive: pathWithoutLocale === '/conversation-starter' || pathWithoutLocale.startsWith('/conversation-starter/')
+    },
+    {
+      id: 'fit_test',
+      href: '/fit-test',
+      icon: Heart,
+      label: t('fit_test'),
+      // 匹配fit-test路径和相关页面（如fit-report）
+      isActive: pathWithoutLocale === '/fit-test' || pathWithoutLocale.startsWith('/fit-test/') || pathWithoutLocale === '/fit-report' || pathWithoutLocale.startsWith('/fit-report/')
     }
   ];
 
