@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import imageCompression from 'browser-image-compression';
 import { toast } from "sonner";
+import Compressor from 'compressorjs';
 
 // 存储键名
 const STORAGE_KEYS = {
@@ -13,31 +14,103 @@ const STORAGE_KEYS = {
   THEIR_BIO_IMAGES: 'fitTest_theirBioImages'
 };
 
-// 将File对象转换为可存储的格式
-const fileToStorageFormat = async (file: File) => {
-  return new Promise<{name: string, size: number, type: string, dataUrl: string}>((resolve) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      resolve({
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        dataUrl: reader.result as string
-      });
-    };
-    reader.readAsDataURL(file);
+// 文件信息（轻量级存储）
+interface FileInfo {
+  name: string;
+  size: number;
+  type: string;
+  lastModified: number;
+  // 不存储二进制数据，只存储文件信息
+}
+
+// 将File对象转换为轻量级信息格式
+const fileToInfo = (file: File): FileInfo => {
+  return {
+    name: file.name,
+    size: file.size,
+    type: file.type,
+    lastModified: file.lastModified
+  };
+};
+
+// 检查localStorage可用空间
+const checkStorageQuota = (dataSize: number): boolean => {
+  try {
+    const estimatedTotalQuota = 5 * 1024 * 1024; // 5MB
+    const currentUsage = JSON.stringify(localStorage).length;
+    const availableSpace = estimatedTotalQuota - currentUsage;
+    
+    console.log(`存储空间检查: 当前使用 ${(currentUsage / 1024).toFixed(2)}KB, 可用 ${(availableSpace / 1024).toFixed(2)}KB, 需要 ${(dataSize / 1024).toFixed(2)}KB`);
+    
+    return dataSize < availableSpace * 0.8;
+  } catch (error) {
+    console.warn('无法检查存储空间:', error);
+    return false;
+  }
+};
+
+// 清理localStorage中的图片数据
+const clearImageStorage = () => {
+  try {
+    localStorage.removeItem(STORAGE_KEYS.YOUR_BIO_IMAGES);
+    localStorage.removeItem(STORAGE_KEYS.THEIR_BIO_IMAGES);
+    console.log('已清理图片存储数据');
+  } catch (error) {
+    console.warn('清理存储失败:', error);
+  }
+};
+
+// 检查是否有保存的图片信息
+const checkHasSavedImages = (): boolean => {
+  try {
+    const savedYourImages = localStorage.getItem(STORAGE_KEYS.YOUR_BIO_IMAGES);
+    const savedTheirImages = localStorage.getItem(STORAGE_KEYS.THEIR_BIO_IMAGES);
+    return !!(savedYourImages || savedTheirImages);
+  } catch (error) {
+    console.warn('检查保存的图片失败:', error);
+    return false;
+  }
+};
+
+// 使用 Compressor.js 进行快速预处理
+const fastPreprocess = (file: File): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    new Compressor(file, {
+      quality: 0.8,
+      maxWidth: 1200,
+      maxHeight: 1200,
+      convertSize: 1000000, // 1MB以上转换为WebP
+      mimeType: 'image/webp',
+      success: (result: any) => {
+        console.log(`⚡ 快速预处理完成: ${file.size} -> ${result.size} bytes`);
+        resolve(result as File);
+      },
+      error: (err: any) => {
+        console.warn('快速预处理失败，使用原图:', err);
+        resolve(file);
+      }
+    });
   });
 };
 
-// 从存储格式恢复为File对象
-const storageFormatToFile = (stored: {name: string, size: number, type: string, dataUrl: string}): File => {
-  const byteString = atob(stored.dataUrl.split(',')[1]);
-  const ab = new ArrayBuffer(byteString.length);
-  const ia = new Uint8Array(ab);
-  for (let i = 0; i < byteString.length; i++) {
-    ia[i] = byteString.charCodeAt(i);
+// 批量并发处理
+const batchProcess = async (files: File[], processor: (file: File, index: number) => Promise<File>, batchSize = 4) => {
+  const results: File[] = [];
+  
+  for (let i = 0; i < files.length; i += batchSize) {
+    const batch = files.slice(i, i + batchSize);
+    const batchResults = await Promise.all(
+      batch.map((file, index) => processor(file, i + index))
+    );
+    results.push(...batchResults);
+    
+    // 短暂延迟避免阻塞
+    if (i + batchSize < files.length) {
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
   }
-  return new File([ab], stored.name, { type: stored.type });
+  
+  return results;
 };
 
 // 上传组件
@@ -55,22 +128,17 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
         const savedYourImages = localStorage.getItem(STORAGE_KEYS.YOUR_BIO_IMAGES);
         const savedTheirImages = localStorage.getItem(STORAGE_KEYS.THEIR_BIO_IMAGES);
 
-        if (savedYourImages) {
-          const parsedYourImages = JSON.parse(savedYourImages);
-          const restoredYourFiles = parsedYourImages.map(storageFormatToFile);
-          setYourBioImages(restoredYourFiles);
-        }
-
-        if (savedTheirImages) {
-          const parsedTheirImages = JSON.parse(savedTheirImages);
-          const restoredTheirFiles = parsedTheirImages.map(storageFormatToFile);
-          setTheirBioImages(restoredTheirFiles);
+        if (savedYourImages || savedTheirImages) {
+          console.log('检测到之前上传的图片信息，但页面刷新后需要重新选择图片');
+          toast.info('检测到之前的图片信息，请重新选择图片');
+          
+          // 清理旧的存储信息，因为无法恢复文件
+          clearImageStorage();
         }
       } catch (error) {
         console.error('Error loading saved images:', error);
         // 如果恢复失败，清理localStorage
-        localStorage.removeItem(STORAGE_KEYS.YOUR_BIO_IMAGES);
-        localStorage.removeItem(STORAGE_KEYS.THEIR_BIO_IMAGES);
+        clearImageStorage();
       }
     };
 
@@ -85,12 +153,28 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
         return;
       }
       
-      const storageFormat = await Promise.all(
-        images.map(fileToStorageFormat)
-      );
-      localStorage.setItem(key, JSON.stringify(storageFormat));
+      const infoList = images.map(fileToInfo);
+      const dataToStore = JSON.stringify(infoList);
+      const dataSize = new Blob([dataToStore]).size;
+      
+      // 检查存储空间
+      if (!checkStorageQuota(dataSize)) {
+        console.warn('存储空间不足，跳过保存图片数据');
+        toast.warning('图片数据较大，将不会保存到本地存储');
+        return;
+      }
+      
+      localStorage.setItem(key, dataToStore);
+      console.log(`成功保存 ${images.length} 张图片引用到存储 (${(dataSize / 1024).toFixed(2)}KB)`);
     } catch (error) {
       console.error('Error saving images to storage:', error);
+      
+      // 如果是配额超出错误，清理存储并提示用户
+      if (error instanceof Error && error.name === 'QuotaExceededError') {
+        console.warn('存储配额超出，清理旧数据');
+        clearImageStorage();
+        toast.warning('存储空间不足，已清理旧数据');
+      }
     }
   };
 
@@ -135,59 +219,79 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
     setIsAnalyzing(true);
     setProcessStatus('Preparing...');
     
+    // 记录总开始时间
+    const totalStartTime = performance.now();
+    console.log('🚀 开始分析流程');
+    
     try {
       console.log('Starting analysis process...', {
         yourImagesCount: yourBioImages.length,
         theirImagesCount: theirBioImages.length
       });
 
-      setProcessStatus('Compressing images...');
-      toast.info("Compressing images...");
+      // === 图片压缩阶段 ===
+      const compressionStartTime = performance.now();
+      setProcessStatus('Preprocessing images...');
+      toast.info("Preprocessing images...");
+      console.log('📦 开始图片预处理阶段');
       
-      // 图片压缩配置
-      const compressionOptions = {
-        maxSizeMB: 1, // 最大1MB
-        maxWidthOrHeight: 1920, // 最大宽高
-        useWebWorker: true,
-        initialQuality: 0.8
+      // 预处理统计
+      let totalProcessed = 0;
+      let totalSkipped = 0;
+      
+      // 快速预处理函数 - 使用 Compressor.js
+      const quickPreprocess = async (file: File, index: number, total: number, prefix: string) => {
+        const fileSizeMB = file.size / (1024 * 1024);
+        
+        // 如果文件已经很小且是WebP格式，跳过处理
+        if (fileSizeMB <= 0.8 && file.type === 'image/webp') {
+          console.log(`⚡ ${prefix}图片 ${index + 1}/${total} 已符合要求，跳过处理 (${fileSizeMB.toFixed(2)}MB)`);
+          totalSkipped++;
+          return file;
+        }
+        
+        // 否则进行快速预处理
+        console.log(`🔄 ${prefix}图片 ${index + 1}/${total} 进行快速预处理 (${fileSizeMB.toFixed(2)}MB)`);
+        totalProcessed++;
+        return await fastPreprocess(file);
       };
 
-      // 压缩所有图片
-      setProcessStatus('Compressing your photos...');
-      const compressedYourImages = await Promise.all(
-        yourBioImages.map(async (file, index) => {
-          try {
-            setProcessStatus(`Compressing your photos... (${index + 1}/${yourBioImages.length})`);
-            console.log(`Compressing your image ${index + 1}/${yourBioImages.length}`);
-            return await imageCompression(file, compressionOptions);
-          } catch (error) {
-            console.error(`Image compression failed for your image ${index + 1}:`, error);
-            return file; // 如果压缩失败，使用原图
-          }
-        })
+      // 预处理您的图片 - 使用并发控制
+      setProcessStatus('Preprocessing your photos...');
+      const yourPreprocessStartTime = performance.now();
+      const preprocessedYourImages = await batchProcess(
+        yourBioImages, 
+        (file, index) => quickPreprocess(file, index, yourBioImages.length, '您的'),
+        4 // 每批4张图片
       );
+      const yourPreprocessTime = performance.now() - yourPreprocessStartTime;
+      console.log(`✅ 您的图片预处理完成，耗时: ${yourPreprocessTime.toFixed(2)}ms`);
 
-      setProcessStatus('Compressing their photos...');
-      const compressedTheirImages = await Promise.all(
-        theirBioImages.map(async (file, index) => {
-          try {
-            setProcessStatus(`Compressing their photos... (${index + 1}/${theirBioImages.length})`);
-            console.log(`Compressing their image ${index + 1}/${theirBioImages.length}`);
-            return await imageCompression(file, compressionOptions);
-          } catch (error) {
-            console.error(`Image compression failed for their image ${index + 1}:`, error);
-            return file; // 如果压缩失败，使用原图
-          }
-        })
+      setProcessStatus('Preprocessing their photos...');
+      const theirPreprocessStartTime = performance.now();
+      const preprocessedTheirImages = await batchProcess(
+        theirBioImages, 
+        (file, index) => quickPreprocess(file, index, theirBioImages.length, '对方'),
+        4 // 每批4张图片
       );
+      const theirPreprocessTime = performance.now() - theirPreprocessStartTime;
+      console.log(`✅ 对方图片预处理完成，耗时: ${theirPreprocessTime.toFixed(2)}ms`);
 
-      console.log('Compression completed:', {
-        yourImagesCompressed: compressedYourImages.length,
-        theirImagesCompressed: compressedTheirImages.length
+      const totalPreprocessTime = performance.now() - compressionStartTime;
+      console.log(`🎯 图片预处理阶段总耗时: ${totalPreprocessTime.toFixed(2)}ms`);
+      console.log(`📊 预处理统计: 跳过 ${totalSkipped} 张，处理 ${totalProcessed} 张`);
+      console.log(`🚀 平均每张图片处理时间: ${(totalPreprocessTime / (yourBioImages.length + theirBioImages.length)).toFixed(2)}ms`);
+
+      console.log('Preprocessing completed:', {
+        yourImagesProcessed: preprocessedYourImages.length,
+        theirImagesProcessed: preprocessedTheirImages.length
       });
 
+      // === 图片上传阶段 ===
+      const uploadStartTime = performance.now();
       setProcessStatus('Uploading images...');
       toast.info("Uploading images...");
+      console.log('📤 开始图片上传阶段');
 
       // 上传您的图片
       const uploadYourImages = async (files: File[]) => {
@@ -282,14 +386,20 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
       // 并行上传两组图片
       setProcessStatus('Uploading your photos...');
       const [yourImageUrls, theirImageUrls] = await Promise.all([
-        uploadYourImages(compressedYourImages),
-        uploadTheirImages(compressedTheirImages)
+        uploadYourImages(preprocessedYourImages),
+        uploadTheirImages(preprocessedTheirImages)
       ]);
+      
+      const uploadTime = performance.now() - uploadStartTime;
+      console.log(`✅ 图片上传完成，耗时: ${uploadTime.toFixed(2)}ms`);
       
       setProcessStatus('Upload completed...');
 
+      // === 兼容性分析阶段 ===
+      const analysisStartTime = performance.now();
       setProcessStatus('Analyzing compatibility...');
       toast.info("Analyzing compatibility...");
+      console.log('🔍 开始兼容性分析阶段');
 
       console.log('Starting analysis with URLs:', {
         profile1: yourImageUrls,
@@ -323,6 +433,8 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
       }
 
       const analysisResult = await analysisResponse.json();
+      const analysisTime = performance.now() - analysisStartTime;
+      console.log(`✅ 兼容性分析完成，耗时: ${analysisTime.toFixed(2)}ms`);
       console.log('Analysis result:', analysisResult);
       
       toast.success("Analysis complete!");
@@ -349,14 +461,24 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
       await new Promise(resolve => setTimeout(resolve, 1000)); // 显示完成状态1秒
       
       // 清理保存的图片（分析完成）
-      localStorage.removeItem(STORAGE_KEYS.YOUR_BIO_IMAGES);
-      localStorage.removeItem(STORAGE_KEYS.THEIR_BIO_IMAGES);
+      clearImageStorage();
+      
+      // 输出总耗时统计
+      const totalTime = performance.now() - totalStartTime;
+      console.log('\n📊 === 分析流程耗时统计 ===');
+      console.log(`📦 图片预处理: ${totalPreprocessTime.toFixed(2)}ms (${(totalPreprocessTime/totalTime*100).toFixed(1)}%)`);
+      console.log(`📤 图片上传: ${uploadTime.toFixed(2)}ms (${(uploadTime/totalTime*100).toFixed(1)}%)`);
+      console.log(`🔍 Nnext API 分析: ${analysisTime.toFixed(2)}ms (${(analysisTime/totalTime*100).toFixed(1)}%)`);
+      console.log(`⏱️ 总耗时: ${totalTime.toFixed(2)}ms`);
+      console.log('🎉 分析流程完成');
       
       // 跳转到结果页面
       router.push('/fit-report');
 
     } catch (error) {
-      console.error('Analysis failed:', error);
+      const totalTime = performance.now() - totalStartTime;
+      console.error('❌ 分析失败:', error);
+      console.log(`⏱️ 失败前总耗时: ${totalTime.toFixed(2)}ms`);
       toast.error(error instanceof Error ? error.message : 'Analysis failed. Please try again.');
     } finally {
       setIsAnalyzing(false);
@@ -368,8 +490,7 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
   const handleClearAll = () => {
     setYourBioImages([]);
     setTheirBioImages([]);
-    localStorage.removeItem(STORAGE_KEYS.YOUR_BIO_IMAGES);
-    localStorage.removeItem(STORAGE_KEYS.THEIR_BIO_IMAGES);
+    clearImageStorage(); // 使用新的清理函数
     onBack();
   };
 
@@ -613,28 +734,13 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
   );
 }
 
-// 检查是否有保存的图片
-const checkHasSavedImages = (): boolean => {
-  if (typeof window === 'undefined') return false;
-  
-  try {
-    const savedYourImages = localStorage.getItem(STORAGE_KEYS.YOUR_BIO_IMAGES);
-    const savedTheirImages = localStorage.getItem(STORAGE_KEYS.THEIR_BIO_IMAGES);
-    
-    return !!(savedYourImages || savedTheirImages);
-  } catch (error) {
-    console.error('Error checking saved images:', error);
-    return false;
-  }
-};
-
 export default function FitTest() {
   const [showUpload, setShowUpload] = useState(false);
 
   // 在客户端初始化时检查是否有保存的图片
   useEffect(() => {
-    const hasSavedImages = checkHasSavedImages();
-    if (hasSavedImages) {
+    const hasStoredImages = checkHasSavedImages();
+    if (hasStoredImages) {
       setShowUpload(true);
     }
   }, []);

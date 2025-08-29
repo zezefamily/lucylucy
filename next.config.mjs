@@ -35,7 +35,14 @@ const nextConfig = {
     return [];
   },
   experimental: {
-    turbo: false,
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
   },
 };
 
