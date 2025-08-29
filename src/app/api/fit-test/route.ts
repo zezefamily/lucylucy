@@ -450,22 +450,22 @@ export async function POST(req: NextRequest) {
         }
         
         // 成功分析后，核销积分
-        try {
-          const user_uuid = await getUserUuid();
-          if (user_uuid) {
-            await decreaseCredits({
-              user_uuid,
-              trans_type: CreditsTransType.Ping,
-              credits: CreditsAmount.PingCost,
-            });
-            console.log('积分扣减成功 - 灵魂契合度测试');
-          } else {
-            console.warn('用户未登录，跳过积分扣减');
-          }
-        } catch (creditError) {
-          console.error('积分扣减过程出错:', creditError);
-          // 不影响主流程，继续返回结果
-        }
+        // try {
+        //   const user_uuid = await getUserUuid();
+        //   if (user_uuid) {
+        //     await decreaseCredits({
+        //       user_uuid,
+        //       trans_type: CreditsTransType.Ping,
+        //       credits: CreditsAmount.PingCost,
+        //     });
+        //     console.log('积分扣减成功 - 灵魂契合度测试');
+        //   } else {
+        //     console.warn('用户未登录，跳过积分扣减');
+        //   }
+        // } catch (creditError) {
+        //   console.error('积分扣减过程出错:', creditError);
+        //   // 不影响主流程，继续返回结果
+        // }
         
         return respData(soulMatchResult);
       } catch (parseError) {
