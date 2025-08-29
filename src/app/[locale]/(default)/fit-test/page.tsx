@@ -375,7 +375,7 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
 
   return (
     <motion.div 
-      className="relative z-10 flex flex-col items-center justify-start h-full px-3 sm:px-4 lg:px-8 pb-6"
+      className="relative z-10 flex flex-col items-center justify-start px-3 sm:px-4 lg:px-8 pb-24 sm:pb-6"
       style={{ paddingTop: '60px' }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -642,7 +642,7 @@ export default function FitTest() {
   if (showUpload) {
     return (
       <motion.section 
-        className="relative w-full min-h-screen h-screen max-h-[900px] overflow-hidden"
+        className="relative w-full min-h-screen"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
@@ -676,7 +676,7 @@ export default function FitTest() {
 
   return (
     <motion.section 
-      className="relative w-full min-h-screen h-screen max-h-[900px] overflow-hidden"
+      className="relative w-full min-h-screen"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
@@ -918,7 +918,7 @@ export default function FitTest() {
                   </button>
                 </div>
               </div>
-            <p className="text-black/80 text md:text-base lg:text-sm text-center px-4">
+            <p className="text-black/80 text md:text-base lg:text-sm text-center px-4 mb-8 sm:mb-12">
               Results in 10 seconds
             </p>
           </motion.div>
