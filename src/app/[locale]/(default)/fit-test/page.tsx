@@ -74,22 +74,28 @@ const checkHasSavedImages = (): boolean => {
 
 // 使用 Compressor.js 进行快速预处理
 const fastPreprocess = (file: File): Promise<File> => {
-  return new Promise((resolve, reject) => {
-    new Compressor(file, {
-      quality: 0.8,
-      maxWidth: 1200,
-      maxHeight: 1200,
-      convertSize: 1000000, // 1MB以上转换为WebP
+  return new Promise((resolve: (value: File) => void, reject: (reason?: any) => void) => {
+    const { isSafari, isMobile } = detectBrowser();
+    
+    // 移动端Safari兼容性配置
+    const options = {
+      quality: isSafari && isMobile ? 0.9 : 0.8, // Safari移动端使用更高质量
+      maxWidth: isSafari && isMobile ? 1000 : 1200, // Safari移动端使用更小尺寸
+      maxHeight: isSafari && isMobile ? 1000 : 1200,
+      convertSize: isSafari && isMobile ? 500000 : 1000000, // Safari移动端更早转换
       mimeType: 'image/webp',
+      useWebWorker: !(isSafari && isMobile), // Safari移动端禁用Web Worker
       success: (result: any) => {
-        console.log(`⚡ 快速预处理完成: ${file.size} -> ${result.size} bytes`);
+        console.log(`⚡ 快速预处理完成: ${file.size} -> ${result.size} bytes (${isSafari && isMobile ? 'Safari移动端' : '标准'})`);
         resolve(result as File);
       },
       error: (err: any) => {
         console.warn('快速预处理失败，使用原图:', err);
         resolve(file);
       }
-    });
+    };
+    
+    new Compressor(file, options);
   });
 };
 
@@ -106,11 +112,70 @@ const batchProcess = async (files: File[], processor: (file: File, index: number
     
     // 短暂延迟避免阻塞
     if (i + batchSize < files.length) {
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise<void>((resolve) => setTimeout(resolve, 50));
     }
   }
   
   return results;
+};
+
+// 检测浏览器类型
+const detectBrowser = () => {
+  const userAgent = navigator.userAgent;
+  const isSafari = /^((?!chrome|android).)*safari/i.test(userAgent);
+  const isChrome = /chrome/i.test(userAgent) && !/edge/i.test(userAgent);
+  const isMobile = /mobile|android|iphone|ipad|phone/i.test(userAgent);
+  
+  return { isSafari, isChrome, isMobile };
+};
+
+// 带超时的fetch请求
+const fetchWithTimeout = async (url: string, options: RequestInit, timeout = 30000) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('请求超时，请检查网络连接');
+    }
+    throw error;
+  }
+};
+
+// 重试机制
+const retryWithBackoff = async (
+  fn: () => Promise<any>, 
+  maxRetries = 3, 
+  baseDelay = 1000
+): Promise<any> => {
+  let lastError: Error;
+  
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error('Unknown error');
+      
+      if (i === maxRetries - 1) {
+        throw lastError;
+      }
+      
+      // 指数退避
+      const delay = baseDelay * Math.pow(2, i);
+      console.log(`重试 ${i + 1}/${maxRetries}，等待 ${delay}ms`);
+      await new Promise<void>((resolve) => setTimeout(resolve, delay));
+    }
+  }
+  
+  throw lastError!;
 };
 
 // 上传组件
@@ -242,6 +307,7 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
       // 快速预处理函数 - 使用 Compressor.js
       const quickPreprocess = async (file: File, index: number, total: number, prefix: string) => {
         const fileSizeMB = file.size / (1024 * 1024);
+        const { isSafari, isMobile } = detectBrowser();
         
         // 如果文件已经很小且是WebP格式，跳过处理
         if (fileSizeMB <= 0.8 && file.type === 'image/webp') {
@@ -253,6 +319,14 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
         // 否则进行快速预处理
         console.log(`🔄 ${prefix}图片 ${index + 1}/${total} 进行快速预处理 (${fileSizeMB.toFixed(2)}MB)`);
         totalProcessed++;
+        
+        // 移动端Safari特殊处理
+        if (isSafari && isMobile) {
+          console.log(`📱 移动端Safari检测，使用兼容性处理`);
+          // Safari移动端可能需要更保守的压缩设置
+          return await fastPreprocess(file);
+        }
+        
         return await fastPreprocess(file);
       };
 
@@ -295,21 +369,29 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
 
       // 上传您的图片
       const uploadYourImages = async (files: File[]) => {
+        const { isSafari, isMobile } = detectBrowser();
+        console.log('浏览器信息:', { isSafari, isMobile });
+        
         const formData = new FormData();
         files.forEach(file => {
           formData.append('files', file);
         });
         formData.append('prefix', 'fit-test-profile1');
 
-        const response = await fetch('/api/upload-image', {
-          method: 'POST',
-          body: formData,
+        // 移动端Safari特殊处理
+        const timeout = isSafari && isMobile ? 60000 : 30000; // Safari移动端给更长时间
+        
+        const response = await retryWithBackoff(async () => {
+          return await fetchWithTimeout('/api/upload-image', {
+            method: 'POST',
+            body: formData,
+          }, timeout);
         });
 
         if (!response.ok) {
           const errorText = await response.text();
           console.error('Upload failed:', errorText);
-          throw new Error('Failed to upload your images');
+          throw new Error(`上传失败: ${response.status} ${response.statusText}`);
         }
 
         const result = await response.json();
@@ -340,21 +422,28 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
 
       // 上传对方的图片
       const uploadTheirImages = async (files: File[]) => {
+        const { isSafari, isMobile } = detectBrowser();
+        
         const formData = new FormData();
         files.forEach(file => {
           formData.append('files', file);
         });
         formData.append('prefix', 'fit-test-profile2');
 
-        const response = await fetch('/api/upload-image', {
-          method: 'POST',
-          body: formData,
+        // 移动端Safari特殊处理
+        const timeout = isSafari && isMobile ? 60000 : 30000;
+        
+        const response = await retryWithBackoff(async () => {
+          return await fetchWithTimeout('/api/upload-image', {
+            method: 'POST',
+            body: formData,
+          }, timeout);
         });
 
         if (!response.ok) {
           const errorText = await response.text();
           console.error('Upload failed:', errorText);
-          throw new Error('Failed to upload their images');
+          throw new Error(`上传失败: ${response.status} ${response.statusText}`);
         }
 
         const result = await response.json();
