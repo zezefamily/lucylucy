@@ -7,6 +7,9 @@ import { useRouter } from "next/navigation";
 import imageCompression from 'browser-image-compression';
 import { toast } from "sonner";
 import Compressor from 'compressorjs';
+import { useAppContext } from "@/contexts/app";
+import { SubscriptionTier } from "@/types/user";
+import { useTranslations } from "next-intl";
 
 // 存储键名
 const STORAGE_KEYS = {
@@ -185,6 +188,8 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [processStatus, setProcessStatus] = useState<string>('');
   const router = useRouter();
+  const { user, userCredits, setShowSignModal, setShowPricingModal, refreshUserCredits } = useAppContext();
+  const t = useTranslations("fit_test");
 
   // 从localStorage恢复图片状态
   useEffect(() => {
@@ -195,7 +200,7 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
 
         if (savedYourImages || savedTheirImages) {
           console.log('检测到之前上传的图片信息，但页面刷新后需要重新选择图片');
-          toast.info('检测到之前的图片信息，请重新选择图片');
+          toast.info(t("toast.detected_previous_images"));
           
           // 清理旧的存储信息，因为无法恢复文件
           clearImageStorage();
@@ -225,7 +230,7 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
       // 检查存储空间
       if (!checkStorageQuota(dataSize)) {
         console.warn('存储空间不足，跳过保存图片数据');
-        toast.warning('图片数据较大，将不会保存到本地存储');
+        toast.warning(t("toast.image_data_large"));
         return;
       }
       
@@ -238,7 +243,7 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
       if (error instanceof Error && error.name === 'QuotaExceededError') {
         console.warn('存储配额超出，清理旧数据');
         clearImageStorage();
-        toast.warning('存储空间不足，已清理旧数据');
+        toast.warning(t("toast.storage_quota_exceeded"));
       }
     }
   };
@@ -259,8 +264,8 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
     const currentImages = type === 'your' ? yourBioImages : theirBioImages;
     const setImages = type === 'your' ? setYourBioImages : setTheirBioImages;
     
-    // 限制最多8张图片
-    const remainingSlots = 8 - currentImages.length;
+    // 限制最多5张图片
+    const remainingSlots = 5 - currentImages.length;
     const filesToAdd = newFiles.slice(0, remainingSlots);
     
     setImages([...currentImages, ...filesToAdd]);
@@ -277,28 +282,61 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
   const handleAnalyze = async () => {
     // 验证是否有上传图片
     if (yourBioImages.length === 0 || theirBioImages.length === 0) {
-      toast.error("Please upload at least one image for both profiles");
+      toast.error(t("toast.upload_required"));
       return;
     }
 
+    // 1. 检查用户登录状态
+    if (!user) {
+      setShowSignModal?.(true);
+      return;
+    }
+
+    // 2. 获取用户订阅等级
+    let userTier: SubscriptionTier = SubscriptionTier.NONE;
+    try {
+      const response = await fetch('/api/get-user-subscription');
+      if (response.ok) {
+        const { data } = await response.json();
+        userTier = data.subscription?.tier || SubscriptionTier.NONE;
+      }
+    } catch (error) {
+      console.error('获取用户订阅等级失败:', error);
+    }
+
+    // 3. 权限检查逻辑
+    if (userTier === SubscriptionTier.ELITE) {
+      console.log('Elite 用户，直接放行');
+    } else {
+      // 非 Elite 用户检查积分
+      const requiredCredits = 10;
+      const availableCredits = userCredits?.left_credits || 0;
+      if (availableCredits < requiredCredits) {
+        setShowPricingModal?.(true);
+        return;
+      }
+    }
+
     setIsAnalyzing(true);
-    setProcessStatus('Preparing...');
+    setProcessStatus(t("process_status.preparing"));
     
     // 记录总开始时间
     const totalStartTime = performance.now();
-    console.log('🚀 开始分析流程');
+    console.log(t("console_logs.analysis_started"));
     
     try {
       console.log('Starting analysis process...', {
         yourImagesCount: yourBioImages.length,
-        theirImagesCount: theirBioImages.length
+        theirImagesCount: theirBioImages.length,
+        userTier: userTier,
+        availableCredits: userCredits?.left_credits || 0
       });
 
       // === 图片压缩阶段 ===
       const compressionStartTime = performance.now();
-      setProcessStatus('Preprocessing images...');
-      toast.info("Preprocessing images...");
-      console.log('📦 开始图片预处理阶段');
+      setProcessStatus(t("process_status.preprocessing_your_photos"));
+      toast.info(t("toast.preprocessing_images"));
+      console.log(t("console_logs.preprocessing_started"));
       
       // 预处理统计
       let totalProcessed = 0;
@@ -331,7 +369,7 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
       };
 
       // 预处理您的图片 - 使用并发控制
-      setProcessStatus('Preprocessing your photos...');
+      setProcessStatus(t("process_status.preprocessing_your_photos"));
       const yourPreprocessStartTime = performance.now();
       const preprocessedYourImages = await batchProcess(
         yourBioImages, 
@@ -339,9 +377,9 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
         4 // 每批4张图片
       );
       const yourPreprocessTime = performance.now() - yourPreprocessStartTime;
-      console.log(`✅ 您的图片预处理完成，耗时: ${yourPreprocessTime.toFixed(2)}ms`);
+      console.log(t("console_logs.your_photos_preprocessed", { time: yourPreprocessTime.toFixed(2) }));
 
-      setProcessStatus('Preprocessing their photos...');
+      setProcessStatus(t("process_status.preprocessing_their_photos"));
       const theirPreprocessStartTime = performance.now();
       const preprocessedTheirImages = await batchProcess(
         theirBioImages, 
@@ -349,12 +387,12 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
         4 // 每批4张图片
       );
       const theirPreprocessTime = performance.now() - theirPreprocessStartTime;
-      console.log(`✅ 对方图片预处理完成，耗时: ${theirPreprocessTime.toFixed(2)}ms`);
+      console.log(t("console_logs.their_photos_preprocessed", { time: theirPreprocessTime.toFixed(2) }));
 
       const totalPreprocessTime = performance.now() - compressionStartTime;
-      console.log(`🎯 图片预处理阶段总耗时: ${totalPreprocessTime.toFixed(2)}ms`);
-      console.log(`📊 预处理统计: 跳过 ${totalSkipped} 张，处理 ${totalProcessed} 张`);
-      console.log(`🚀 平均每张图片处理时间: ${(totalPreprocessTime / (yourBioImages.length + theirBioImages.length)).toFixed(2)}ms`);
+      console.log(t("console_logs.preprocessing_completed", { time: totalPreprocessTime.toFixed(2) }));
+      console.log(t("console_logs.preprocessing_stats", { skipped: totalSkipped, processed: totalProcessed }));
+      console.log(t("console_logs.avg_processing_time", { time: (totalPreprocessTime / (yourBioImages.length + theirBioImages.length)).toFixed(2) }));
 
       console.log('Preprocessing completed:', {
         yourImagesProcessed: preprocessedYourImages.length,
@@ -363,9 +401,9 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
 
       // === 图片上传阶段 ===
       const uploadStartTime = performance.now();
-      setProcessStatus('Uploading images...');
-      toast.info("Uploading images...");
-      console.log('📤 开始图片上传阶段');
+      setProcessStatus(t("process_status.uploading_your_photos"));
+      toast.info(t("toast.uploading_images"));
+      console.log(t("console_logs.upload_started"));
 
       // 上传您的图片
       const uploadYourImages = async (files: File[]) => {
@@ -473,22 +511,22 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
       };
 
       // 并行上传两组图片
-      setProcessStatus('Uploading your photos...');
+      setProcessStatus(t("process_status.uploading_your_photos"));
       const [yourImageUrls, theirImageUrls] = await Promise.all([
         uploadYourImages(preprocessedYourImages),
         uploadTheirImages(preprocessedTheirImages)
       ]);
       
       const uploadTime = performance.now() - uploadStartTime;
-      console.log(`✅ 图片上传完成，耗时: ${uploadTime.toFixed(2)}ms`);
+      console.log(t("console_logs.upload_completed", { time: uploadTime.toFixed(2) }));
       
-      setProcessStatus('Upload completed...');
+      setProcessStatus(t("process_status.upload_completed"));
 
       // === 兼容性分析阶段 ===
       const analysisStartTime = performance.now();
-      setProcessStatus('Analyzing compatibility...');
-      toast.info("Analyzing compatibility...");
-      console.log('🔍 开始兼容性分析阶段');
+      setProcessStatus(t("process_status.analyzing_compatibility"));
+      toast.info(t("toast.analyzing_compatibility"));
+      console.log(t("console_logs.analysis_started_api"));
 
       console.log('Starting analysis with URLs:', {
         profile1: yourImageUrls,
@@ -523,10 +561,10 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
 
       const analysisResult = await analysisResponse.json();
       const analysisTime = performance.now() - analysisStartTime;
-      console.log(`✅ 兼容性分析完成，耗时: ${analysisTime.toFixed(2)}ms`);
+      console.log(t("console_logs.analysis_completed", { time: analysisTime.toFixed(2) }));
       console.log('Analysis result:', analysisResult);
       
-      toast.success("Analysis complete!");
+      toast.success(t("toast.analysis_complete"));
 
       // 验证分析结果格式 - API返回格式：{ code: 0, message: "ok", data: ... }
       if (analysisResult.code !== 0) {
@@ -554,21 +592,29 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
       
       // 输出总耗时统计
       const totalTime = performance.now() - totalStartTime;
-      console.log('\n📊 === 分析流程耗时统计 ===');
-      console.log(`📦 图片预处理: ${totalPreprocessTime.toFixed(2)}ms (${(totalPreprocessTime/totalTime*100).toFixed(1)}%)`);
-      console.log(`📤 图片上传: ${uploadTime.toFixed(2)}ms (${(uploadTime/totalTime*100).toFixed(1)}%)`);
-      console.log(`🔍 Nnext API 分析: ${analysisTime.toFixed(2)}ms (${(analysisTime/totalTime*100).toFixed(1)}%)`);
-      console.log(`⏱️ 总耗时: ${totalTime.toFixed(2)}ms`);
-      console.log('🎉 分析流程完成');
+      console.log('\n' + t("console_logs.total_time_stats"));
+      console.log(t("console_logs.preprocessing_time", { time: totalPreprocessTime.toFixed(2), percent: (totalPreprocessTime/totalTime*100).toFixed(1) }));
+      console.log(t("console_logs.upload_time", { time: uploadTime.toFixed(2), percent: (uploadTime/totalTime*100).toFixed(1) }));
+      console.log(t("console_logs.analysis_time", { time: analysisTime.toFixed(2), percent: (analysisTime/totalTime*100).toFixed(1) }));
+      console.log(t("console_logs.total_time", { time: totalTime.toFixed(2) }));
+      console.log(t("console_logs.analysis_flow_completed"));
+      
+      // 刷新用户积分余额
+      try {
+        await refreshUserCredits?.();
+        console.log(t("console_logs.credits_refreshed"));
+      } catch (error) {
+        console.warn(t("console_logs.credits_refresh_failed"), error);
+      }
       
       // 跳转到结果页面
       router.push('/fit-report');
 
     } catch (error) {
       const totalTime = performance.now() - totalStartTime;
-      console.error('❌ 分析失败:', error);
-      console.log(`⏱️ 失败前总耗时: ${totalTime.toFixed(2)}ms`);
-      toast.error(error instanceof Error ? error.message : 'Analysis failed. Please try again.');
+      console.error(t("console_logs.analysis_failed"), error);
+      console.log(t("console_logs.failed_total_time", { time: totalTime.toFixed(2) }));
+      toast.error(error instanceof Error ? error.message : t("toast.analysis_failed"));
     } finally {
       setIsAnalyzing(false);
       setProcessStatus('');
@@ -603,7 +649,7 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
               fontWeight: '900'
           }}
         >
-          Upload Profiles
+          {t("title")}
         </motion.h1>
 
         {/* 副标题 */}
@@ -613,8 +659,7 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
         >
-          Please upload photos containing both people's avatars, <br className="hidden sm:block" />
-          <span className="sm:hidden"> </span>optionally add chat records for deeper analysis ✨
+          {t("subtitle")}
         </motion.p>
 
         {/* 重新开始按钮 - 当有图片时显示 */}
@@ -629,7 +674,7 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
               onClick={handleClearAll}
               className="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-colors border border-white/30"
             >
-              Start Over
+              {t("start_over")}
             </button>
           </motion.div>
         )}
@@ -655,7 +700,7 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
                      className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
                    />
                  </div>
-                 <h3 className="text-base sm:text-lg font-semibold text-white">Your Bio</h3>
+                 <h3 className="text-base sm:text-lg font-semibold text-white">{t("your_bio")}</h3>
                </div>
               
                              {/* 图片网格 - 只在有图片时显示 */}
@@ -682,7 +727,7 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
                )}
               
                              {/* 上传按钮 */}
-               {yourBioImages.length < 8 && (
+               {yourBioImages.length < 5 && (
                  <label className="block">
                    <input
                      type="file"
@@ -700,15 +745,15 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
                         <span className="text-white text-sm sm:text-lg">+</span>
                       </div>
                       <span className="text-gray-600 text-xs sm:text-sm">
-                        {yourBioImages.length === 0 ? 'Upload first image' : 'Add another image'}
+                        {yourBioImages.length === 0 ? t("upload_first_image") : t("add_another_image")}
                       </span>
                     </div>
                   </div>
                 </label>
               )}
               
-                             <p className="text-center text-white/80 text-xs sm:text-sm mt-2">
-                 {yourBioImages.length}/8 images
+                                           <p className="text-center text-white/80 text-xs sm:text-sm mt-2">
+                 {t("images_count", { count: yourBioImages.length })}
                </p>
             </div>
 
@@ -724,7 +769,7 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
                      className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
                    />
                  </div>
-                 <h3 className="text-base sm:text-lg font-semibold text-white">Their Bio</h3>
+                 <h3 className="text-base sm:text-lg font-semibold text-white">{t("their_bio")}</h3>
                </div>
               
                              {/* 图片网格 - 只在有图片时显示 */}
@@ -751,34 +796,34 @@ function UploadProfiles({ onBack }: { onBack: () => void }) {
                )}
               
                              {/* 上传按钮 */}
-               {theirBioImages.length < 8 && (
-                 <label className="block">
-                   <input
-                     type="file"
-                     multiple
-                     accept="image/*"
-                     className="hidden"
-                     onChange={(e) => handleImageUpload(e.target.files, 'their')}
-                   />
-                   <div 
-                     className="w-full bg-white rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-[#FF64DC] transition-colors" 
-                     style={{ height: theirBioImages.length > 0 ? '60px' : '180px' }}
-                   >
-                    <div className="text-center">
-                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-[#FF64DC] rounded-full flex items-center justify-center mx-auto mb-1 sm:mb-2">
-                        <span className="text-white text-sm sm:text-lg">+</span>
-                      </div>
-                      <span className="text-gray-600 text-xs sm:text-sm">
-                        {theirBioImages.length === 0 ? 'Upload first image' : 'Add another image'}
+              {theirBioImages.length < 5 && (
+                <label className="block">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => handleImageUpload(e.target.files, 'their')}
+                  />
+                  <div 
+                    className="w-full bg-white rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-[#FF64DC] transition-colors" 
+                    style={{ height: theirBioImages.length > 0 ? '60px' : '180px' }}
+                  >
+                   <div className="text-center">
+                     <div className="w-6 h-6 sm:w-8 sm:h-8 bg-[#FF64DC] rounded-full flex items-center justify-center mx-auto mb-1 sm:mb-2">
+                       <span className="text-white text-sm sm:text-lg">+</span>
+                     </div>
+                                           <span className="text-gray-600 text-xs sm:text-sm">
+                        {theirBioImages.length === 0 ? t("upload_first_image") : t("add_another_image")}
                       </span>
-                    </div>
-                  </div>
-                </label>
-              )}
-              
-                             <p className="text-center text-white/80 text-xs sm:text-sm mt-2">
-                 {theirBioImages.length}/8 images
-               </p>
+                   </div>
+                 </div>
+               </label>
+             )}
+             
+                           <p className="text-center text-white/80 text-xs sm:text-sm mt-2">
+                {t("images_count", { count: theirBioImages.length })}
+              </p>
             </div>
           </div>
         </motion.div>
