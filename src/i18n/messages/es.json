@@ -401,6 +401,32 @@
       "credits_refresh_failed": "Error al actualizar los créditos del usuario"
     }
   },
+  "image_generation": {
+    "main_title_line1": "Genera fotos de",
+    "main_title_line2": "citas.",
+    "main_title_highlight": "3x más coincidencias",
+    "description_line1": "Sube tus fotos y obtén un perfil de",
+    "description_line2": "citas irresistible en segundos.",
+    "cta_button": "Crear Mi Perfil",
+    "upload_title": "Sube una foto clara",
+    "upload_title_highlight": "de frente",
+    "upload_placeholder": "Sube Tu Mejor Foto",
+    "generate_button": "Generar Estilos de Perfil",
+    "change_photo_hint": "Haz clic para cambiar foto",
+    "sample_data": {
+      "original1": "Original 1",
+      "original2": "Original 2", 
+      "original3": "Original 3",
+      "effect1": "Efecto 1",
+      "effect2": "Efecto 2",
+      "effect3": "Efecto 3"
+    },
+    "alt_texts": {
+      "add_image": "Añadir imagen",
+      "arrow_icon": "Icono de flecha",
+      "uploaded_image": "Imagen subida"
+    }
+  },
   "common": {
     "loading": "Cargando...",
     "cancel": "Cancelar",

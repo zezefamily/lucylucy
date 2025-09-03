@@ -4,21 +4,24 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 export default function ImageGeneration() {
+  const t = useTranslations("image_generation");
+  
   // 图片数据
   const imageGroups = [
     {
-      original_img: "原图1",
-      rendering_img: ["效果图1", "效果图2", "效果图3"]
+      original_img: t("sample_data.original1"),
+      rendering_img: [t("sample_data.effect1"), t("sample_data.effect2"), t("sample_data.effect3")]
     },
     {
-      original_img: "原图2", 
-      rendering_img: ["效果图1", "效果图2", "效果图3"]
+      original_img: t("sample_data.original2"), 
+      rendering_img: [t("sample_data.effect1"), t("sample_data.effect2"), t("sample_data.effect3")]
     },
     {
-      original_img: "原图3",
-      rendering_img: ["效果图1", "效果图2", "效果图3"]
+      original_img: t("sample_data.original3"),
+      rendering_img: [t("sample_data.effect1"), t("sample_data.effect2"), t("sample_data.effect3")]
     }
   ];
 
@@ -79,7 +82,7 @@ export default function ImageGeneration() {
                 fontWeight: '900'
             }}
           >
-            Upload a clear <span className="text-[#C8FB75]">front-facing photo</span>
+            {t("upload_title")} <span className="text-[#C8FB75]">{t("upload_title_highlight")}</span>
           </h1>
         </div>
 
@@ -102,20 +105,20 @@ export default function ImageGeneration() {
                     <div className="w-16 h-16 bg-pink-500 rounded-full mb-4 flex items-center justify-center">
                       <Plus className="w-8 h-8 text-white" />
                     </div>
-                    <p className="text-gray-800 font-medium">Upload Your Best Photo</p>
+                    <p className="text-gray-800 font-medium">{t("upload_placeholder")}</p>
                   </>
                 ) : (
                   /* 图片预览状态 */
                   <div className="relative w-full flex-1 flex items-center justify-center">
                     <img 
                       src={uploadedImage} 
-                      alt="上传的图片" 
+                      alt={t("alt_texts.uploaded_image")} 
                       className="w-full h-auto object-contain rounded-xl max-h-[400px] lg:max-h-[450px]"
                     />
                     {/* 更换图片提示 */}
                     <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors rounded-xl flex items-center justify-center opacity-0 hover:opacity-100">
                       <div className="text-white text-sm font-medium bg-black/70 px-3 py-1 rounded-full">
-                        点击更换图片
+                        {t("change_photo_hint")}
                       </div>
                     </div>
                   </div>
@@ -131,7 +134,7 @@ export default function ImageGeneration() {
               className="bg-black hover:bg-gray-800 text-white px-8 py-4 text-lg font-semibold rounded-full flex items-center gap-3 h-auto mx-auto"
             >
               <span className="text-lime-400 text-xl">✨</span>
-              Generate Profile Styles
+              {t("generate_button")}
             </Button>
           </div>
         </div>
@@ -176,20 +179,20 @@ export default function ImageGeneration() {
                         fontWeight: '900'
                     }}
                 >
-                  Generate dating photos.
+                  {t("main_title_line1")} {t("main_title_line2")}
                 </h1>
                 <h2 className="text-3xl sm:text-4xl lg:text-7xl font-bold text-[#C8FB75] leading-tight">
-                  3x your matches
+                  {t("main_title_highlight")}
                 </h2>
               </div>
 
               {/* 描述文字 */}
               <div className="space-y-1 lg:space-y-2">
                 <p className="text-lg sm:text-xl lg:text-2xl text-gray-100 leading-relaxed">
-                  Upload your photos and get an irresistible
+                  {t("description_line1")}
                 </p>
                 <p className="text-lg sm:text-xl lg:text-2xl text-gray-100 leading-relaxed">
-                  dating profile in seconds.
+                  {t("description_line2")}
                 </p>
               </div>
 
@@ -201,14 +204,14 @@ export default function ImageGeneration() {
                   className="bg-black hover:bg-gray-800 text-white px-6 py-3 text-lg font-semibold rounded-full flex items-center gap-3 h-auto"
                 >
                   <img 
-                    src="imgs/lucy/hero_add_img_icon.png" 
-                    alt="添加图片" 
+                    src="/imgs/lucy/hero_add_img_icon.png" 
+                    alt={t("alt_texts.add_image")} 
                     width="60" 
                     height="60"
                     className="w-[60px] h-[60px]"
                     style={{ marginLeft: '0px' }}
                   />
-                  <span style={{ marginLeft: '0px' }}>Create My Profile</span>
+                  <span style={{ marginLeft: '0px' }}>{t("cta_button")}</span>
                 </Button>
               </div>
             </div>
@@ -242,8 +245,8 @@ export default function ImageGeneration() {
                         }}
                     >
                       <img 
-                        src="imgs/lucy/ori_img_bottom_icon.png" 
-                        alt="向上箭头" 
+                        src="/imgs/lucy/ori_img_bottom_icon.png" 
+                        alt={t("alt_texts.arrow_icon")} 
                         width="36" 
                         height="43"
                         className="w-9 h-11"
@@ -342,17 +345,17 @@ export default function ImageGeneration() {
                   className="bg-black hover:bg-gray-800 text-white px-6 py-3 text-base font-semibold rounded-full flex items-center gap-3 h-auto mx-auto"
                 >
                   <img 
-                    src="imgs/lucy/hero_add_img_icon.png" 
-                    alt="添加图片" 
+                    src="/imgs/lucy/hero_add_img_icon.png" 
+                    alt={t("alt_texts.add_image")} 
                     width="60" 
                     height="60"
                     className="w-[60px] h-[60px]"
                     style={{ marginLeft: '0px' }}
                   />
-                  <span style={{ marginLeft: '0px' }}>Create My Profile</span>
+                                    <span style={{ marginLeft: '0px' }}>{t("cta_button")}</span>
                 </Button>
+              </div>
             </div>
-          </div>
         </div>
       </div>
     </div>

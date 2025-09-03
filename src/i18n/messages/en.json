@@ -406,6 +406,32 @@
     "official_email": "Official Email: support@lucyai.app",
     "close": "Close"
   },
+  "image_generation": {
+    "main_title_line1": "Generate dating",
+    "main_title_line2": "photos.",
+    "main_title_highlight": "3x your matches",
+    "description_line1": "Upload your photos and get an irresistible",
+    "description_line2": "dating profile in seconds.",
+    "cta_button": "Create My Profile",
+    "upload_title": "Upload a clear",
+    "upload_title_highlight": "front-facing photo",
+    "upload_placeholder": "Upload Your Best Photo",
+    "generate_button": "Generate Profile Styles",
+    "change_photo_hint": "Click to change photo",
+    "sample_data": {
+      "original1": "Original 1",
+      "original2": "Original 2", 
+      "original3": "Original 3",
+      "effect1": "Effect 1",
+      "effect2": "Effect 2",
+      "effect3": "Effect 3"
+    },
+    "alt_texts": {
+      "add_image": "Add image",
+      "arrow_icon": "Arrow icon",
+      "uploaded_image": "Uploaded image"
+    }
+  },
   "common": {
     "loading": "Loading...",
     "cancel": "Cancel",

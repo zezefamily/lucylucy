@@ -406,6 +406,32 @@
     "official_email": "官方邮箱：support@lucyai.app",
     "close": "关闭"
   },
+  "image_generation": {
+    "main_title_line1": "生成约会",
+    "main_title_line2": "照片。",
+    "main_title_highlight": "3倍匹配率",
+    "description_line1": "上传您的照片，获得一个令人无法抗拒的",
+    "description_line2": "约会档案，仅需几秒钟。",
+    "cta_button": "创建我的档案",
+    "upload_title": "上传一张清晰的",
+    "upload_title_highlight": "正面照片",
+    "upload_placeholder": "上传您最好的照片",
+    "generate_button": "生成档案风格",
+    "change_photo_hint": "点击更换图片",
+    "sample_data": {
+      "original1": "原图1",
+      "original2": "原图2", 
+      "original3": "原图3",
+      "effect1": "效果图1",
+      "effect2": "效果图2",
+      "effect3": "效果图3"
+    },
+    "alt_texts": {
+      "add_image": "添加图片",
+      "arrow_icon": "箭头图标",
+      "uploaded_image": "上传的图片"
+    }
+  },
   "common": {
     "loading": "加载中...",
     "cancel": "取消",
