@@ -13,6 +13,11 @@
     "nav": {
       "items": [
         {
+          "title": "Generación de imágenes",
+          "url": "/image-generation",
+          "icon": "RiImageLine"
+        },
+        {
           "title": "Análisis de atracción",
           "url": "/",
           "icon": "RiStarLine"

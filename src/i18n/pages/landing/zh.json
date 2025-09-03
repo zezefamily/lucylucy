@@ -12,6 +12,11 @@
     },
     "nav": {
      "items": [
+      {
+        "title": "图片生成",
+        "url": "/image-generation",
+        "icon": "RiImageLine"
+      },
         {
           "title": "吸引力评分",
           "url": "/",
