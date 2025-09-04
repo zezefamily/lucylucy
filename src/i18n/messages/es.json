@@ -427,6 +427,20 @@
       "uploaded_image": "Imagen subida"
     }
   },
+  "image_generation_result": {
+    "title": "Elige Tu Estilo",
+    "subtitle": "Nuestra IA generó 4 biografías diferentes para tu perfil de citas. ¡Elige tu favorita!",
+    "save_style": "Guardar este estilo",
+    "style_saved": "Estilo guardado",
+    "regenerate": "Regenerar",
+    "generate_best": "Generar mejor foto",
+    "generate_best_subtitle": "Generar una mejor foto",
+    "generating": "Generando...",
+    "alt_texts": {
+      "generated_style": "Estilo generado",
+      "preview_image": "Imagen de vista previa"
+    }
+  },
   "common": {
     "loading": "Cargando...",
     "cancel": "Cancelar",

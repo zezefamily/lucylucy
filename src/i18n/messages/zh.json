@@ -432,6 +432,20 @@
       "uploaded_image": "上传的图片"
     }
   },
+  "image_generation_result": {
+    "title": "选择您的风格",
+    "subtitle": "我们的AI为您生成了4种不同的约会档案照片。选择您最喜欢的！",
+    "save_style": "保存这个风格",
+    "style_saved": "风格已保存",
+    "regenerate": "重新生成",
+    "generate_best": "生成最佳照片",
+    "generate_best_subtitle": "生成一张最佳照片",
+    "generating": "正在生成中...",
+    "alt_texts": {
+      "generated_style": "生成的风格",
+      "preview_image": "预览图片"
+    }
+  },
   "common": {
     "loading": "加载中...",
     "cancel": "取消",

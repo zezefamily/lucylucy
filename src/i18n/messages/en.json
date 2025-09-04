@@ -432,6 +432,20 @@
       "uploaded_image": "Uploaded image"
     }
   },
+  "image_generation_result": {
+    "title": "Choose Your Style",
+    "subtitle": "Our AI generated 4 different dating profile bios for you. Pick your favorite!",
+    "save_style": "Save this style",
+    "style_saved": "Style saved",
+    "regenerate": "Regenerate",
+    "generate_best": "Generate a best photo",
+    "generate_best_subtitle": "Generate a best photo",
+    "generating": "Generating...",
+    "alt_texts": {
+      "generated_style": "Generated style",
+      "preview_image": "Preview image"
+    }
+  },
   "common": {
     "loading": "Loading...",
     "cancel": "Cancel",
