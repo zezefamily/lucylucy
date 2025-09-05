@@ -16,35 +16,35 @@ export default function ImageGeneration() {
   // 图片数据
   const imageGroups = [
     {
-      original_img: "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_0_orig.png",
+      original_img: "/imgs/lucy/banner_imgs/banner_0_orig.png",
       rendering_img: [
-        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_0_result_1.png",
-        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_0_result_2.png", 
-        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_0_result_3.png"
+        "/imgs/lucy/banner_imgs/banner_0_result_1.png",
+        "/imgs/lucy/banner_imgs/banner_0_result_2.png", 
+        "/imgs/lucy/banner_imgs/banner_0_result_3.png"
       ]
     },
     {
-      original_img: "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_1_orig.png",
+      original_img: "/imgs/lucy/banner_imgs/banner_1_orig.png",
       rendering_img: [
-        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_1_result_1.png",
-        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_1_result_2.png", 
-        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_1_result_3.png"
+        "/imgs/lucy/banner_imgs/banner_1_result_1.png",
+        "/imgs/lucy/banner_imgs/banner_1_result_2.png", 
+        "/imgs/lucy/banner_imgs/banner_1_result_3.png"
       ]
     },
     {
-      original_img: "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_2_orig.png",
+      original_img: "/imgs/lucy/banner_imgs/banner_2_orig.png",
       rendering_img: [
-        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_2_result_1.png",
-        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_2_result_2.png", 
-        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_2_result_3.png"
+        "/imgs/lucy/banner_imgs/banner_2_result_1.png",
+        "/imgs/lucy/banner_imgs/banner_2_result_2.png", 
+        "/imgs/lucy/banner_imgs/banner_2_result_3.png"
       ]
     },
     {
-      original_img: "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_3_orig.png",
+      original_img: "/imgs/lucy/banner_imgs/banner_3_orig.png",
       rendering_img: [
-        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_3_result_1.png",
-        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_3_result_2.png", 
-        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_3_result_3.png"
+        "/imgs/lucy/banner_imgs/banner_3_result_1.png",
+        "/imgs/lucy/banner_imgs/banner_3_result_2.png", 
+        "/imgs/lucy/banner_imgs/banner_3_result_3.png"
       ]
     },
   ];
