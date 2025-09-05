@@ -452,6 +452,16 @@
     "generate_best": "生成最佳照片",
     "generate_best_subtitle": "生成一张最佳照片",
     "generating": "正在生成中...",
+    "mobile_save_to_album": "保存到相册",
+    "mobile_saved": "已保存",
+    "mobile_long_press_hint": "长按保存",
+    "mobile_save_tip": "💡 提示：点击\"保存样式\"按钮或长按图片即可保存到相册",
+    "mobile_share_success": "图片保存成功！请在分享菜单中选择保存到相册 📸",
+    "mobile_ios_save_tip": "长按图片选择\"存储到照片\"即可保存到相册 📱",
+    "mobile_android_save_tip": "长按图片选择\"下载图片\"即可保存到相册 📱",
+    "mobile_general_save_tip": "长按图片即可保存 📱",
+    "desktop_save_success": "图片已保存到下载文件夹 📸",
+    "save_error": "保存失败，请重试",
     "alt_texts": {
       "generated_style": "生成的风格",
       "preview_image": "预览图片"

@@ -8,10 +8,12 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function ImageGenerationResult() {
   const t = useTranslations("image_generation_result");
   const router = useRouter();
+  const isMobile = useIsMobile();
 
   
   // 从URL参数获取生成的图片数据
@@ -21,6 +23,18 @@ export default function ImageGenerationResult() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [originalImage, setOriginalImage] = useState<any>(null);
   const [taskId, setTaskId] = useState<string | null>(null);
+
+  // 检测设备和浏览器类型
+  const detectDevice = () => {
+    const userAgent = navigator.userAgent;
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+    const isAndroid = /Android/.test(userAgent);
+    const isSafari = /^((?!chrome|android).)*safari/i.test(userAgent);
+    const isChrome = /chrome/i.test(userAgent) && !/edge/i.test(userAgent);
+    const isMobileDevice = /mobile|android|iphone|ipad|phone/i.test(userAgent);
+    
+    return { isIOS, isAndroid, isSafari, isChrome, isMobileDevice };
+  };
 
   // 生成图片的函数
   const generateImages = async () => {
@@ -104,29 +118,68 @@ export default function ImageGenerationResult() {
     generateImages();
   }, []);
 
-
-
   const handleGoBack = () => {
     router.back();
   };
 
-  const handleSaveStyle = async (index: number) => {
-    setSelectedStyle(index);
-    
+  // 移动端Web Share API保存图片
+  const saveImageViaMobileShare = async (imageUrl: string, filename: string): Promise<boolean> => {
     try {
-      const selectedImageData = generatedImages[index];
-      const selectedImageUrl = typeof selectedImageData === 'string' ? selectedImageData : selectedImageData.url;
-      console.log(`Saving style ${index} with image: ${selectedImageUrl}`);
+      const { isIOS, isAndroid, isMobileDevice } = detectDevice();
       
-      // 下载图片到本地
-      await downloadImage(selectedImageUrl, `generated-style-${index + 1}.jpg`);
+      if (!isMobileDevice || !navigator.share) {
+        return false;
+      }
+
+      // 获取图片blob
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      
+      // 创建File对象
+      const file = new File([blob], filename, { type: blob.type });
+      
+      // 检查是否支持文件分享
+      if (navigator.canShare && !navigator.canShare({ files: [file] })) {
+        console.log('设备不支持文件分享');
+        return false;
+      }
+
+      // 使用Web Share API分享图片
+      await navigator.share({
+        title: '保存生成的图片',
+        text: '来自 Lucy 的 AI 生成图片',
+        files: [file]
+      });
+      
+      console.log('图片通过Web Share API分享成功');
+      return true;
       
     } catch (error) {
-      console.error('Failed to save style:', error);
+      console.error('Web Share API分享失败:', error);
+      return false;
     }
   };
 
-  // 下载图片到本地的函数
+  // 移动端长按保存提示
+  const showMobileSaveTip = (imageUrl: string) => {
+    const { isIOS, isAndroid } = detectDevice();
+    
+    if (isIOS) {
+      toast.success(t("mobile_ios_save_tip"), {
+        duration: 4000,
+      });
+    } else if (isAndroid) {
+      toast.success(t("mobile_android_save_tip"), {
+        duration: 4000,
+      });
+    } else {
+      toast.success(t("mobile_general_save_tip"), {
+        duration: 3000,
+      });
+    }
+  };
+
+  // 下载图片到本地的函数（桌面端）
   const downloadImage = async (imageUrl: string, filename: string) => {
     try {
       const response = await fetch(imageUrl);
@@ -146,10 +199,44 @@ export default function ImageGenerationResult() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
       
-      console.log(`Image downloaded: ${filename}`);
+      console.log(`图片下载成功: ${filename}`);
     } catch (error) {
-      console.error('Failed to download image:', error);
+      console.error('图片下载失败:', error);
     }
+  };
+
+  const handleSaveStyle = async (index: number) => {
+    setSelectedStyle(index);
+    
+    try {
+      const selectedImageData = generatedImages[index];
+      const selectedImageUrl = typeof selectedImageData === 'string' ? selectedImageData : selectedImageData.url;
+      const filename = `generated-style-${index + 1}.jpg`;
+      
+      console.log(`保存样式 ${index} 图片: ${selectedImageUrl}`);
+      
+      const { isMobileDevice } = detectDevice();
+      
+             if (isMobileDevice) {
+         // 移动端：尝试使用Web Share API
+         const shareSuccess = await saveImageViaMobileShare(selectedImageUrl, filename);
+         
+         if (shareSuccess) {
+           toast.success(t("mobile_share_success"));
+         } else {
+           // 如果Web Share API不可用，显示长按保存提示
+           showMobileSaveTip(selectedImageUrl);
+         }
+       } else {
+         // 桌面端：直接下载
+         await downloadImage(selectedImageUrl, filename);
+         toast.success(t("desktop_save_success"));
+       }
+      
+         } catch (error) {
+       console.error('保存样式失败:', error);
+       toast.error(t("save_error"));
+     }
   };
 
   const handleRegenerate = () => {
@@ -169,6 +256,14 @@ export default function ImageGenerationResult() {
 
   const closePreview = () => {
     setPreviewImage(null);
+  };
+
+  // 移动端长按事件处理
+  const handleImageLongPress = (imageUrl: string, index: number) => {
+    if (isMobile) {
+      // 在移动端，长按时给出保存提示
+      showMobileSaveTip(imageUrl);
+    }
   };
 
   if (isLoading) {
@@ -201,6 +296,15 @@ export default function ImageGenerationResult() {
           <p className="text-white/90 text-lg sm:text-xl">
             {t("subtitle")}
           </p>
+          
+          {/* 移动端保存提示 */}
+          {isMobile && (
+            <div className="mt-4 p-3 bg-white/10 backdrop-blur-sm rounded-lg">
+              <p className="text-white/80 text-sm">
+                {t("mobile_save_tip")}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* 图片网格 */}
@@ -220,6 +324,24 @@ export default function ImageGenerationResult() {
               <div 
                 className="w-full h-[360px] mb-3 overflow-hidden bg-gray-100 relative group cursor-pointer rounded-t-2xl"
                 onClick={() => handleImageClick(imageUrl)}
+                onTouchStart={(e) => {
+                  // 移动端长按检测
+                  const touchStartTime = Date.now();
+                  const timer = setTimeout(() => {
+                    handleImageLongPress(imageUrl, index);
+                  }, 800); // 800ms长按
+                  
+                  const handleTouchEnd = () => {
+                    clearTimeout(timer);
+                    if (Date.now() - touchStartTime < 800) {
+                      // 短按，打开预览
+                      handleImageClick(imageUrl);
+                    }
+                    document.removeEventListener('touchend', handleTouchEnd);
+                  };
+                  
+                  document.addEventListener('touchend', handleTouchEnd);
+                }}
               >
                 <img
                   src={imageUrl}
@@ -239,6 +361,13 @@ export default function ImageGenerationResult() {
                     </svg>
                   </div>
                 </div>
+
+                {/* 移动端长按提示 */}
+                {isMobile && (
+                  <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                    {t("mobile_long_press_hint")}
+                  </div>
+                )}
               </div>
 
               {/* 保存按钮 */}
