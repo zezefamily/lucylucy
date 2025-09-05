@@ -5,30 +5,100 @@ import { Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import Compressor from 'compressorjs';
 
 export default function ImageGeneration() {
   const t = useTranslations("image_generation");
+  const router = useRouter();
   
   // 图片数据
   const imageGroups = [
     {
-      original_img: t("sample_data.original1"),
-      rendering_img: [t("sample_data.effect1"), t("sample_data.effect2"), t("sample_data.effect3")]
+      original_img: "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_0_orig.png",
+      rendering_img: [
+        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_0_result_1.png",
+        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_0_result_2.png", 
+        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_0_result_3.png"
+      ]
     },
     {
-      original_img: t("sample_data.original2"), 
-      rendering_img: [t("sample_data.effect1"), t("sample_data.effect2"), t("sample_data.effect3")]
+      original_img: "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_1_orig.png",
+      rendering_img: [
+        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_1_result_1.png",
+        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_1_result_2.png", 
+        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_1_result_3.png"
+      ]
     },
     {
-      original_img: t("sample_data.original3"),
-      rendering_img: [t("sample_data.effect1"), t("sample_data.effect2"), t("sample_data.effect3")]
-    }
+      original_img: "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_2_orig.png",
+      rendering_img: [
+        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_2_result_1.png",
+        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_2_result_2.png", 
+        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_2_result_3.png"
+      ]
+    },
+    {
+      original_img: "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_3_orig.png",
+      rendering_img: [
+        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_3_result_1.png",
+        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_3_result_2.png", 
+        "https://pub-4c1bda179b984d73a1dd14ae74983504.r2.dev/static/banner_3_result_3.png"
+      ]
+    },
   ];
 
   const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showUploadPage, setShowUploadPage] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [preloadedImages, setPreloadedImages] = useState<Set<string>>(new Set());
+
+  // 预加载所有图片
+  useEffect(() => {
+    const preloadImages = async () => {
+      const allImageUrls: string[] = [];
+      
+      // 收集所有图片URL
+      imageGroups.forEach(group => {
+        allImageUrls.push(group.original_img);
+        allImageUrls.push(...group.rendering_img);
+      });
+
+      // 预加载图片
+      const loadPromises = allImageUrls.map(url => {
+        return new Promise<string>((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve(url);
+          img.onerror = () => reject(url);
+          img.src = url;
+        });
+      });
+
+      try {
+        const loadedUrls = await Promise.allSettled(loadPromises);
+        const successfulUrls = new Set<string>();
+        
+        loadedUrls.forEach((result, index) => {
+          if (result.status === 'fulfilled') {
+            successfulUrls.add(allImageUrls[index]);
+          } else {
+            console.warn('Failed to preload image:', allImageUrls[index]);
+          }
+        });
+        
+        setPreloadedImages(successfulUrls);
+        console.log(`Successfully preloaded ${successfulUrls.size}/${allImageUrls.length} images`);
+      } catch (error) {
+        console.error('Error preloading images:', error);
+      }
+    };
+
+    preloadImages();
+  }, []);
 
   // 轮播切换
   useEffect(() => {
@@ -47,15 +117,113 @@ export default function ImageGeneration() {
 
   const currentGroup = imageGroups[currentGroupIndex];
 
+  // 检测浏览器类型
+  const detectBrowser = () => {
+    const userAgent = navigator.userAgent;
+    const isSafari = /^((?!chrome|android).)*safari/i.test(userAgent);
+    const isChrome = /chrome/i.test(userAgent) && !/edge/i.test(userAgent);
+    const isMobile = /mobile|android|iphone|ipad|phone/i.test(userAgent);
+    
+    return { isSafari, isChrome, isMobile };
+  };
+
+  // 使用 Compressor.js 进行图片压缩
+  const compressImage = (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const { isSafari, isMobile } = detectBrowser();
+      
+      // 移动端Safari兼容性配置
+      const options = {
+        quality: isSafari && isMobile ? 0.9 : 0.8,
+        maxWidth: isSafari && isMobile ? 1000 : 1200,
+        maxHeight: isSafari && isMobile ? 1000 : 1200,
+        convertSize: isSafari && isMobile ? 500000 : 1000000,
+        mimeType: 'image/webp',
+        useWebWorker: !(isSafari && isMobile),
+        success: (result: any) => {
+          console.log(`图片压缩完成: ${file.size} -> ${result.size} bytes`);
+          resolve(result as File);
+        },
+        error: (err: any) => {
+          console.warn('图片压缩失败，使用原图:', err);
+          resolve(file);
+        }
+      };
+      
+      new Compressor(file, options);
+    });
+  };
+
   // 处理文件上传
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // 保存原始文件
+      setUploadedFile(file);
+      
+      // 显示预览
       const reader = new FileReader();
       reader.onload = (e) => {
         setUploadedImage(e.target?.result as string);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+    // 处理图片生成
+  const handleGenerate = async () => {
+    if (!uploadedFile) {
+      toast.error(t("errors.upload_required"));
+      return;
+    }
+
+    setIsGenerating(true);
+    
+    try {
+      // 1. 压缩图片
+      toast.info(t("errors.processing_image"));
+      console.log("开始压缩图片...");
+      const compressedFile = await compressImage(uploadedFile);
+      console.log(`图片压缩完成: ${uploadedFile.size} -> ${compressedFile.size} bytes`);
+
+      // 2. 将压缩后的图片转换为base64
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64Image = e.target?.result as string;
+        
+        // 3. 保存压缩图片信息到 localStorage 并跳转到结果页面
+        const imageData = {
+          originalFile: {
+            name: uploadedFile.name,
+            type: uploadedFile.type,
+            size: uploadedFile.size
+          },
+          compressedFile: {
+            name: compressedFile.name,
+            type: compressedFile.type,
+            size: compressedFile.size,
+            base64: base64Image
+          }
+        };
+        
+        localStorage.setItem('imageToGenerate', JSON.stringify(imageData));
+        console.log('压缩图片已保存到 localStorage，跳转到结果页面');
+        console.log('保存的图片数据:', imageData);
+        
+        toast.success("图片处理完成，正在生成...");
+        
+        // 跳转到结果页面
+        router.push('/img-generation-result');
+      };
+      
+      reader.readAsDataURL(compressedFile);
+
+    } catch (error) {
+      console.error('图片处理失败:', error);
+      const errorMessage = error instanceof Error ? error.message : t("errors.generation_failed");
+      toast.error(errorMessage);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -102,7 +270,7 @@ export default function ImageGeneration() {
                 {!uploadedImage ? (
                   /* 未上传状态 */
                   <>
-                    <div className="w-16 h-16 bg-pink-500 rounded-full mb-4 flex items-center justify-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-[#FFA8F5] to-[#FF64DC] rounded-full mb-4 flex items-center justify-center">
                       <Plus className="w-8 h-8 text-white" />
                     </div>
                     <p className="text-gray-800 font-medium">{t("upload_placeholder")}</p>
@@ -131,10 +299,21 @@ export default function ImageGeneration() {
           <div className="text-center mt-8">
             <Button 
               size="lg" 
-              className="bg-black hover:bg-gray-800 text-white px-8 py-4 text-lg font-semibold rounded-full flex items-center gap-3 h-auto mx-auto"
+              onClick={handleGenerate}
+              disabled={!uploadedFile || isGenerating}
+              className="bg-black hover:bg-gray-800 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-8 py-4 text-lg font-semibold rounded-full flex items-center gap-3 h-auto mx-auto"
             >
-              <span className="text-lime-400 text-xl">✨</span>
-              {t("generate_button")}
+              {isGenerating ? (
+                <>
+                  <div className="animate-spin text-xl">⏳</div>
+                  {t("generating")}
+                </>
+              ) : (
+                <>
+                  <span className="text-lime-400 text-xl">✨</span>
+                  {t("generate_button")}
+                </>
+              )}
             </Button>
           </div>
         </div>
@@ -233,28 +412,56 @@ export default function ImageGeneration() {
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <span className="text-gray-600 font-medium text-xs sm:text-sm">{currentGroup.original_img}</span>
+                    {preloadedImages.has(currentGroup.original_img) ? (
+                      <>
+                        <img 
+                          src={currentGroup.original_img} 
+                          alt="Original" 
+                          className="w-full h-full object-cover"
+                          style={{ opacity: 1 }}
+                        />
+                        {/* 黑色半透明遮罩 */}
+                        <div className="absolute inset-0 bg-black/40 rounded-[10px]"></div>
+                      </>
+                      
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center">
+                        <div className="text-gray-400 text-xs">Loading...</div>
+                      </div>
+                    )}
                     
                     {/* 向上箭头图标 */}
-                    <div 
+                    <motion.div 
+                        key={`arrow-${currentGroupIndex}`}
                         style={{ 
                             position: 'absolute',
                             bottom: '5px',
-                            right: '-20px',
+                            right: '-25px',
                             zIndex: 20
                         }}
-                    >
-                      <img 
-                        src="/imgs/lucy/ori_img_bottom_icon.png" 
-                        alt={t("alt_texts.arrow_icon")} 
-                        width="36" 
-                        height="43"
-                        className="w-9 h-11"
-                        style={{
-                          filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.5))'
+                        initial={{ opacity: 0, y: 15, scale: 0.6 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 15, scale: 0.6 }}
+                        transition={{ 
+                          duration: 0.5, 
+                          delay: 0.35, // 在原图动画(0.3s)完成后开始
+                          ease: "easeIn",
+                          type: "spring",
+                          stiffness: 200,
+                          damping: 15
                         }}
-                      />
-                    </div>
+                    >
+                        <img 
+                          src="/imgs/lucy/ori_img_bottom_icon_new.png" 
+                          alt={t("alt_texts.arrow_icon")} 
+                          width="95" 
+                          height="55"
+                          className="w-[57px] h-[33px]"
+                          style={{
+                            filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.5))'
+                          }}
+                        />
+                    </motion.div>
                   </motion.div>
                 </AnimatePresence>
                 
@@ -267,7 +474,7 @@ export default function ImageGeneration() {
                     animate={{ x: 0, opacity: 1 }}
                     exit={{ x: -100, opacity: 0 }}
                     transition={{ 
-                      duration: 0.3, 
+                      duration: 0.4, 
                       delay: 0.1, 
                       ease: [0.25, 0.46, 0.45, 0.94],
                       type: "spring",
@@ -275,7 +482,18 @@ export default function ImageGeneration() {
                       damping: 12
                     }}
                   >
-                    <span className="text-gray-600 font-medium text-xs sm:text-sm">{currentGroup.rendering_img[0]}</span>
+                    {preloadedImages.has(currentGroup.rendering_img[0]) ? (
+                      <img 
+                        src={currentGroup.rendering_img[0]} 
+                        alt="Effect 1" 
+                        className="w-full h-full object-cover"
+                        style={{ opacity: 1 }}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center">
+                        <div className="text-gray-400 text-xs">Loading...</div>
+                      </div>
+                    )}
                   </motion.div>
                 </AnimatePresence>
                 
@@ -288,7 +506,7 @@ export default function ImageGeneration() {
                     animate={{ x: 0, opacity: 1 }}
                     exit={{ x: -100, opacity: 0 }}
                     transition={{ 
-                      duration: 0.3, 
+                      duration: 0.4, 
                       delay: 0.2, 
                       ease: [0.25, 0.46, 0.45, 0.94],
                       type: "spring",
@@ -296,7 +514,18 @@ export default function ImageGeneration() {
                       damping: 12
                     }}
                   >
-                    <span className="text-gray-600 font-medium text-xs sm:text-sm">{currentGroup.rendering_img[1]}</span>
+                    {preloadedImages.has(currentGroup.rendering_img[1]) ? (
+                      <img 
+                        src={currentGroup.rendering_img[1]} 
+                        alt="Effect 2" 
+                        className="w-full h-full object-cover"
+                        style={{ opacity: 1 }}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center">
+                        <div className="text-gray-400 text-xs">Loading...</div>
+                      </div>
+                    )}
                   </motion.div>
                 </AnimatePresence>
                 
@@ -309,7 +538,7 @@ export default function ImageGeneration() {
                     animate={{ x: 0, opacity: 1 }}
                     exit={{ x: -100, opacity: 0 }}
                     transition={{ 
-                      duration: 0.3, 
+                      duration: 0.4, 
                       delay: 0.3, 
                       ease: [0.25, 0.46, 0.45, 0.94],
                       type: "spring",
@@ -317,7 +546,18 @@ export default function ImageGeneration() {
                       damping: 12
                     }}
                   >
-                    <span className="text-gray-600 font-medium text-xs sm:text-sm">{currentGroup.rendering_img[2]}</span>
+                    {preloadedImages.has(currentGroup.rendering_img[2]) ? (
+                      <img 
+                        src={currentGroup.rendering_img[2]} 
+                        alt="Effect 3" 
+                        className="w-full h-full object-cover"
+                        style={{ opacity: 1 }}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center">
+                        <div className="text-gray-400 text-xs">Loading...</div>
+                      </div>
+                    )}
                   </motion.div>
                 </AnimatePresence>
               </div>
@@ -352,7 +592,7 @@ export default function ImageGeneration() {
                     className="w-[60px] h-[60px]"
                     style={{ marginLeft: '0px' }}
                   />
-                                    <span style={{ marginLeft: '0px' }}>{t("cta_button")}</span>
+                  <span style={{ marginLeft: '0px' }}>{t("cta_button")}</span>
                 </Button>
               </div>
             </div>

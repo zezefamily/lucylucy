@@ -417,7 +417,17 @@
     "upload_title_highlight": "正面照片",
     "upload_placeholder": "上传您最好的照片",
     "generate_button": "生成档案风格",
+    "generating": "正在生成中...",
     "change_photo_hint": "点击更换图片",
+    "errors": {
+      "upload_required": "请先上传图片",
+      "processing_image": "正在处理图片...",
+      "generating_image": "正在生成图片...",
+      "generation_failed": "图片生成失败，请重试",
+      "invalid_response": "AI未能生成有效的图片格式",
+      "insufficient_images": "AI生成的图片数量不足",
+      "no_valid_urls": "AI生成的图片缺少有效链接"
+    },
     "sample_data": {
       "original1": "原图1",
       "original2": "原图2", 

@@ -6,56 +6,105 @@ import { ArrowLeft, RotateCcw, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function ImageGenerationResult() {
   const t = useTranslations("image_generation_result");
   const router = useRouter();
-  const searchParams = useSearchParams();
+
   
   // 从URL参数获取生成的图片数据
-  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [generatedImages, setGeneratedImages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedStyle, setSelectedStyle] = useState<number | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [originalImage, setOriginalImage] = useState<any>(null);
+  const [taskId, setTaskId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchGeneratedImages = async () => {
-      try {
-        const taskId = searchParams.get('taskId');
-        const imageUrls = searchParams.get('images');
-        
-        if (imageUrls) {
-          // 如果URL参数中有图片，直接使用
-          const images = JSON.parse(decodeURIComponent(imageUrls));
-          setGeneratedImages(images);
-        } else {
-          // 否则使用模拟数据 - 使用更好的示例照片
-          const mockImages = [
-            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop&crop=face",
-            "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=600&fit=crop&crop=face",
-            "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=600&fit=crop&crop=face",
-            "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=600&fit=crop&crop=face"
-          ];
-          setGeneratedImages(mockImages);
-        }
-        
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Failed to load generated images:', error);
-        // 使用模拟数据作为后备
-        setGeneratedImages([
-          "/imgs/users/1.png",
-          "/imgs/users/2.png", 
-          "/imgs/users/3.png",
-          "/imgs/users/4.png"
-        ]);
-        setIsLoading(false);
+  // 生成图片的函数
+  const generateImages = async () => {
+    try {
+      setIsLoading(true);
+      console.log('=== 开始生成图片 ===');
+      
+      // 1. 检查是否有待生成的图片
+      const imageToGenerate = localStorage.getItem('imageToGenerate');
+      if (!imageToGenerate) {
+        console.log('没有找到待生成的图片，返回上一页');
+        router.push('/image-generation');
+        return;
       }
-    };
-    
-    fetchGeneratedImages();
-  }, [searchParams]);
+
+      // 2. 解析压缩图片数据
+      const imageData = JSON.parse(imageToGenerate);
+      console.log('从 localStorage 读取压缩图片数据:', imageData);
+      
+      // 保存原始图片信息
+      setOriginalImage(imageData.originalFile);
+      
+      // 3. 将base64转换为File对象并发起API请求
+      const base64Data = imageData.compressedFile.base64;
+      const response = await fetch(base64Data);
+      const blob = await response.blob();
+      const file = new File([blob], imageData.compressedFile.name, { 
+        type: imageData.compressedFile.type 
+      });
+
+      console.log('开始调用 banana-img API...');
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const apiResponse = await fetch('/api/banana-img', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!apiResponse.ok) {
+        const errorText = await apiResponse.text();
+        console.error('API调用失败:', errorText);
+        throw new Error(`生成失败: ${apiResponse.status} ${apiResponse.statusText}`);
+      }
+
+      const result = await apiResponse.json();
+      console.log('API响应:', result);
+
+      // 4. 检查响应格式
+      if (result.code !== 0) {
+        throw new Error(result.message || '生成失败');
+      }
+
+      if (!result.data || !result.data.generatedImages) {
+        throw new Error('AI未能生成有效的图片，请重试');
+      }
+
+      // 验证生成的图片数量
+      if (!Array.isArray(result.data.generatedImages) || result.data.generatedImages.length === 0) {
+        throw new Error('AI未能生成任何图片，请重试');
+      }
+
+      // 5. 更新状态显示结果
+      setGeneratedImages(result.data.generatedImages);
+      setTaskId(result.data.taskId);
+      
+      console.log('图片生成成功');
+
+    } catch (error) {
+      console.error('图片生成失败:', error);
+      const errorMessage = error instanceof Error ? error.message : '图片生成失败，请重试';
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 页面加载时自动开始生成
+  useEffect(() => {
+    console.log('=== 结果页面加载，开始生成图片 ===');
+    generateImages();
+  }, []);
+
+
 
   const handleGoBack = () => {
     router.back();
@@ -65,7 +114,8 @@ export default function ImageGenerationResult() {
     setSelectedStyle(index);
     
     try {
-      const selectedImageUrl = generatedImages[index];
+      const selectedImageData = generatedImages[index];
+      const selectedImageUrl = typeof selectedImageData === 'string' ? selectedImageData : selectedImageData.url;
       console.log(`Saving style ${index} with image: ${selectedImageUrl}`);
       
       // 下载图片到本地
@@ -103,21 +153,9 @@ export default function ImageGenerationResult() {
   };
 
   const handleRegenerate = () => {
-    setIsLoading(true);
-    
-    // 重新生成图片
-    setTimeout(() => {
-      // 在实际应用中，这里会调用图片生成API
-      const newMockImages = [
-        "/imgs/users/5.png",
-        "/imgs/users/6.png", 
-        "/imgs/users/7.png",
-        "/imgs/users/8.png"
-      ];
-      setGeneratedImages(newMockImages);
-      setSelectedStyle(null);
-      setIsLoading(false);
-    }, 2000);
+    // 基于同一张原始图片重新生成
+    console.log('=== 用户点击重新生成 ===');
+    generateImages();
   };
 
   const handleGenerateBest = () => {
@@ -167,8 +205,10 @@ export default function ImageGenerationResult() {
 
         {/* 图片网格 */}
         <div className="flex flex-wrap justify-center gap-y-[30px] gap-x-4 sm:gap-x-[30px] mb-8 max-w-4xl mx-auto">
-          {generatedImages.map((imageUrl, index) => (
-            <motion.div
+          {generatedImages.map((imageData, index) => {
+            const imageUrl = typeof imageData === 'string' ? imageData : imageData.url;
+            return (
+              <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -224,7 +264,8 @@ export default function ImageGenerationResult() {
                 </Button>
               </div>
             </motion.div>
-          ))}
+            );
+          })}
         </div>
 
         {/* 底部操作按钮 */}

@@ -412,7 +412,17 @@
     "upload_title_highlight": "de frente",
     "upload_placeholder": "Sube Tu Mejor Foto",
     "generate_button": "Generar Estilos de Perfil",
+    "generating": "Generando...",
     "change_photo_hint": "Haz clic para cambiar foto",
+    "errors": {
+      "upload_required": "Por favor sube una imagen primero",
+      "processing_image": "Procesando imagen...",
+      "generating_image": "Generando imágenes...",
+      "generation_failed": "Falló la generación de imágenes, inténtalo de nuevo",
+      "invalid_response": "La IA no pudo generar un formato de imagen válido",
+      "insufficient_images": "La IA generó imágenes insuficientes",
+      "no_valid_urls": "Las imágenes generadas por IA no tienen enlaces válidos"
+    },
     "sample_data": {
       "original1": "Original 1",
       "original2": "Original 2", 

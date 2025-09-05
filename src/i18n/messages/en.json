@@ -417,7 +417,17 @@
     "upload_title_highlight": "front-facing photo",
     "upload_placeholder": "Upload Your Best Photo",
     "generate_button": "Generate Profile Styles",
+    "generating": "Generating...",
     "change_photo_hint": "Click to change photo",
+    "errors": {
+      "upload_required": "Please upload an image first",
+      "processing_image": "Processing image...",
+      "generating_image": "Generating images...",
+      "generation_failed": "Image generation failed, please try again",
+      "invalid_response": "AI failed to generate valid image format",
+      "insufficient_images": "AI generated insufficient images",
+      "no_valid_urls": "AI generated images missing valid links"
+    },
     "sample_data": {
       "original1": "Original 1",
       "original2": "Original 2", 
