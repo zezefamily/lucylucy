@@ -338,6 +338,7 @@
     }
   },
   "tabbar": {
+    "dating_photos": "约会照片",
     "photo_analyzer": "照片分析",
     "fit_test": "匹配测试",
     "conversation_starter": "聊天开场白"

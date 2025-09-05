@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { Camera, MessageCircle, Heart } from "lucide-react";
+import { Camera, MessageCircle, Heart, Image } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -31,6 +31,13 @@ export default function MobileTabBar() {
   }
 
   const tabs = [
+    {
+      id: 'dating_photos',
+      href: '/image-generation',
+      icon: Image,
+      label: t('dating_photos'),
+      isActive: pathWithoutLocale === '/image-generation' || pathWithoutLocale.startsWith('/image-generation/') || pathWithoutLocale === '/img-generation-result' || pathWithoutLocale.startsWith('/img-generation-result/')
+    },
     {
       id: 'photo_analyzer',
       href: '/',

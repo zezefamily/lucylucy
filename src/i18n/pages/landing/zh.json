@@ -13,7 +13,7 @@
     "nav": {
      "items": [
       {
-        "title": "图片生成",
+        "title": "约会照片",
         "url": "/image-generation",
         "icon": "RiImageLine"
       },

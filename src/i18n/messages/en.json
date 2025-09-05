@@ -338,6 +338,7 @@
     }
   },
   "tabbar": {
+    "dating_photos": "Dating Photos",
     "photo_analyzer": "Photo Analyzer",
     "fit_test": "Fit Test",
     "conversation_starter": "Conversation Starter"
