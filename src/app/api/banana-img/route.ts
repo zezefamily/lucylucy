@@ -50,11 +50,8 @@ export async function POST(req: NextRequest) {
 
     // AI图片生成提示词
     const basePrompt = {
-      en: `Generate exactly 4 separate and distinct photos of the person in the image, optimized for use on dating apps to increase match rates. 
-
-IMPORTANT: Please provide 4 individual photos, each as a separate image. Targeted at North American dating app users, with aesthetics aligned to local preferences. Ensure the photos closely resemble the original person, as if they were naturally taken. Use a variety of different life settings, camera perspectives, and lighting to enhance the diversity and credibility of the photos. Some photos don't need to be in ultra-high resolution—slightly lower pixel quality is fine to mimic the feel of casual smartphone photography.
-
-Please return the results in exactly this format, with 4 different styles that you think work best for dating apps:
+      en: `Generate four photos for this person that would work well on a dating app.
+Use four distinct scenes and different framing (long-shot, medium, close-up, etc.) so they feel as if they were snapped casually on a phone:
 
 **Style 1: [Your chosen style name]**
 ![image](URL_1)
