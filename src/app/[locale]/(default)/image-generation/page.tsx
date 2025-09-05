@@ -16,7 +16,7 @@ export default function ImageGeneration() {
   // 图片数据
   const imageGroups = [
     {
-      original_img: "/imgs/lucy/banner_imgs/banner_0_orig.png",
+      original_img: "/imgs/lucy/banner_imgs/banner_0_orig_new.png",
       rendering_img: [
         "/imgs/lucy/banner_imgs/banner_0_result_1.png",
         "/imgs/lucy/banner_imgs/banner_0_result_2.png", 
@@ -210,7 +210,7 @@ export default function ImageGeneration() {
         console.log('压缩图片已保存到 localStorage，跳转到结果页面');
         console.log('保存的图片数据:', imageData);
         
-        toast.success("图片处理完成，正在生成...");
+        // toast.success("图片处理完成，正在生成...");
         
         // 跳转到结果页面
         router.push('/img-generation-result');
