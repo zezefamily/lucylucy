@@ -65,7 +65,7 @@ Use four distinct scenes and different framing (long-shot, medium, close-up, etc
 **Style 4: [Your chosen style name]**
 ![image](URL_4)
 
-Choose 4 diverse and appealing styles that would maximize dating app success. Be creative with style names and variety.`,
+Do not change the character's face`,
       zh: `帮图片中的人物生成恰好4张独立且不同的照片，适合放在 dating app 上，提升匹配量。
 
 重要：请提供4张独立的照片，每张都是单独的图片。面向北美 dating 产品的使用人群，审美要跟当地一致些。注意要跟图片本人很像，就像拍出来的一样。注意用不同的生活场景和景别和光线，提升照片的丰富度和可信度。有些图不用那么高清，可以像素稍微低一点，更接近手机拍摄的感觉。

@@ -256,9 +256,9 @@ export default function ImageGeneration() {
 
         {/* 上传区域 */}
         <div className="max-w-sm lg:max-w-[720px] mx-auto">
-          <div className={`bg-[#3D08FF]/12 backdrop-blur-sm rounded-3xl p-8 ${!uploadedImage ? 'lg:h-[312px]' : 'lg:min-h-[312px] lg:max-h-[600px]'} lg:flex lg:flex-col lg:justify-center lg:items-center`}>
+          <div className={`bg-[#3D08FF]/12 backdrop-blur-sm rounded-3xl p-6 lg:p-12 ${!uploadedImage ? 'lg:h-[400px]' : 'lg:min-h-[400px] lg:max-h-[700px]'} lg:flex lg:flex-col lg:justify-center lg:items-center`}>
             {/* 上传区域 - 始终显示 */}
-            <div className={`bg-white rounded-2xl p-6 lg:p-8 text-center w-full lg:w-[364px] ${!uploadedImage ? 'lg:h-[228px] lg:flex lg:flex-col lg:justify-center lg:items-center' : 'lg:max-h-[500px] lg:flex lg:flex-col'}`}>
+            <div className={`bg-white rounded-2xl p-6 lg:p-8 text-center w-full lg:w-[364px] ${!uploadedImage ? 'lg:h-[280px] lg:flex lg:flex-col lg:justify-center lg:items-center' : 'lg:max-h-[550px] lg:flex lg:flex-col'}`}>
               <input
                 type="file"
                 accept="image/*"
@@ -292,6 +292,62 @@ export default function ImageGeneration() {
                   </div>
                 )}
               </label>
+            </div>
+            
+            {/* show case images */}
+            <div className="mt-6 lg:mt-8">
+              <div className="flex items-center justify-center gap-5 sm:gap-3 px-2">
+                {/* Bad Case Image 1 */}
+                <div className="flex-shrink-0 relative">
+                  <img 
+                    src="/imgs/lucy/banner_imgs/bad_case_img_01.png" 
+                    alt="Bad case example 1" 
+                    className="w-16 h-24 sm:w-20 sm:h-[120px] object-cover"
+                  />
+                  {/* Bad Case Icon 1 - 右下角 */}
+                  <div className="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2">
+                    <img 
+                      src="/imgs/lucy/banner_imgs/bad_case_icon.png" 
+                      alt="Bad case icon" 
+                      className="w-5 h-5 sm:w-6 sm:h-6"
+                    />
+                  </div>
+                </div>
+                
+                {/* Good Case Image */}
+                <div className="flex-shrink-0 relative">
+                  <img 
+                    src="/imgs/lucy/banner_imgs/good_case_img.png" 
+                    alt="Good case example" 
+                    className="w-16 h-24 sm:w-20 sm:h-[120px] object-cover"
+                  />
+                  {/* Good Case Icon - 右下角 */}
+                  <div className="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2">
+                    <img 
+                      src="/imgs/lucy/banner_imgs/good_case_icon.png" 
+                      alt="Good case icon" 
+                      className="w-5 h-5 sm:w-6 sm:h-6"
+                    />
+                  </div>
+                </div>
+                
+                {/* Bad Case Image 2 */}
+                <div className="flex-shrink-0 relative">
+                  <img 
+                    src="/imgs/lucy/banner_imgs/bad_case_img_02.png" 
+                    alt="Bad case example 2" 
+                    className="w-16 h-24 sm:w-20 sm:h-[120px] object-cover"
+                  />
+                  {/* Bad Case Icon 2 - 右下角 */}
+                  <div className="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2">
+                    <img 
+                      src="/imgs/lucy/banner_imgs/bad_case_icon.png" 
+                      alt="Bad case icon" 
+                      className="w-5 h-5 sm:w-6 sm:h-6"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
