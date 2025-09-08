@@ -8,10 +8,13 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useAppContext } from "@/contexts/app";
+import { SubscriptionTier } from "@/types/user";
 
 export default function ImageGenerationResult() {
   const t = useTranslations("image_generation_result");
   const router = useRouter();
+  const { user, userCredits, setShowSignModal, setShowPricingModal, refreshUserCredits } = useAppContext();
 
   
   // 从URL参数获取生成的图片数据
@@ -21,11 +24,13 @@ export default function ImageGenerationResult() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [originalImage, setOriginalImage] = useState<any>(null);
   const [taskId, setTaskId] = useState<string | null>(null);
+  const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
 
   // 生成图片的函数
   const generateImages = async () => {
     try {
       setIsLoading(true);
+      setFailedImages(new Set()); // 清除之前的失败状态
       console.log('=== 开始生成图片 ===');
       
       // 1. 检查是否有待生成的图片
@@ -78,16 +83,45 @@ export default function ImageGenerationResult() {
         throw new Error('AI未能生成有效的图片，请重试');
       }
 
-      // 验证生成的图片数量
+      // 验证生成的图片数量和质量
       if (!Array.isArray(result.data.generatedImages) || result.data.generatedImages.length === 0) {
         throw new Error('AI未能生成任何图片，请重试');
+      }
+
+      // 检查每个图片的URL有效性
+      const invalidImages = result.data.generatedImages.filter((imageData: any, index: number) => {
+        const imageUrl = typeof imageData === 'string' ? imageData : imageData.url;
+        return !imageUrl || (!imageUrl.startsWith('http') && !imageUrl.startsWith('/'));
+      });
+
+      if (invalidImages.length > 0) {
+        console.warn(`发现 ${invalidImages.length} 个无效图片URL:`, invalidImages);
+        toast.warning(`生成的图片中有 ${invalidImages.length} 个可能无法正常显示`);
       }
 
       // 5. 更新状态显示结果
       setGeneratedImages(result.data.generatedImages);
       setTaskId(result.data.taskId);
       
-      console.log('图片生成成功');
+      // 验证生成的图片URL
+      console.log('图片生成成功，验证图片URL:');
+      result.data.generatedImages.forEach((imageData: any, index: number) => {
+        const imageUrl = typeof imageData === 'string' ? imageData : imageData.url;
+        console.log(`图片 ${index + 1}: ${imageUrl}`);
+        
+        // 检查URL有效性
+        if (!imageUrl || (!imageUrl.startsWith('http') && !imageUrl.startsWith('/'))) {
+          console.warn(`图片 ${index + 1} URL可能无效: ${imageUrl}`);
+        }
+      });
+
+      // 6. 刷新用户积分余额
+      try {
+        await refreshUserCredits?.();
+        console.log('用户积分已刷新');
+      } catch (refreshError) {
+        console.warn('刷新用户积分失败:', refreshError);
+      }
 
     } catch (error) {
       console.error('图片生成失败:', error);
@@ -152,9 +186,47 @@ export default function ImageGenerationResult() {
     }
   };
 
-  const handleRegenerate = () => {
-    // 基于同一张原始图片重新生成
+  const handleRegenerate = async () => {
     console.log('=== 用户点击重新生成 ===');
+    
+    // 1. 检查用户登录状态
+    if (!user) {
+      setShowSignModal?.(true);
+      return;
+    }
+
+    // 2. 获取用户订阅等级
+    let userTier: SubscriptionTier = SubscriptionTier.NONE;
+    try {
+      const response = await fetch('/api/get-user-subscription');
+      if (response.ok) {
+        const { data } = await response.json();
+        userTier = data.subscription?.tier || SubscriptionTier.NONE;
+      }
+    } catch (error) {
+      console.error('获取用户订阅等级失败:', error);
+    }
+
+    // 3. 权限检查逻辑
+    if (userTier === SubscriptionTier.ELITE) {
+      console.log('Elite 用户，直接放行重新生成');
+    } else {
+      // 非 Elite 用户检查积分
+      const requiredCredits = 5; // 重新生成需要5积分
+      const availableCredits = userCredits?.left_credits || 0;
+      if (availableCredits < requiredCredits) {
+        setShowPricingModal?.(true);
+        return;
+      }
+    }
+
+    console.log('权限检查通过，开始重新生成', {
+      userTier: userTier,
+      availableCredits: userCredits?.left_credits || 0,
+      requiredCredits: userTier === SubscriptionTier.ELITE ? 0 : 5
+    });
+
+    // 基于同一张原始图片重新生成
     generateImages();
   };
 
@@ -218,37 +290,81 @@ export default function ImageGenerationResult() {
             >
               {/* 图片容器 */}
               <div 
-                className="w-full h-[360px] mb-3 overflow-hidden bg-gray-100 relative group cursor-pointer rounded-t-2xl"
-                onClick={() => handleImageClick(imageUrl)}
+                className={`w-full h-[360px] mb-3 overflow-hidden bg-gray-100 relative group rounded-t-2xl ${!failedImages.has(index) ? 'cursor-pointer' : ''}`}
+                onClick={() => !failedImages.has(index) && handleImageClick(imageUrl)}
               >
-                <img
-                  src={imageUrl}
-                  alt={`${t("alt_texts.generated_style")} ${index + 1}`}
-                  className="w-full h-full object-cover transition-all duration-300 group-hover:scale-105 group-hover:brightness-110"
-                  onError={(e) => {
-                    // 如果网络图片加载失败，使用本地图片作为后备
-                    (e.target as HTMLImageElement).src = `/imgs/users/${index + 1}.png`;
-                  }}
-                />
-                
-                {/* 悬停遮罩和放大图标 */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center pointer-events-none">
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 rounded-full p-2">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-700">
-                      <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/>
+                {!failedImages.has(index) ? (
+                  <img
+                    src={imageUrl}
+                    alt={`${t("alt_texts.generated_style")} ${index + 1}`}
+                    className="w-full h-full object-cover transition-all duration-300 group-hover:scale-105 group-hover:brightness-110"
+                    onError={() => {
+                      console.warn(`图片加载失败: ${imageUrl}, 索引: ${index}`);
+                      console.warn('图片数据:', imageData);
+                      
+                      // 标记该图片为加载失败
+                      setFailedImages(prev => new Set([...prev, index]));
+                    }}
+                  />
+                ) : (
+                  // 图片加载失败时显示重试界面
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-600">
+                    <svg className="w-12 h-12 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 6.5c-.77.833-.192 2.5 1.732 2.5z"/>
                     </svg>
+                    <p className="text-sm mb-3 text-center">图片加载失败</p>
+                    <button
+                      onClick={() => {
+                        console.log(`重试加载图片 ${index + 1}, URL: ${imageUrl}`);
+                        
+                        // 先从失败状态中移除
+                        setFailedImages(prev => {
+                          const newSet = new Set(prev);
+                          newSet.delete(index);
+                          return newSet;
+                        });
+                        
+                        // 强制刷新图片缓存：在URL后添加时间戳
+                        setTimeout(() => {
+                          const imgElement = document.querySelector(`img[alt*="${index + 1}"]`) as HTMLImageElement;
+                          if (imgElement) {
+                            const originalSrc = imageUrl;
+                            const separator = originalSrc.includes('?') ? '&' : '?';
+                            const newSrc = `${originalSrc}${separator}retry=${Date.now()}`;
+                            console.log(`强制刷新图片缓存: ${newSrc}`);
+                            imgElement.src = newSrc;
+                          }
+                        }, 100);
+                      }}
+                      className="px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors"
+                    >
+                      重试加载
+                    </button>
                   </div>
-                </div>
+                )}
+                
+                {/* 悬停遮罩和放大图标 - 只在图片正常显示时显示 */}
+                {!failedImages.has(index) && (
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center pointer-events-none">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 rounded-full p-2">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-700">
+                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/>
+                      </svg>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* 保存按钮 */}
               <div className="p-3 flex justify-center">
                 <Button
                   onClick={() => handleSaveStyle(index)}
-                  disabled={selectedStyle === index}
+                  disabled={selectedStyle === index || failedImages.has(index)}
                   className={`text-base font-semibold rounded-full transition-all duration-300 ${
                     selectedStyle === index
                       ? "bg-green-500 hover:bg-green-500 text-white"
+                      : failedImages.has(index)
+                      ? "bg-gray-400 cursor-not-allowed text-white"
                       : "bg-[#3D08FF] hover:bg-[#3D08FF]/90 text-white"
                   }`}
                   style={{ width: '280px', height: '80px' }}
@@ -258,6 +374,8 @@ export default function ImageGenerationResult() {
                     <span className="mr-2">✓</span>
                     {t("style_saved")}
                   </>
+                ) : failedImages.has(index) ? (
+                  "图片加载失败"
                 ) : (
                   t("save_style")
                 )}

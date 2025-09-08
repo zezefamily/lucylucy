@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { respData, respErr } from "@/lib/resp";
 import { getUuid } from "@/lib/hash";
+import { getUserUuid } from "@/services/user";
+import { CreditsAmount, CreditsTransType, decreaseCredits } from "@/services/credit";
 
 // 创建 OpenAI 客户端的函数
 function getOpenAIClient() {
@@ -207,6 +209,24 @@ Do not change the character's face`,
       
       // 如果AI生成失败，返回错误
       return respErr(genError instanceof Error ? genError.message : "Failed to generate images with AI model");
+    }
+
+    // 成功生成图片后，扣除积分
+    try {
+      const user_uuid = await getUserUuid();
+      if (user_uuid) {
+        await decreaseCredits({
+          user_uuid,
+          trans_type: CreditsTransType.Ping,
+          credits: CreditsAmount.PingCost, // 使用与其他功能相同的积分消费
+        });
+        console.log('积分扣减成功 - 图片生成');
+      } else {
+        console.warn('用户未登录，跳过积分扣减');
+      }
+    } catch (creditError) {
+      console.error('积分扣减过程出错:', creditError);
+      // 不影响主流程，继续返回结果
     }
 
     return respData({

@@ -8,10 +8,13 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Compressor from 'compressorjs';
+import { useAppContext } from "@/contexts/app";
+import { SubscriptionTier } from "@/types/user";
 
 export default function ImageGeneration() {
   const t = useTranslations("image_generation");
   const router = useRouter();
+  const { user, userCredits, setShowSignModal, setShowPricingModal, refreshUserCredits } = useAppContext();
   
   // 图片数据
   const imageGroups = [
@@ -177,9 +180,45 @@ export default function ImageGeneration() {
       return;
     }
 
+    // 1. 检查用户登录状态
+    if (!user) {
+      setShowSignModal?.(true);
+      return;
+    }
+
+    // 2. 获取用户订阅等级
+    let userTier: SubscriptionTier = SubscriptionTier.NONE;
+    try {
+      const response = await fetch('/api/get-user-subscription');
+      if (response.ok) {
+        const { data } = await response.json();
+        userTier = data.subscription?.tier || SubscriptionTier.NONE;
+      }
+    } catch (error) {
+      console.error('获取用户订阅等级失败:', error);
+    }
+
+    // 3. 权限检查逻辑
+    if (userTier === SubscriptionTier.ELITE) {
+      console.log('Elite 用户，直接放行');
+    } else {
+      // 非 Elite 用户检查积分
+      const requiredCredits = 5; // 图片生成需要5积分
+      const availableCredits = userCredits?.left_credits || 0;
+      if (availableCredits < requiredCredits) {
+        setShowPricingModal?.(true);
+        return;
+      }
+    }
+
     setIsGenerating(true);
     
     try {
+      console.log('Starting image generation process...', {
+        userTier: userTier,
+        availableCredits: userCredits?.left_credits || 0,
+        requiredCredits: userTier === SubscriptionTier.ELITE ? 0 : 5
+      });
       // 1. 压缩图片
       toast.info(t("errors.processing_image"));
       console.log("开始压缩图片...");
@@ -217,6 +256,14 @@ export default function ImageGeneration() {
       };
       
       reader.readAsDataURL(compressedFile);
+      
+      // 刷新用户积分余额
+      try {
+        await refreshUserCredits?.();
+        console.log('用户积分已刷新');
+      } catch (refreshError) {
+        console.warn('刷新用户积分失败:', refreshError);
+      }
 
     } catch (error) {
       console.error('图片处理失败:', error);
