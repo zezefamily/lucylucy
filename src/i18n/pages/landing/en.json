@@ -14,12 +14,12 @@
       "items": [
         {
           "title": "Dating Photos",
-          "url": "/image-generation",
+          "url": "/",
           "icon": "RiImageLine"
         },
         {
           "title": "Attraction Analysis",
-          "url": "/",
+          "url": "/attraction-analysis",
           "icon": "RiStarLine"
         },
         {

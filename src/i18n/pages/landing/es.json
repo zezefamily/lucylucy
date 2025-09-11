@@ -14,12 +14,12 @@
       "items": [
         {
           "title": "Fotos de citas",
-          "url": "/image-generation",
+          "url": "/",
           "icon": "RiImageLine"
         },
         {
           "title": "Análisis de atracción",
-          "url": "/",
+          "url": "/attraction-analysis",
           "icon": "RiStarLine"
         },
         {

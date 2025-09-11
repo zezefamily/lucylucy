@@ -37,7 +37,7 @@ export default function ImageGenerationResult() {
       const imageToGenerate = localStorage.getItem('imageToGenerate');
       if (!imageToGenerate) {
         console.log('没有找到待生成的图片，返回上一页');
-        router.push('/image-generation');
+        router.push('/');
         return;
       }
 
@@ -232,7 +232,7 @@ export default function ImageGenerationResult() {
 
   const handleGenerateBest = () => {
     // 基于用户选择或所有生成的图片，生成一张最佳照片
-    router.push('/image-generation?mode=best');
+    router.push('/?mode=best');
   };
 
   const handleImageClick = (imageUrl: string) => {

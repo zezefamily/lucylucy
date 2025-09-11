@@ -33,17 +33,17 @@ export default function MobileTabBar() {
   const tabs = [
     {
       id: 'dating_photos',
-      href: '/image-generation',
+      href: '/',
       icon: Image,
       label: t('dating_photos'),
-      isActive: pathWithoutLocale === '/image-generation' || pathWithoutLocale.startsWith('/image-generation/') || pathWithoutLocale === '/img-generation-result' || pathWithoutLocale.startsWith('/img-generation-result/')
+      isActive: pathWithoutLocale === '/' || pathWithoutLocale === '/img-generation-result' || pathWithoutLocale.startsWith('/img-generation-result/')
     },
     {
       id: 'photo_analyzer',
-      href: '/',
+      href: '/attraction-analysis',
       icon: Camera,
       label: t('photo_analyzer'),
-      isActive: pathWithoutLocale === '/'
+      isActive: pathWithoutLocale === '/attraction-analysis' || pathWithoutLocale.startsWith('/attraction-analysis/')
     },
     {
       id: 'conversation_starter',

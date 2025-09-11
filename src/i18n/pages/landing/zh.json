@@ -14,12 +14,12 @@
      "items": [
       {
         "title": "约会照片",
-        "url": "/image-generation",
+        "url": "/",
         "icon": "RiImageLine"
       },
         {
           "title": "吸引力评分",
-          "url": "/",
+          "url": "/attraction-analysis",
           "icon": "RiStarLine"
         },
         {
