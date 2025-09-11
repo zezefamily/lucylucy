@@ -19,7 +19,7 @@ export default function ImageGeneration() {
   // 图片数据
   const imageGroups = [
     {
-      original_img: "/imgs/lucy/banner_imgs/banner_0_orig_new.png",
+      original_img: "/imgs/lucy/banner_imgs/banner_0_orig_new_1.png",
       rendering_img: [
         "/imgs/lucy/banner_imgs/banner_0_result_1.png",
         "/imgs/lucy/banner_imgs/banner_0_result_2.png", 
@@ -27,15 +27,15 @@ export default function ImageGeneration() {
       ]
     },
     {
-      original_img: "/imgs/lucy/banner_imgs/banner_1_orig.png",
+      original_img: "/imgs/lucy/banner_imgs/banner_1_orig_new.png",
       rendering_img: [
-        "/imgs/lucy/banner_imgs/banner_1_result_1.png",
-        "/imgs/lucy/banner_imgs/banner_1_result_2.png", 
-        "/imgs/lucy/banner_imgs/banner_1_result_3.png"
+        "/imgs/lucy/banner_imgs/banner_1_result_1_new.png",
+        "/imgs/lucy/banner_imgs/banner_1_result_2_new.png", 
+        "/imgs/lucy/banner_imgs/banner_1_result_3_new.png"
       ]
     },
     {
-      original_img: "/imgs/lucy/banner_imgs/banner_2_orig.png",
+      original_img: "/imgs/lucy/banner_imgs/banner_2_orig_new.png",
       rendering_img: [
         "/imgs/lucy/banner_imgs/banner_2_result_1.png",
         "/imgs/lucy/banner_imgs/banner_2_result_2.png", 
@@ -43,7 +43,7 @@ export default function ImageGeneration() {
       ]
     },
     {
-      original_img: "/imgs/lucy/banner_imgs/banner_3_orig.png",
+      original_img: "/imgs/lucy/banner_imgs/banner_3_orig_new.png",
       rendering_img: [
         "/imgs/lucy/banner_imgs/banner_3_result_1.png",
         "/imgs/lucy/banner_imgs/banner_3_result_2.png", 
@@ -511,7 +511,7 @@ export default function ImageGeneration() {
                     className="flex-shrink-0 w-[100px] h-[133px] sm:w-[130px] sm:h-[173px] bg-gray-300 rounded-[10px] flex items-center justify-center relative z-10"
                     style={{ position: 'relative', zIndex: 20 }}
                     initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                    animate={{ opacity: 1, scale: 0.85 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.3 }}
                   >
@@ -539,7 +539,7 @@ export default function ImageGeneration() {
                         style={{ 
                             position: 'absolute',
                             bottom: '5px',
-                            right: '-25px',
+                            right: '-35px',
                             zIndex: 20
                         }}
                         initial={{ opacity: 0, y: 15, scale: 0.6 }}
