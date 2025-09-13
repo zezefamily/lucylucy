@@ -58,50 +58,6 @@ export default function ImageGeneration() {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [preloadedImages, setPreloadedImages] = useState<Set<string>>(new Set());
-
-  // 预加载所有图片
-  useEffect(() => {
-    const preloadImages = async () => {
-      const allImageUrls: string[] = [];
-      
-      // 收集所有图片URL
-      imageGroups.forEach(group => {
-        allImageUrls.push(group.original_img);
-        allImageUrls.push(...group.rendering_img);
-      });
-
-      // 预加载图片
-      const loadPromises = allImageUrls.map(url => {
-        return new Promise<string>((resolve, reject) => {
-          const img = new Image();
-          img.onload = () => resolve(url);
-          img.onerror = () => reject(url);
-          img.src = url;
-        });
-      });
-
-      try {
-        const loadedUrls = await Promise.allSettled(loadPromises);
-        const successfulUrls = new Set<string>();
-        
-        loadedUrls.forEach((result, index) => {
-          if (result.status === 'fulfilled') {
-            successfulUrls.add(allImageUrls[index]);
-          } else {
-            console.warn('Failed to preload image:', allImageUrls[index]);
-          }
-        });
-        
-        setPreloadedImages(successfulUrls);
-        console.log(`Successfully preloaded ${successfulUrls.size}/${allImageUrls.length} images`);
-      } catch (error) {
-        console.error('Error preloading images:', error);
-      }
-    };
-
-    preloadImages();
-  }, []);
 
   // 轮播切换
   useEffect(() => {
@@ -515,23 +471,14 @@ export default function ImageGeneration() {
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.3 }}
                   >
-                    {preloadedImages.has(currentGroup.original_img) ? (
-                      <>
-                        <img 
-                          src={currentGroup.original_img} 
-                          alt="Original" 
-                          className="w-full h-full object-cover"
-                          style={{ opacity: 1 }}
-                        />
-                        {/* 黑色半透明遮罩 */}
-                        <div className="absolute inset-0 bg-black/40 rounded-[10px]"></div>
-                      </>
-                      
-                    ) : (
-                      <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center">
-                        <div className="text-gray-400 text-xs">Loading...</div>
-                      </div>
-                    )}
+                    <img 
+                      src={currentGroup.original_img} 
+                      alt="Original" 
+                      className="w-full h-full object-cover"
+                      style={{ opacity: 1 }}
+                    />
+                    {/* 黑色半透明遮罩 */}
+                    <div className="absolute inset-0 bg-black/40 rounded-[10px]"></div>
                     
                     {/* 向上箭头图标 */}
                     <motion.div 
@@ -585,18 +532,12 @@ export default function ImageGeneration() {
                       damping: 12
                     }}
                   >
-                    {preloadedImages.has(currentGroup.rendering_img[0]) ? (
-                      <img 
-                        src={currentGroup.rendering_img[0]} 
-                        alt="Effect 1" 
-                        className="w-full h-full object-cover"
-                        style={{ opacity: 1 }}
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center">
-                        <div className="text-gray-400 text-xs">Loading...</div>
-                      </div>
-                    )}
+                    <img 
+                      src={currentGroup.rendering_img[0]} 
+                      alt="Effect 1" 
+                      className="w-full h-full object-cover"
+                      style={{ opacity: 1 }}
+                    />
                   </motion.div>
                 </AnimatePresence>
                 
@@ -617,18 +558,12 @@ export default function ImageGeneration() {
                       damping: 12
                     }}
                   >
-                    {preloadedImages.has(currentGroup.rendering_img[1]) ? (
-                      <img 
-                        src={currentGroup.rendering_img[1]} 
-                        alt="Effect 2" 
-                        className="w-full h-full object-cover"
-                        style={{ opacity: 1 }}
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center">
-                        <div className="text-gray-400 text-xs">Loading...</div>
-                      </div>
-                    )}
+                    <img 
+                      src={currentGroup.rendering_img[1]} 
+                      alt="Effect 2" 
+                      className="w-full h-full object-cover"
+                      style={{ opacity: 1 }}
+                    />
                   </motion.div>
                 </AnimatePresence>
                 
@@ -649,18 +584,12 @@ export default function ImageGeneration() {
                       damping: 12
                     }}
                   >
-                    {preloadedImages.has(currentGroup.rendering_img[2]) ? (
-                      <img 
-                        src={currentGroup.rendering_img[2]} 
-                        alt="Effect 3" 
-                        className="w-full h-full object-cover"
-                        style={{ opacity: 1 }}
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center">
-                        <div className="text-gray-400 text-xs">Loading...</div>
-                      </div>
-                    )}
+                    <img 
+                      src={currentGroup.rendering_img[2]} 
+                      alt="Effect 3" 
+                      className="w-full h-full object-cover"
+                      style={{ opacity: 1 }}
+                    />
                   </motion.div>
                 </AnimatePresence>
               </div>
