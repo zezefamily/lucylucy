@@ -13,22 +13,22 @@
     "nav": {
       "items": [
         {
-          "title": "Dating Photos",
+          "title": "Style Finder",
           "url": "/",
           "icon": "RiImageLine"
         },
         {
-          "title": "Attraction Analysis",
+          "title": "Profile Coach",
           "url": "/attraction-analysis",
           "icon": "RiStarLine"
         },
         {
-          "title": "Conversation Starter",
+          "title": "Opener Generator",
           "url": "/conversation-starter",
           "icon": "RiChatSmile3Line"
         },
         {
-          "title": "Fit Test",
+          "title": "Soulmate Test",
           "url": "/fit-test",
           "icon": "RiHeartPulseLine"
         },

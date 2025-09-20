@@ -339,10 +339,10 @@
     }
   },
   "tabbar": {
-    "dating_photos": "Fotos de Citas",
-    "photo_analyzer": "Analizador de fotos",
-    "fit_test": "Prueba de Compatibilidad",
-    "conversation_starter": "Iniciador de conversación"
+    "dating_photos": "Style Finder",
+    "photo_analyzer": "Profile Coach",
+    "fit_test": "Soulmate Test",
+    "conversation_starter": "Opener Generator"
   },
   "fit_test": {
     "page_title": "Prueba de Compatibilidad - Analiza tu Compatibilidad",
