@@ -340,8 +340,8 @@
   "tabbar": {
     "dating_photos": "Style Finder",
     "photo_analyzer": "Profile Coach",
-    "fit_test": "Soulmate Test",
-    "conversation_starter": "Opener Generator"
+    "conversation_starter": "Opener Generator",
+    "fit_test": "Soulmate Test"
   },
   "fit_test": {
     "page_title": "Fit Test - Analyze Your Compatibility",

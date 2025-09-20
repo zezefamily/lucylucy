@@ -13,22 +13,22 @@
     "nav": {
       "items": [
         {
-          "title": "Style Finder",
+          "title": "Buscador de Estilo",
           "url": "/",
           "icon": "RiImageLine"
         },
         {
-          "title": "Profile Coach",
+          "title": "Coach de Perfil",
           "url": "/attraction-analysis",
           "icon": "RiStarLine"
         },
         {
-          "title": "Opener Generator",
+          "title": "Generador de Abridores",
           "url": "/conversation-starter",
           "icon": "RiChatSmile3Line"
         },
         {
-          "title": "Soulmate Test",
+          "title": "Test de Alma Gemela",
           "url": "/fit-test",
           "icon": "RiHeartPulseLine"
         },
